@@ -1,0 +1,5 @@
+.vs/
+bin/
+
+*.user
+Sandbox/imgui.ini
