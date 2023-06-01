@@ -49,11 +49,11 @@ project "Ruby"
 		systemversion "latest"
 
 	filter "configurations:Debug"
-		defines "RUBY_DEBUG"
+		defines "RB_DEBUG"
 		runtime "Debug"
 		symbols "on"
 
 	filter "configurations:Release"
-		defines "RUBY_RELEASE"
+		defines "RB_RELEASE"
 		runtime "Release"
 		optimize "on"

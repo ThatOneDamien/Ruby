@@ -16,6 +16,7 @@ project "Sandbox"
 	includedirs
 	{
 		"%{wks.location}/third_party",
+		"%{wks.location}/Ruby/include",
 		"%{wks.location}/Ruby/Dependencies/glm"
 	}
 
@@ -25,11 +26,11 @@ project "Sandbox"
 		systemversion "latest"
 
 	filter "configurations:Debug"
-		defines "RUBY_DEBUG"
+		defines "RB_DEBUG"
 		runtime "Debug"
 		symbols "on"
 
 	filter "configurations:Release"
-		defines "RUBY_RELEASE"
+		defines "RB_RELEASE"
 		runtime "Release"
 		optimize "on"
