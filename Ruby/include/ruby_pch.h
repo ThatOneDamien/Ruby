@@ -12,9 +12,6 @@
 
 #include <iostream>
 #include <memory>
-#include <algorithm>
-#include <functional>
-#include <utility>
 
 
 #include <sstream>

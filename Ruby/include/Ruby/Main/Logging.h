@@ -2,6 +2,7 @@
 
 #include <cstdio>
 #include <memory>
+#include "Ruby/Main/Time.h"
 
 namespace Ruby {
 
@@ -55,7 +56,8 @@ namespace Ruby {
 		template<typename ...Args>
 		inline void basicLog(const char* message, Args... args)
 		{
-			printf("%s: ", m_Name);
+			TimeStruct time = Time::getLocalTime();
+			printf("[%.2d:%.2d:%.2d] %s: ", time.hour, time.minute, time.second, m_Name);
 			printf(message, args...);
 			printf("\n");
 		}
@@ -67,11 +69,12 @@ namespace Ruby {
 			if (getLogLevel() != LogLevel::Trace)
 				return;
 
-			setLogColor(LogColor::White, LogColor::Black);
-			printf("%s: ", m_Name);
+			setLogColor(LogColor::Yellow, LogColor::Black);
+			TimeStruct time = Time::getLocalTime();
+			printf("[%.2d:%.2d:%.2d] %s: ", time.hour, time.minute, time.second, m_Name);
 			printf(message, args...);
-			printf("\n");
 			resetDefaultLogColor();
+			printf("\n");
 		}
 
 		template<typename... Args>
@@ -80,11 +83,12 @@ namespace Ruby {
 			if (getLogLevel() > LogLevel::Info)
 				return;
 
-			setLogColor(LogColor::Yellow, LogColor::Black);
-			printf("%s: ", m_Name);
+			setLogColor(LogColor::White, LogColor::Black);
+			TimeStruct time = Time::getLocalTime();
+			printf("[%.2d:%.2d:%.2d] %s: ", time.hour, time.minute, time.second, m_Name);
 			printf(message, args...);
-			printf("\n");
 			resetDefaultLogColor();
+			printf("\n");
 		}
 
 		template<typename... Args>
@@ -94,10 +98,11 @@ namespace Ruby {
 				return;
 
 			setLogColor(LogColor::Purple, LogColor::Black);
-			printf("%s: ", m_Name);
+			TimeStruct time = Time::getLocalTime();
+			printf("[%.2d:%.2d:%.2d] %s: ", time.hour, time.minute, time.second, m_Name);
 			printf(message, args...);
-			printf("\n");
 			resetDefaultLogColor();
+			printf("\n");
 		}
 
 		template<typename... Args>
@@ -107,20 +112,22 @@ namespace Ruby {
 				return;
 
 			setLogColor(LogColor::Red, LogColor::Black);
-			printf("%s: ", m_Name);
+			TimeStruct time = Time::getLocalTime();
+			printf("[%.2d:%.2d:%.2d] %s: ", time.hour, time.minute, time.second, m_Name);
 			printf(message, args...);
-			printf("\n");
 			resetDefaultLogColor();
+			printf("\n");
 		}
 
 		template<typename... Args>
 		inline void critical(const char* message, Args... args)
 		{
 			setLogColor(LogColor::White, LogColor::Dark_Red);
-			printf("%s: ", m_Name);
+			TimeStruct time = Time::getLocalTime();
+			printf("[%.2d:%.2d:%.2d] %s: ", time.hour, time.minute, time.second, m_Name);
 			printf(message, args...);
-			printf("\n");
 			resetDefaultLogColor();
+			printf("\n");
 		}
 
 

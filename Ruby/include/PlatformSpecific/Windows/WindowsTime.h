@@ -9,17 +9,24 @@ namespace Ruby {
 
 	namespace Time {
 
-		TimeStruct getCurrentSystemTime()
+		TimeStruct getSystemTime()
 		{
 			SYSTEMTIME systime;
 			GetSystemTime(&systime);
 			return *(TimeStruct*)&systime;
 		}
 
+		TimeStruct getLocalTime()
+		{
+			SYSTEMTIME systime;
+			GetLocalTime(&systime);
+			return *(TimeStruct*)&systime;
+		}
+
 		void init()
 		{
 			LARGE_INTEGER li;
-			RB_ASSERT(QueryPerformanceFrequency(&li), "QueryPerformanceFrequency failed!\n");
+			RB_ASSERT(QueryPerformanceFrequency(&li), "QueryPerformanceFrequency failed!");
 			s_Freq = 1.0 / (double)li.QuadPart;
 		}
 

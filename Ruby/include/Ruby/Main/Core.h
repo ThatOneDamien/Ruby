@@ -7,6 +7,9 @@
 	// Windows x64 builds.
 	#define RB_PLAT_WIND
 
+	// For now OpenGL is the only Renderering API used.
+	#define RB_USE_OPENGL
+
 #else
 	// Windows x86 builds.
 	#error "x86/32-bit builds are not supported."

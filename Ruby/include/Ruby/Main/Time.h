@@ -28,7 +28,8 @@ namespace Ruby {
 
 		// Similar but not equivalent to Windows API SYSTEMTIME struct.
 
-		TimeStruct getCurrentSystemTime();
+		TimeStruct getSystemTime();
+		TimeStruct getLocalTime();
 
 		void init();
 
