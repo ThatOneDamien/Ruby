@@ -109,7 +109,7 @@ namespace Ruby {
 
 		glfwSetScrollCallback(m_Window, [](GLFWwindow* window, double xoffset, double yoffset) {
 				
-				MouseScrollEvent e(xoffset, yoffset);
+				MouseScrollEvent e((float)xoffset, (float)yoffset);
 				App::getInstance().onEvent(e);
 
 			});

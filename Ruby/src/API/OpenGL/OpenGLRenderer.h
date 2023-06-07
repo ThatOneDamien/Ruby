@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Ruby/Main/Core.h"
+
 #include "Ruby/Render/Renderer.h"
 #include <glad/glad.h>
 
@@ -76,10 +78,23 @@ namespace Ruby {
 		{
 			glClearColor(color.r, color.g, color.g, color.a);
 		}
+
+		void setViewport(int x, int y, int width, int height)
+		{
+			glViewport(x, y, width, height);
+		}
 		
 		void clear()
 		{
 			glClear(GL_COLOR_BUFFER_BIT);
+		}
+
+		void renderIndices(const std::shared_ptr<VertexArray>& vao, const std::shared_ptr<Shader> shader, const glm::mat4& transform)
+		{
+			shader->bind();
+
+			vao->bind();
+			glDrawElements(GL_TRIANGLES, vao->getIndexBuffer()->getCount(), GL_UNSIGNED_INT, nullptr);
 		}
 
 	}

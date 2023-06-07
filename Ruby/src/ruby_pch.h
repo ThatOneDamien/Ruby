@@ -9,9 +9,9 @@
 #endif
 
 #include <stdint.h>
-
 #include <iostream>
 #include <memory>
+#include <algorithm>
 
 
 #include <sstream>

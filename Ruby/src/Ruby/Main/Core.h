@@ -6,7 +6,6 @@
 #ifdef _WIN64
 	// Windows x64 builds.
 	#define RB_PLAT_WIND
-
 	// For now OpenGL is the only Renderering API used.
 	#define RB_USE_OPENGL
 
@@ -23,6 +22,8 @@
 
 #include <stdint.h>
 #include "Ruby/Main/Logging.h"
+
+#include <filesystem>
 
 #define RB_TRACE(msg, ...)      Ruby::Logger::getEngineLogger()->trace(msg, __VA_ARGS__);
 #define RB_INFO(msg, ...)       Ruby::Logger::getEngineLogger()->info(msg, __VA_ARGS__);

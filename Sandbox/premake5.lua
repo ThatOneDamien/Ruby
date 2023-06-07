@@ -16,7 +16,7 @@ project "Sandbox"
 	includedirs
 	{
 		"%{wks.location}/third_party",
-		"%{wks.location}/Ruby/include",
+		"%{wks.location}/Ruby/src",
 		"%{wks.location}/Ruby/Dependencies/glm"
 	}
 

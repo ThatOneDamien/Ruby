@@ -14,7 +14,6 @@ project "Ruby"
 	{
 		"src/**.h",
 		"src/**.cpp",
-		"include/**.h",
 		"Dependencies/glm/**.hpp",
 		"Dependencies/glm/**.inl",
 		"Dependencies/stb_image/**.h",
@@ -23,7 +22,7 @@ project "Ruby"
 
 	includedirs
 	{
-		"include",
+		"src",
 		"%{wks.location}/third_party/GLFW/include",
 		"%{wks.location}/third_party/glad/include",
 		"%{wks.location}/third_party/ImGui",
