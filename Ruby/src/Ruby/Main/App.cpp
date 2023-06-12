@@ -35,6 +35,7 @@ namespace Ruby {
 	App::~App()
 	{
 		ImGuiLayer::deInit();
+		Renderer::deInit();
 	}
 
 	void App::onEvent(Event& e)

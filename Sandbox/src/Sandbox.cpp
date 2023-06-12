@@ -2,50 +2,34 @@
 #include <ImGui/imgui.h>
 #include <string>
 
-class TestLayer : public Ruby::Layer
+using namespace Ruby;
+
+class TestLayer : public Layer
 {
 public:
-	TestLayer() : Ruby::Layer("Test Layer")
+	TestLayer() : Layer("Test Layer")
 	{
-		shader = nullptr;
-		vao = nullptr;
 	}
 
 	virtual ~TestLayer() {}
 
 	virtual void onPush() override 
 	{
-		float vertices[] = {
-			-0.5f, -0.5f,
-			 0.5f, -0.5f,
-			 0.5f,  0.5f,
-			-0.5f,  0.5f
-		};
-
-		uint32_t indices[] = {
-			0, 1, 2,
-			2, 3, 0
-		};
-
-		shader = Ruby::Shader::create("res/shaders/default.glsl");
-		vao = Ruby::VertexArray::createVAO();
-
-		Ruby::VertexLayout layout;
-		layout.push({ Ruby::LayoutType::Float, 2, false });
-
-		auto vbo = Ruby::VertexBuffer::createVBO((const void*)vertices, sizeof(vertices));
-		vbo->setLayout(layout);
-
-		auto ibo = Ruby::IndexBuffer::createIBO(indices, 6);
-		vao->pushVertexBuffer(vbo);
-		vao->setIndexBuffer(ibo);
-
-
+		tex = Texture::createTexture("res/images/poop.jpg");
 	}
 
 	virtual void update() override 
 	{
-		Ruby::Renderer::renderIndices(vao, shader, glm::mat4(0.0f));
+		Renderer::resetBatch();
+
+		/*for (int i = 0; i < 92; i++)
+		{
+			Ruby::Renderer::drawQuad({ 2.0f/92.0 * i - 1.0, -0.25f }, { 2.0f / 92.0, 0.5}, {i/92.0f, 1.0-i/92.0f, 0.4f, 1.0f});
+		}*/
+		Renderer::drawTexture({ -0.5f, -0.5f }, { 1.0f, 1.0f }, tex);
+
+		Renderer::renderBatched();		  
+		
 	}
 	virtual void ImGuiRender() override 
 	{
@@ -54,15 +38,14 @@ public:
 		ImGui::End();
 	}
 private:
-	std::shared_ptr<Ruby::Shader> shader;
-	std::shared_ptr<Ruby::VertexArray> vao;
+	std::shared_ptr<Texture> tex;
 };
 
-class Sandbox : public Ruby::App
+class Sandbox : public App
 {
 public:
 	Sandbox(int argc, char** argv, const std::string& mainDir) 
-		: Ruby::App(argc, argv, mainDir)
+		: App(argc, argv, mainDir)
 	{
 		pushOverlay(new TestLayer());
 	}
@@ -73,4 +56,4 @@ public:
 	}
 };
 
-RUBY_MAIN_FUNCTION_ENTRY(Sandbox, std::string("../Ruby"));
+RUBY_MAIN_FUNCTION_ENTRY(Sandbox, std::string("../Ruby"))

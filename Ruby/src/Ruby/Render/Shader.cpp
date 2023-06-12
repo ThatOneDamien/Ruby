@@ -10,12 +10,12 @@
 
 namespace Ruby {
 
-	std::shared_ptr<Shader> Shader::create(const std::string& filepath)
+	std::shared_ptr<Shader> Shader::createShader(const std::string& filepath)
 	{
 		return std::make_shared<SHADER>(filepath);
 	}
 
-	std::shared_ptr<Shader> Shader::create(const std::string& name, const std::string& vertSrc, const std::string& fragSrc)
+	std::shared_ptr<Shader> Shader::createShader(const std::string& name, const std::string& vertSrc, const std::string& fragSrc)
 	{
 		return std::make_shared<SHADER>(name, vertSrc, fragSrc);
 	}

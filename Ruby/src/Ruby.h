@@ -7,8 +7,9 @@
 #include "Ruby/Main/App.h"
 #include "Ruby/Render/Renderer.h"
 #include "Ruby/Render/Buffers.h"
-#include "Ruby/Render/Shader.h"
 #include "Ruby/Render/VertexArray.h"
+#include "Ruby/Render/Shader.h"
+#include "Ruby/Render/Texture.h"
 
 
 

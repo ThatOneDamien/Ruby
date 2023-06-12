@@ -520,6 +520,7 @@
     <ClInclude Include="src\API\OpenGL\OpenGLImGui_Impl.h" />
     <ClInclude Include="src\API\OpenGL\OpenGLRenderer.h" />
     <ClInclude Include="src\API\OpenGL\OpenGLShader.h" />
+    <ClInclude Include="src\API\OpenGL\OpenGLTexture.h" />
     <ClInclude Include="src\API\OpenGL\OpenGLVertexArray.h" />
     <ClInclude Include="src\PlatformSpecific\Windows\WindowsLogging.h" />
     <ClInclude Include="src\PlatformSpecific\Windows\WindowsTime.h" />
@@ -541,6 +542,7 @@
     <ClInclude Include="src\Ruby\Render\Buffers.h" />
     <ClInclude Include="src\Ruby\Render\Renderer.h" />
     <ClInclude Include="src\Ruby\Render\Shader.h" />
+    <ClInclude Include="src\Ruby\Render\Texture.h" />
     <ClInclude Include="src\Ruby\Render\VertexArray.h" />
     <ClInclude Include="src\ruby_pch.h" />
   </ItemGroup>
@@ -548,6 +550,7 @@
     <ClCompile Include="Dependencies\stb_image\stb_image.cpp" />
     <ClCompile Include="src\API\OpenGL\OpenGLBuffers.cpp" />
     <ClCompile Include="src\API\OpenGL\OpenGLShader.cpp" />
+    <ClCompile Include="src\API\OpenGL\OpenGLTexture.cpp" />
     <ClCompile Include="src\API\OpenGL\OpenGLVertexArray.cpp" />
     <ClCompile Include="src\PlatformSpecific\Windows\WindowsWindow.cpp" />
     <ClCompile Include="src\Ruby\GUI\ImGuiLayer.cpp" />
@@ -559,6 +562,7 @@
     <ClCompile Include="src\Ruby\Render\Buffers.cpp" />
     <ClCompile Include="src\Ruby\Render\Renderer.cpp" />
     <ClCompile Include="src\Ruby\Render\Shader.cpp" />
+    <ClCompile Include="src\Ruby\Render\Texture.cpp" />
     <ClCompile Include="src\Ruby\Render\VertexArray.cpp" />
     <ClCompile Include="src\ruby_pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
@@ -577,6 +581,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="res\shaders\default.glsl" />
+    <None Include="res\shaders\quad_shader.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

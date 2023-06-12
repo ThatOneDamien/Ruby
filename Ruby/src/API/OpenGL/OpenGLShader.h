@@ -15,7 +15,9 @@ namespace Ruby {
         virtual void unbind() const override;
 
         virtual void setUniformInt(const char* name, int value) const override;
+        virtual void setUniformIntArray(const char* name, uint32_t count, int* arr) const override;
         virtual void setUniformFloat(const char* name, float value) const override;
+        virtual void setUniformFloatArray(const char* name, uint32_t count, float* arr) const override;
         virtual void setUniformFloat2(const char* name, float v0, float v1) const override;
         virtual void setUniformFloat3(const char* name, float v0, float v1, float v2) const override;
         virtual void setUniformFloat4(const char* name, float v0, float v1, float v2, float v3) const override;

@@ -127,9 +127,19 @@ namespace Ruby {
         glUniform1i(getUniformLocation(name), value);
     }
 
+    void OpenGLShader::setUniformIntArray(const char* name, uint32_t count, int* arr) const
+    {
+        glUniform1iv(getUniformLocation(name), (int)count, arr);
+    }
+
     void OpenGLShader::setUniformFloat(const char* name, float value) const
     {
         glUniform1f(getUniformLocation(name), value);
+    }
+
+    void OpenGLShader::setUniformFloatArray(const char* name, uint32_t count, float* arr) const
+    {
+        glUniform1fv(getUniformLocation(name), (int)count, arr);
     }
 
     void OpenGLShader::setUniformFloat2(const char* name, float v0, float v1) const

@@ -1389,6 +1389,8 @@
     <ClInclude Include="src\ruby_pch.h">
       <Filter>src</Filter>
     </ClInclude>
+    <ClInclude Include="src\Ruby\Render\Texture.h" />
+    <ClInclude Include="src\API\OpenGL\OpenGLTexture.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Dependencies\stb_image\stb_image.cpp">
@@ -1437,8 +1439,11 @@
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="src\Ruby\Render\Shader.cpp" />
+    <ClCompile Include="src\Ruby\Render\Texture.cpp" />
+    <ClCompile Include="src\API\OpenGL\OpenGLTexture.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="res\shaders\default.glsl" />
+    <None Include="res\shaders\quad_shader.glsl" />
   </ItemGroup>
 </Project>
