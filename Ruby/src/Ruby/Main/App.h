@@ -24,14 +24,17 @@ namespace Ruby {
 		static inline App& getInstance() { return *s_Instance; }
 
 	private:
-		bool m_Running = false;
-		static App* s_Instance;
-		std::unique_ptr<Window> m_Window;
-		LayerStack m_LayerStack;
 
+		bool m_Running = false;
 		int m_Argc;
 		char** m_Argv;
 		const std::string& m_MainDir;
+
+		static App* s_Instance;
+		std::unique_ptr<Window> m_Window;
+		LayerStack m_LayerStack;
+		DeltaTime m_DT;
+
 
 	};
 

@@ -34,7 +34,7 @@
 #ifdef RB_PLAT_WIND
 	#ifdef RB_DEBUG
 		#define RB_ASSERTIONS
-		#define RB_ASSERT(x, msg) { if(!(x)) { Ruby::Logger::getEngineLogger()->critical("Engine: %s", msg); __debugbreak(); } }
+		#define RB_ASSERT(x, msg, ...) { if(!(x)) { Ruby::Logger::getEngineLogger()->critical(msg, __VA_ARGS__); __debugbreak(); } }
 	#else
 		#define RB_ASSERT(x, msg)
 	#endif

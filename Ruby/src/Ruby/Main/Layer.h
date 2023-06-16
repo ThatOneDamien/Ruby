@@ -10,7 +10,7 @@ namespace Ruby {
 	public:
 		Layer(const char* name = "Unnamed Layer");
 		virtual ~Layer() {}
-		virtual void update() {}
+		virtual void update(double deltaSeconds) {}
 		virtual void ImGuiRender() {}
 		virtual void onEvent(Event& e) {}
 		virtual void onPush() {}

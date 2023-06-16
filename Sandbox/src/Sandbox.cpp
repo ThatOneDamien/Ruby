@@ -13,12 +13,21 @@ public:
 
 	virtual ~TestLayer() {}
 
+	virtual void onEvent(Event& e) override
+	{
+		switch (e.getType())
+		{
+		case EventType::KeyPressed:
+			break;
+		}
+	}
+
 	virtual void onPush() override 
 	{
 		tex = Texture::createTexture("res/images/poop.jpg");
 	}
 
-	virtual void update() override 
+	virtual void update(double deltaSeconds) override 
 	{
 		Renderer::resetBatch();
 

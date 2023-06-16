@@ -69,7 +69,7 @@ namespace Ruby {
 			if (getLogLevel() != LogLevel::Trace)
 				return;
 
-			setLogColor(LogColor::Yellow, LogColor::Black);
+			setLogColor(LogColor::Green, LogColor::Black);
 			TimeStruct time = Time::getLocalTime();
 			printf("[%.2d:%.2d:%.2d] %s: ", time.hour, time.minute, time.second, m_Name);
 			printf(message, args...);
@@ -83,7 +83,7 @@ namespace Ruby {
 			if (getLogLevel() > LogLevel::Info)
 				return;
 
-			setLogColor(LogColor::White, LogColor::Black);
+			setLogColor(LogColor::Yellow, LogColor::Black);
 			TimeStruct time = Time::getLocalTime();
 			printf("[%.2d:%.2d:%.2d] %s: ", time.hour, time.minute, time.second, m_Name);
 			printf(message, args...);

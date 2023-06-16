@@ -52,7 +52,7 @@ namespace Ruby {
 	class ScopedTimer
 	{
 	public:
-		ScopedTimer(const char* name, TimingPrecision precision);
+		ScopedTimer(const char* name, TimingPrecision precision = TimingPrecision::Seconds);
 		~ScopedTimer();
 
 	private:

@@ -99,6 +99,10 @@ namespace Ruby {
 			int success = gladLoadGLLoader(s_LoadProc);
 			RB_ASSERT(success, "Glad failed to initialize!");
 			RB_ASSERT((GLVersion.major == 4 && GLVersion.minor > 5) || GLVersion.major > 4, "OpenGL version 4.6 or higher is required to run Ruby.");
+
+			RB_INFO("OpenGL Version %s Initialized", glGetString(GL_VERSION));
+			RB_INFO("OpenGL Vendor %s", glGetString(GL_VENDOR));
+			RB_INFO("OpenGL Renderer %s", glGetString(GL_RENDERER));
 			s_GladInitialized = true;
 
 
