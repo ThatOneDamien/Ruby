@@ -64,21 +64,20 @@ namespace Ruby {
 		static constexpr size_t MAX_VERTICES = MAX_QUADS * 4;
 		static constexpr size_t MAX_INDICES = MAX_QUADS * 6;
 
-		static GLuint s_QuadVAO = 0;
+		static SharedPtr<VertexArray> s_QuadVAO;
+		static SharedPtr<VertexBuffer> s_QuadVBO;
+		static SharedPtr<IndexBuffer> s_QuadIBO;
+		static SharedPtr<Shader> s_QuadShader = nullptr;
 
-		static GLuint s_QuadVBO = 0;
 		static QuadVertex* s_QuadVBData = nullptr;
 		static QuadVertex* s_QuadVBOffset = nullptr;
-		static std::shared_ptr<Shader> s_QuadShader = nullptr;
-
-		static GLuint s_QuadIBO = 0;
 		static uint16_t s_QuadCount = 0;
 
 		// TODO : Abstract the size of array into a system that auto detects the max number of texture slots for the card.
 		// for now it is 31, with one of the slots being reserved for basic white 1 pixel texture for colored quads.
-		static std::shared_ptr<Texture> s_BoundTextures[31] = {nullptr};
+		static SharedPtr<Texture> s_BoundTextures[31] = {nullptr};
+		static SharedPtr<Texture> s_BlankColorTexture;
 		static uint8_t s_TextureInsert = 0;
-		static std::shared_ptr<Texture> s_BlankColorTexture;
 
 		// ---------------END BATCH RENDERER STUFF-----------------
 
@@ -91,6 +90,8 @@ namespace Ruby {
 				s_LoadProc = loadProc;
 			}
 		}
+
+
 
 		void init()
 		{
@@ -112,43 +113,45 @@ namespace Ruby {
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-			glCreateVertexArrays(1, &s_QuadVAO);
-			glCreateBuffers(1, &s_QuadVBO);
-			glCreateBuffers(1, &s_QuadIBO);
-
-			uint32_t indices[MAX_INDICES];
-			s_QuadVBData = new QuadVertex[MAX_VERTICES];
-
-			// Pattern for indices 0, 1, 2, 2, 3, 0 for drawing a basic quad. This will always be the same no matter what so it
-			// is better to only send the data to the graphics card once and not update it ass quads are added.
-			uint32_t offset = 0;
-			for (size_t i = 0; i < MAX_INDICES; i += 6, offset += 4)
+			s_QuadVAO = VertexArray::createVAO();
+			s_QuadVBO = VertexBuffer::createVBO(MAX_VERTICES * sizeof(QuadVertex));
+			
 			{
-				indices[i]     = offset;
-				indices[i + 1] = offset + 1;
-				indices[i + 2] = offset + 2;
+				VertexLayout layout;
+				layout.push({ LayoutType::Float, 3, false });
+				layout.push({ LayoutType::Float, 4, false });
+				layout.push({ LayoutType::Float, 2, false });
+				layout.push({ LayoutType::Float, 1, false });
 
-				indices[i + 3] = offset + 2;
-				indices[i + 4] = offset + 3;
-				indices[i + 5] = offset;
+				s_QuadVBO->setLayout(layout);
 			}
 
-			glBindVertexArray(s_QuadVBO);
-			glBindBuffer(GL_ARRAY_BUFFER, s_QuadVBO);
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, s_QuadIBO);
+			s_QuadVAO->pushVertexBuffer(s_QuadVBO);
 
-			glBufferData(GL_ARRAY_BUFFER, sizeof(QuadVertex) * MAX_VERTICES, nullptr, GL_DYNAMIC_DRAW);
-			glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(int) * MAX_INDICES, indices, GL_STATIC_DRAW);
 
-			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(QuadVertex), (const void*)0);
-			glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(QuadVertex), (const void*)(sizeof(float) * 3));
-			glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(QuadVertex), (const void*)(sizeof(float) * 7));
-			glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, sizeof(QuadVertex), (const void*)(sizeof(float) * 9));
+			s_QuadVBData = new QuadVertex[MAX_VERTICES];
 
-			glEnableVertexArrayAttrib(s_QuadVAO, 0);
-			glEnableVertexArrayAttrib(s_QuadVAO, 1);
-			glEnableVertexArrayAttrib(s_QuadVAO, 2);
-			glEnableVertexArrayAttrib(s_QuadVAO, 3);
+			{
+				uint32_t indices[MAX_INDICES];
+
+				// Pattern for indices 0, 1, 2, 2, 3, 0 for drawing a basic quad. This will always be the same no matter what so it
+				// is better to only send the data to the graphics card once and not update it ass quads are added.
+				uint32_t offset = 0;
+				for (size_t i = 0; i < MAX_INDICES; i += 6, offset += 4)
+				{
+					indices[i] = offset;
+					indices[i + 1] = offset + 1;
+					indices[i + 2] = offset + 2;
+
+					indices[i + 3] = offset + 2;
+					indices[i + 4] = offset + 3;
+					indices[i + 5] = offset;
+				}
+
+				s_QuadIBO = IndexBuffer::createIBO(indices, MAX_INDICES);
+			}
+
+			s_QuadVAO->setIndexBuffer(s_QuadIBO);
 
 			s_BlankColorTexture = Texture::createTexture(1, 1);
 			
@@ -167,13 +170,14 @@ namespace Ruby {
 			s_QuadShader->setUniformIntArray("u_Textures", 32, arr);
 		}
 
+
+
 		void deInit()
 		{
-			glDeleteVertexArrays(1, &s_QuadVAO);
-			glDeleteBuffers(1, &s_QuadVBO);
-			glDeleteBuffers(1, &s_QuadIBO);
-
 			delete[] s_QuadVBData;
+			s_QuadVAO.reset();
+			s_QuadVBO.reset();
+			s_QuadIBO.reset();
 			s_QuadShader.reset();
 			s_BlankColorTexture.reset();
 			for (int i = 0; i < 31; i++)
@@ -181,23 +185,30 @@ namespace Ruby {
 					s_BoundTextures[i].reset();
 		}
 
-		void renderIndices(const std::shared_ptr<VertexArray>& vao, const std::shared_ptr<Shader> shader, const glm::mat4& transform)
+
+
+		void renderSubmit(const SharedPtr<VertexArray>& vao, const SharedPtr<Shader> shader, const glm::mat4& transform)
 		{
 			shader->bind();
+			shader->setUniformMat4("u_ViewProj", transform);
 
 			vao->bind();
 			glDrawElements(GL_TRIANGLES, vao->getIndexBuffer()->getCount(), GL_UNSIGNED_INT, nullptr);
 		}
+
+
 
 		void resetBatch()
 		{
 			s_QuadVBOffset = s_QuadVBData;
 		}
 
+
+
 		void renderBatched()
 		{
-			glNamedBufferSubData(s_QuadVBO, 0, (GLsizeiptr)((uint8_t*)s_QuadVBOffset - (uint8_t*)s_QuadVBData), s_QuadVBData);
-			glBindVertexArray(s_QuadVAO);
+			s_QuadVAO->bind();
+			s_QuadVBO->setVertexData(s_QuadVBData, (uint32_t)((uint8_t*)s_QuadVBOffset - (uint8_t*)s_QuadVBData), 0);
 			s_QuadShader->bind();
 
 			s_BlankColorTexture->bind(0);
@@ -210,6 +221,8 @@ namespace Ruby {
 			s_TextureInsert = 0;
 
 		}
+
+
 
 		void drawQuad(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color)
 		{
@@ -251,7 +264,9 @@ namespace Ruby {
 			s_QuadCount++;
 		}
 
-		void drawTexture(const glm::vec2& position, const glm::vec2& size, const std::shared_ptr<Texture>& texture)
+
+
+		void drawTexture(const glm::vec2& position, const glm::vec2& size, const SharedPtr<Texture>& texture)
 		{
 			if (s_QuadCount >= MAX_QUADS || s_TextureInsert > 30)
 			{
@@ -307,6 +322,73 @@ namespace Ruby {
 			s_QuadVBOffset += 4;
 			s_QuadCount++;
 		}
+
+
+
+		void drawSubTexture(const glm::vec2& position, const glm::vec2& size, const SharedPtr<SubTexture>& subTexture)
+		{
+			if (s_QuadCount >= MAX_QUADS || s_TextureInsert > 30)
+			{
+				renderBatched();
+				resetBatch();
+			}
+
+			float textureSlot = 0.0f;
+			for (int i = 0; i < 31; i++)
+			{
+				if (s_BoundTextures[i] == subTexture->getTexture())
+				{
+					textureSlot = (float)i;
+					break;
+				}
+			}
+
+			if (textureSlot == 0.0f)
+			{
+				textureSlot = (float)s_TextureInsert + 1.0f;
+				s_BoundTextures[s_TextureInsert] = subTexture->getTexture(); // Warning disabled at top of header.
+				s_TextureInsert++;
+			}
+
+			const glm::vec2* coords = subTexture->getTexCoords();
+
+			s_QuadVBOffset[0].x = position.x;
+			s_QuadVBOffset[0].y = position.y;
+			s_QuadVBOffset[0].z = 0;
+			s_QuadVBOffset[0].color = { 1.0f, 1.0f, 1.0f, 1.0f };
+			s_QuadVBOffset[0].texCoords = coords[0];
+			s_QuadVBOffset[0].textureSlot = textureSlot;
+
+			s_QuadVBOffset[1].x = position.x + size.x;
+			s_QuadVBOffset[1].y = position.y;
+			s_QuadVBOffset[1].z = 0;
+			s_QuadVBOffset[1].color = { 1.0f, 1.0f, 1.0f, 1.0f };
+			s_QuadVBOffset[1].texCoords = coords[1];
+			s_QuadVBOffset[1].textureSlot = textureSlot;
+
+			s_QuadVBOffset[2].x = position.x + size.x;
+			s_QuadVBOffset[2].y = position.y + size.y;
+			s_QuadVBOffset[2].z = 0;
+			s_QuadVBOffset[2].color = { 1.0f, 1.0f, 1.0f, 1.0f };
+			s_QuadVBOffset[2].texCoords = coords[2];
+			s_QuadVBOffset[2].textureSlot = textureSlot;
+
+			s_QuadVBOffset[3].x = position.x;
+			s_QuadVBOffset[3].y = position.y + size.y;
+			s_QuadVBOffset[3].z = 0;
+			s_QuadVBOffset[3].color = { 1.0f, 1.0f, 1.0f, 1.0f };
+			s_QuadVBOffset[3].texCoords = coords[3];
+			s_QuadVBOffset[3].textureSlot = textureSlot;
+
+			s_QuadVBOffset += 4;
+			s_QuadCount++;
+		}
+
+
+	
+
+
+
 
 		// GL CONTEXT STUFF
 

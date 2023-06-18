@@ -18,7 +18,7 @@ namespace Ruby {
 		: m_Size(size)
 	{
 		glCreateBuffers(1, &m_RendererID);
-		glNamedBufferData(m_RendererID, size, nullptr, GL_STATIC_DRAW);
+		glNamedBufferData(m_RendererID, size, nullptr, GL_DYNAMIC_DRAW);
 	}
 
 	OpenGLVB::~OpenGLVB()
@@ -43,7 +43,7 @@ namespace Ruby {
 			RB_ERROR("Size of given data and/or offset would overflow the size of VBO.");
 			return;
 		}
-		glNamedBufferSubData(m_RendererID, offset, size, vertices);
+		glNamedBufferSubData(m_RendererID, (GLintptr)offset, (GLsizeiptr)size, vertices);
 	}
 
 	OpenGLIB::OpenGLIB(const uint32_t* indices, uint32_t count)

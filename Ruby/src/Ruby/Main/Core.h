@@ -25,16 +25,16 @@
 
 #include <filesystem>
 
-#define RB_TRACE(msg, ...)      Ruby::Logger::getEngineLogger()->trace(msg, __VA_ARGS__);
-#define RB_INFO(msg, ...)       Ruby::Logger::getEngineLogger()->info(msg, __VA_ARGS__);
-#define RB_WARN(msg, ...)       Ruby::Logger::getEngineLogger()->warn(msg, __VA_ARGS__);
-#define RB_ERROR(msg, ...)      Ruby::Logger::getEngineLogger()->error(msg, __VA_ARGS__);
-#define RB_CRITICAL(msg, ...)   Ruby::Logger::getEngineLogger()->critical(msg, __VA_ARGS__);
+#define RB_TRACE(msg, ...)      ::Ruby::Logger::getEngineLogger()->trace(msg, __VA_ARGS__);
+#define RB_INFO(msg, ...)       ::Ruby::Logger::getEngineLogger()->info(msg, __VA_ARGS__);
+#define RB_WARN(msg, ...)       ::Ruby::Logger::getEngineLogger()->warn(msg, __VA_ARGS__);
+#define RB_ERROR(msg, ...)      ::Ruby::Logger::getEngineLogger()->error(msg, __VA_ARGS__);
+#define RB_CRITICAL(msg, ...)   ::Ruby::Logger::getEngineLogger()->critical(msg, __VA_ARGS__);
 
 #ifdef RB_PLAT_WIND
 	#ifdef RB_DEBUG
 		#define RB_ASSERTIONS
-		#define RB_ASSERT(x, msg, ...) { if(!(x)) { Ruby::Logger::getEngineLogger()->critical(msg, __VA_ARGS__); __debugbreak(); } }
+		#define RB_ASSERT(x, msg, ...) { if(!(x)) { ::Ruby::Logger::getEngineLogger()->critical(msg, __VA_ARGS__); __debugbreak(); } }
 	#else
 		#define RB_ASSERT(x, msg)
 	#endif

@@ -2,14 +2,14 @@
 
 #include "Ruby/Main/App.h"
 
-#include "Ruby/GUI/ImGuiLayer.h"
+#include "Ruby/GUI/ImGuiUtil.h"
 
 #include <backends/imgui_impl_opengl3.cpp>
 #include <backends/imgui_impl_glfw.cpp>
 
 namespace Ruby {
 
-	namespace ImGuiLayer {
+	namespace ImGuiUtil {
 
 		void init()
 		{

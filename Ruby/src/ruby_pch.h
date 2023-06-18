@@ -10,9 +10,8 @@
 
 #include <stdint.h>
 #include <iostream>
-#include <memory>
 #include <algorithm>
-
+#include "Ruby/Utility/Pointers.h"
 
 #include <sstream>
 #include <string>

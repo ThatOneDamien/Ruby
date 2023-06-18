@@ -7,7 +7,7 @@
 #include "Ruby/Event/KeyEvent.h"
 #include "Ruby/Event/MouseEvent.h"
 
-#include "Ruby/GUI/ImGuiLayer.h"
+#include "Ruby/GUI/ImGuiUtil.h"
 
 namespace Ruby {
 
@@ -28,13 +28,13 @@ namespace Ruby {
 		
 		// Initialize the renderer, depending on API this will incorporate the windowing library.
 		Renderer::init();
-		ImGuiLayer::init();
+		ImGuiUtil::init();
 
 	}
 
 	App::~App()
 	{
-		ImGuiLayer::deInit();
+		ImGuiUtil::deInit();
 		Renderer::deInit();
 	}
 
@@ -78,10 +78,10 @@ namespace Ruby {
 			for (size_t i = 0; i < m_LayerStack.size(); i++)
 				m_LayerStack[i].update(delta_time);
 
-			ImGuiLayer::begin();
+			ImGuiUtil::begin();
 			for (size_t i = 0; i < m_LayerStack.size(); i++)
 				m_LayerStack[i].ImGuiRender();
-			ImGuiLayer::end();
+			ImGuiUtil::end();
 
 			m_Window->update();
 		}

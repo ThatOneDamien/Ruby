@@ -10,40 +10,40 @@
 
 namespace Ruby {
 
-	std::unordered_map<std::string, std::shared_ptr<Shader>> Shader::s_ShaderLibrary;
+	std::unordered_map<std::string, SharedPtr<Shader>> Shader::s_ShaderLibrary;
 
-	std::shared_ptr<Shader> Shader::createShader(const std::string& filepath)
+	SharedPtr<Shader> Shader::createShader(const std::string& filepath)
 	{
-		return std::make_shared<SHADER>(filepath);
+		return createShared<SHADER>(filepath);
 	}
 
-	std::shared_ptr<Shader> Shader::createShader(const std::string& name, const std::string& filepath)
+	SharedPtr<Shader> Shader::createShader(const std::string& name, const std::string& filepath)
 	{
-		return std::make_shared<SHADER>(name, filepath);
+		return createShared<SHADER>(name, filepath);
 	}
 
-	std::shared_ptr<Shader> Shader::createShader(const std::string& name, const std::string& vertSrc, const std::string& fragSrc)
+	SharedPtr<Shader> Shader::createShader(const std::string& name, const std::string& vertSrc, const std::string& fragSrc)
 	{
-		return std::make_shared<SHADER>(name, vertSrc, fragSrc);
+		return createShared<SHADER>(name, vertSrc, fragSrc);
 	}
 
-	std::shared_ptr<Shader> Shader::createAndAddShaderToLibrary(const std::string& filepath)
+	SharedPtr<Shader> Shader::createAndAddShaderToLibrary(const std::string& filepath)
 	{
-		auto shader = std::make_shared<SHADER>(filepath);
+		auto shader = createShared<SHADER>(filepath);
 		s_ShaderLibrary[shader->getName()] = shader;
 		return shader;
 	}
 
-	std::shared_ptr<Shader> Shader::createAndAddShaderToLibrary(const std::string& name, const std::string& filepath)
+	SharedPtr<Shader> Shader::createAndAddShaderToLibrary(const std::string& name, const std::string& filepath)
 	{
-		auto shader = std::make_shared<SHADER>(name, filepath);
+		auto shader = createShared<SHADER>(name, filepath);
 		s_ShaderLibrary[name] = shader;
 		return shader;
 	}
 
-	std::shared_ptr<Shader> Shader::createAndAddShaderToLibrary(const std::string& name, const std::string& vertSrc, const std::string& fragSrc)
+	SharedPtr<Shader> Shader::createAndAddShaderToLibrary(const std::string& name, const std::string& vertSrc, const std::string& fragSrc)
 	{
-		auto shader = std::make_shared<SHADER>(name, vertSrc, fragSrc);
+		auto shader = createShared<SHADER>(name, vertSrc, fragSrc);
 		s_ShaderLibrary[name] = shader;
 		return shader;
 	}

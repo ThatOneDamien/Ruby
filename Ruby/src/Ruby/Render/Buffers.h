@@ -1,6 +1,7 @@
 #pragma once
 
-#include <memory>
+#include "Ruby/Utility/Pointers.h"
+
 #include <vector>
 
 namespace Ruby {
@@ -70,8 +71,8 @@ namespace Ruby {
 		virtual inline void setLayout(const VertexLayout& layout) = 0;
 		virtual inline const VertexLayout& getLayout() const = 0;
 
-		static std::shared_ptr<VertexBuffer> createVBO(const void* vertices, uint32_t size);
-		static std::shared_ptr<VertexBuffer> createVBO(uint32_t size);
+		static SharedPtr<VertexBuffer> createVBO(const void* vertices, uint32_t size);
+		static SharedPtr<VertexBuffer> createVBO(uint32_t size);
 
 	};
 
@@ -85,7 +86,7 @@ namespace Ruby {
 
 		virtual inline uint32_t getCount() const = 0;
 
-		static std::shared_ptr<IndexBuffer> createIBO(const uint32_t* indices, uint32_t count);
+		static SharedPtr<IndexBuffer> createIBO(const uint32_t* indices, uint32_t count);
 
 	};
 

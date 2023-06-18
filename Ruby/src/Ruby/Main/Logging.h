@@ -1,7 +1,7 @@
 #pragma once
 
 #include <cstdio>
-#include <memory>
+#include "Ruby/Utility/Pointers.h"
 #include "Ruby/Main/Time.h"
 
 namespace Ruby {
@@ -37,7 +37,7 @@ namespace Ruby {
 		~Logger() = default;
 
 		static void init();
-		static inline std::shared_ptr<Logger>& getEngineLogger() { return s_EngineLogger; }
+		static inline SharedPtr<Logger>& getEngineLogger() { return s_EngineLogger; }
 		
 		inline void setLogPrefix(const char* name) { m_Name = name; }
 
@@ -135,7 +135,7 @@ namespace Ruby {
 		uint16_t m_ConsoleColor;
 		LogLevel m_Level;
 		const char* m_Name; // Aka the Log Prefix.
-		static std::shared_ptr<Logger> s_EngineLogger;
+		static SharedPtr<Logger> s_EngineLogger;
 	};
 
 }

@@ -26,20 +26,20 @@ namespace Ruby {
         virtual void setUniformMat4(const char* name, const glm::mat4& mat) const = 0;
         /*
         * @param filepath Path to file which will be loaded and parsed into one or multiple shaders.
-        * @return Returns std::shared_ptr of a shader object that will not be added to the shader library.
+        * @return Returns SharedPtr of a shader object that will not be added to the shader library.
         * 
         */
-        static std::shared_ptr<Shader> createShader(const std::string& filepath);
-        static std::shared_ptr<Shader> createShader(const std::string& name, const std::string& filepath);
-        static std::shared_ptr<Shader> createShader(const std::string& name, const std::string& vertSrc, const std::string& fragSrc);
+        static SharedPtr<Shader> createShader(const std::string& filepath);
+        static SharedPtr<Shader> createShader(const std::string& name, const std::string& filepath);
+        static SharedPtr<Shader> createShader(const std::string& name, const std::string& vertSrc, const std::string& fragSrc);
 
-        static inline void addShaderToLibrary(const std::shared_ptr<Shader>& shader) { s_ShaderLibrary[shader->getName()] = shader; }
-        static inline void addShaderToLibrary(const std::string& name, const std::shared_ptr<Shader>& shader) { s_ShaderLibrary[name] = shader; }
-        static std::shared_ptr<Shader> createAndAddShaderToLibrary(const std::string& filepath);
-        static std::shared_ptr<Shader> createAndAddShaderToLibrary(const std::string& name, const std::string& filepath);
-        static std::shared_ptr<Shader> createAndAddShaderToLibrary(const std::string& name, const std::string& vertSrc, const std::string& fragSrc);
+        static inline void addShaderToLibrary(const SharedPtr<Shader>& shader) { s_ShaderLibrary[shader->getName()] = shader; }
+        static inline void addShaderToLibrary(const std::string& name, const SharedPtr<Shader>& shader) { s_ShaderLibrary[name] = shader; }
+        static SharedPtr<Shader> createAndAddShaderToLibrary(const std::string& filepath);
+        static SharedPtr<Shader> createAndAddShaderToLibrary(const std::string& name, const std::string& filepath);
+        static SharedPtr<Shader> createAndAddShaderToLibrary(const std::string& name, const std::string& vertSrc, const std::string& fragSrc);
 
-        static inline std::shared_ptr<Shader> getShaderFromLibrary(const std::string& name)
+        static inline SharedPtr<Shader> getShaderFromLibrary(const std::string& name)
         {
             RB_ASSERT(shaderLibraryContains(name), "Shader not found in library.");
             return s_ShaderLibrary[name];
@@ -51,6 +51,6 @@ namespace Ruby {
         }
 
     private:
-        static std::unordered_map<std::string, std::shared_ptr<Shader>> s_ShaderLibrary;
+        static std::unordered_map<std::string, SharedPtr<Shader>> s_ShaderLibrary;
     };
 }

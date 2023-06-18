@@ -12,11 +12,13 @@ namespace Ruby {
 		void init();
 		void deInit();
 
-		void renderIndices(const std::shared_ptr<VertexArray>& vao, const std::shared_ptr<Shader> shader, const glm::mat4& transform);
+		void renderSubmit(const SharedPtr<VertexArray>& vao, const SharedPtr<Shader> shader, const glm::mat4& transform);
 		void resetBatch();
 		void renderBatched();
 		void drawQuad(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color);
-		void drawTexture(const glm::vec2& position, const glm::vec2& size, const std::shared_ptr<Texture>& texture);
+		void drawQuadTexture(const glm::vec2& position, const glm::vec2& size, const SharedPtr<Texture>& texture);
+		void drawQuadSubTexture(const glm::vec2& position, const glm::vec2& size, const SharedPtr<SubTexture>& subTexture);
+		void drawQuadRotated(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color);
 
 		// GL CONTEXT STUFF
 		void setClearColor(float r, float g, float b, float a);

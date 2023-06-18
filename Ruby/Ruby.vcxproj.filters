@@ -1347,7 +1347,7 @@
     <ClInclude Include="src\Ruby\Event\MouseEvent.h">
       <Filter>src\Ruby\Event</Filter>
     </ClInclude>
-    <ClInclude Include="src\Ruby\GUI\ImGuiLayer.h">
+    <ClInclude Include="src\Ruby\GUI\ImGuiUtil.h">
       <Filter>src\Ruby\GUI</Filter>
     </ClInclude>
     <ClInclude Include="src\Ruby\Main\App.h">
@@ -1391,6 +1391,10 @@
     </ClInclude>
     <ClInclude Include="src\Ruby\Render\Texture.h" />
     <ClInclude Include="src\API\OpenGL\OpenGLTexture.h" />
+    <ClInclude Include="src\Ruby\Render\Camera.h" />
+    <ClInclude Include="src\Ruby\Main\Input.h" />
+    <ClInclude Include="src\Ruby\Utility\Pointers.h" />
+    <ClInclude Include="src\Ruby\Utility\SimpleBuffers.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Dependencies\stb_image\stb_image.cpp">
@@ -1408,7 +1412,7 @@
     <ClCompile Include="src\PlatformSpecific\Windows\WindowsWindow.cpp">
       <Filter>src\PlatformSpecific\Windows</Filter>
     </ClCompile>
-    <ClCompile Include="src\Ruby\GUI\ImGuiLayer.cpp">
+    <ClCompile Include="src\Ruby\GUI\ImGuiUtil.cpp">
       <Filter>src\Ruby\GUI</Filter>
     </ClCompile>
     <ClCompile Include="src\Ruby\Main\App.cpp">
@@ -1441,6 +1445,7 @@
     <ClCompile Include="src\Ruby\Render\Shader.cpp" />
     <ClCompile Include="src\Ruby\Render\Texture.cpp" />
     <ClCompile Include="src\API\OpenGL\OpenGLTexture.cpp" />
+    <ClCompile Include="src\Ruby\Render\Camera.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="res\shaders\default.glsl" />

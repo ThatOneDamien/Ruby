@@ -10,7 +10,7 @@ namespace Ruby {
 
 	static HANDLE s_ConsoleHandle;
 	static uint16_t s_DefaultColor;
-	std::shared_ptr<Logger> Logger::s_EngineLogger;
+	SharedPtr<Logger> Logger::s_EngineLogger;
 
 	void Logger::init()
 	{
@@ -21,7 +21,7 @@ namespace Ruby {
 		// Gets the first byte of data in the wAttributes which holds the color info. 
 		// This contains the current text color in the first 4 bits and the highlight color in the last 4.
 		s_DefaultColor = (info.wAttributes & 0xFF);
-		s_EngineLogger = std::make_shared<Logger>("Engine");
+		s_EngineLogger = createShared<Logger>("Engine");
 		
 	}
 

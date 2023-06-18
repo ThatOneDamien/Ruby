@@ -20,8 +20,8 @@ namespace Ruby {
 		virtual void setVSync(bool enabled) override;
 		virtual void update() const override;
 
-		virtual bool isKeyPressed(KeyCode code) const override;
-		virtual bool isMouseButtonPressed(MouseCode code) const override;
+		virtual bool isKeyDown(KeyCode code) const override;
+		virtual bool isMouseButtonDown(MouseCode code) const override;
 
 	private:
 		GLFWwindow* m_Window = nullptr;

@@ -13,16 +13,16 @@ namespace Ruby {
 		virtual void bind() const override;
 		virtual void unbind() const override;
 
-		virtual void pushVertexBuffer(const std::shared_ptr<VertexBuffer>& buffer) override;
-		virtual void setIndexBuffer(const std::shared_ptr<IndexBuffer>& buffer) override;
+		virtual void pushVertexBuffer(const SharedPtr<VertexBuffer>& buffer) override;
+		virtual void setIndexBuffer(const SharedPtr<IndexBuffer>& buffer) override;
 
-		virtual inline const std::vector<std::shared_ptr<VertexBuffer> >& getVertexBufferList() const override { return m_VertexBuffers; }
-		virtual inline const std::shared_ptr<IndexBuffer>& getIndexBuffer() const override { return m_IndexBuffer; }
+		virtual inline const std::vector<SharedPtr<VertexBuffer> >& getVertexBufferList() const override { return m_VertexBuffers; }
+		virtual inline const SharedPtr<IndexBuffer>& getIndexBuffer() const override { return m_IndexBuffer; }
 
 	private:
 		uint32_t m_RendererID;
-		std::vector<std::shared_ptr<VertexBuffer>> m_VertexBuffers;
-		std::shared_ptr<IndexBuffer> m_IndexBuffer;
+		std::vector<SharedPtr<VertexBuffer>> m_VertexBuffers;
+		SharedPtr<IndexBuffer> m_IndexBuffer;
 	};
 
 }

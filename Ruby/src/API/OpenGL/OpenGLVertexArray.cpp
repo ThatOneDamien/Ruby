@@ -26,7 +26,7 @@ namespace Ruby {
 		glBindVertexArray(0);
 	}
 
-	void OpenGLVA::pushVertexBuffer(const std::shared_ptr<VertexBuffer>& buffer)
+	void OpenGLVA::pushVertexBuffer(const SharedPtr<VertexBuffer>& buffer)
 	{
 		glBindVertexArray(m_RendererID);
 		buffer->bind();
@@ -34,8 +34,8 @@ namespace Ruby {
 		const VertexLayout& layout = buffer->getLayout();
 		const std::vector<VertexLayoutElement>& e = layout.getElements();
 
-		uint32_t offset = 0;
-		for (size_t i = 0; i < e.size(); i++)
+		uint64_t offset = 0;
+		for (GLuint i = 0; i < (GLuint)e.size(); i++)
 		{
 			glEnableVertexArrayAttrib(m_RendererID, i);
 			switch (e[i].type)
@@ -73,7 +73,7 @@ namespace Ruby {
 		m_VertexBuffers.push_back(buffer);
 	}
 
-	void OpenGLVA::setIndexBuffer(const std::shared_ptr<IndexBuffer>& buffer)
+	void OpenGLVA::setIndexBuffer(const SharedPtr<IndexBuffer>& buffer)
 	{
 		glBindVertexArray(m_RendererID);
 		buffer->bind();

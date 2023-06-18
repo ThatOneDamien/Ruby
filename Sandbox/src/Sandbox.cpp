@@ -25,20 +25,53 @@ public:
 	virtual void onPush() override 
 	{
 		tex = Texture::createTexture("res/images/poop.jpg");
+		shader = Shader::createShader("res/shaders/default.glsl");
+		vao = VertexArray::createVAO();
+
+		float vertices[] =
+		{
+			-0.5f, -0.5f,
+			 0.5f, -0.5f,
+			 0.5f,  0.5f,
+			-0.5f,  0.5f
+		};
+
+		uint32_t indices[] =
+		{
+			0, 1, 2,
+			2, 3, 0
+		};
+
+		auto vbo = VertexBuffer::createVBO(vertices, sizeof(vertices));
+		for (int i = 0; i < 4; i++)
+			vertices[i * 2] += 1.5f;
+		auto vbo2 = VertexBuffer::createVBO(vertices, sizeof(vertices));
+		auto ibo = IndexBuffer::createIBO(indices, 6);
+
+		VertexLayout layout;
+		layout.push({LayoutType::Float, 2, false});
+
+		vbo->setLayout(layout);
+		vbo2->setLayout(layout);
+
+		vao->setIndexBuffer(ibo);
+		vao->pushVertexBuffer(vbo);
+		vao->pushVertexBuffer(vbo2);
+		float a = 1280.0f / 720.0f * 2.0f;
+		cam = std::make_unique<Camera>(-a, a, -2.0f, 2.0f);
 	}
 
 	virtual void update(double deltaSeconds) override 
 	{
-		Renderer::resetBatch();
-
-		/*for (int i = 0; i < 92; i++)
-		{
-			Ruby::Renderer::drawQuad({ 2.0f/92.0 * i - 1.0, -0.25f }, { 2.0f / 92.0, 0.5}, {i/92.0f, 1.0-i/92.0f, 0.4f, 1.0f});
-		}*/
-		Renderer::drawTexture({ -0.5f, -0.5f }, { 1.0f, 1.0f }, tex);
-
-		Renderer::renderBatched();		  
-		
+		const auto& a = vao->getVertexBufferList();
+		cam->setPosition({ x, 0.0f });
+		vao->bind();
+		a[1]->bind();
+		Renderer::renderSubmit(vao, shader, cam->getViewProjectionMatrix());
+		/*vao->bind();
+		a[1]->bind();
+		Renderer::renderSubmit(vao, shader, cam->getViewProjectionMatrix());*/
+		x += 0.8f * (float)deltaSeconds;
 	}
 	virtual void ImGuiRender() override 
 	{
@@ -47,7 +80,11 @@ public:
 		ImGui::End();
 	}
 private:
-	std::shared_ptr<Texture> tex;
+	SharedPtr<Texture> tex;
+	SharedPtr<Shader> shader;
+	SharedPtr<VertexArray> vao;
+	std::unique_ptr<Camera> cam;
+	float x = 0.0f;
 };
 
 class Sandbox : public App

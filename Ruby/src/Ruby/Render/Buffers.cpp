@@ -10,19 +10,19 @@
 
 namespace Ruby {
 
-	std::shared_ptr<VertexBuffer> VertexBuffer::createVBO(const void* vertices, uint32_t size)
+	SharedPtr<VertexBuffer> VertexBuffer::createVBO(const void* vertices, uint32_t size)
 	{
-		return std::make_shared<VBUFFER>(vertices, size);
+		return createShared<VBUFFER>(vertices, size);
 	}
 
-	std::shared_ptr<VertexBuffer> VertexBuffer::createVBO(uint32_t size)
+	SharedPtr<VertexBuffer> VertexBuffer::createVBO(uint32_t size)
 	{
-		return std::make_shared<VBUFFER>(size);
+		return createShared<VBUFFER>(size);
 	}
 
-	std::shared_ptr<IndexBuffer> IndexBuffer::createIBO(const uint32_t* indices, uint32_t count)
+	SharedPtr<IndexBuffer> IndexBuffer::createIBO(const uint32_t* indices, uint32_t count)
 	{
-		return std::make_shared<IBUFFER>(indices, count);
+		return createShared<IBUFFER>(indices, count);
 	}
 
 }

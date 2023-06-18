@@ -17,13 +17,13 @@ namespace Ruby {
 		virtual void setVSync(bool enabled) = 0;
 		virtual void update() const = 0;
 
-		virtual bool isKeyPressed(KeyCode code) const = 0;
-		virtual bool isMouseButtonPressed(MouseCode code) const = 0;
+		virtual bool isKeyDown(KeyCode code) const = 0;
+		virtual bool isMouseButtonDown(MouseCode code) const = 0;
 
 		static std::unique_ptr<Window> createWindow(
-			const char* name = "Ruby", 
-			uint16_t width = 1280, 
-			uint16_t height = 720, 
+			const char* name = "Ruby",
+			uint16_t width = 1280,
+			uint16_t height = 720,
 			bool vSync = true
 		);
 

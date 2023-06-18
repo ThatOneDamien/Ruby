@@ -139,12 +139,12 @@ namespace Ruby {
 		glfwSwapBuffers(m_Window);
 	}
 
-	bool WindowsWindow::isKeyPressed(KeyCode code) const
+	bool WindowsWindow::isKeyDown(KeyCode code) const
 	{
 		return glfwGetKey(m_Window, code) == GLFW_PRESS;
 	}
 
-	bool WindowsWindow::isMouseButtonPressed(MouseCode code) const
+	bool WindowsWindow::isMouseButtonDown(MouseCode code) const
 	{
 		return glfwGetMouseButton(m_Window, code) == GLFW_PRESS;
 	}
