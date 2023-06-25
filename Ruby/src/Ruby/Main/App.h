@@ -9,7 +9,7 @@ namespace Ruby {
 	class App
 	{
 	public:
-		App(int argc, char** argv, const std::string& mainDir);
+		App(int argc, char** argv, const std::string& mainDir, const char* name, int width, int height);
 		virtual ~App();
 
 		void onEvent(Event& e);
@@ -25,13 +25,13 @@ namespace Ruby {
 
 	private:
 
-		bool m_Running = false;
+		bool m_Running = false, m_Minimized = false;
 		int m_Argc;
 		char** m_Argv;
-		const std::string& m_MainDir;
+		std::string m_MainDir;
 
 		static App* s_Instance;
-		std::unique_ptr<Window> m_Window;
+		UniPtr<Window> m_Window;
 		LayerStack m_LayerStack;
 		DeltaTime m_DT;
 

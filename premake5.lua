@@ -1,6 +1,6 @@
 workspace "Ruby2D"
     architecture "x64"
-    startproject "Sandbox"
+    startproject "RubyEditor"
     configurations
     {
         "Debug",
@@ -13,9 +13,11 @@ group "Dependencies"
 	include "third_party/GLFW"
 	include "third_party/glad"
 	include "third_party/ImGui"
+    include "third_party/FreeType"
 group ""
 
 group "Core"
 	include "Ruby"
+    include "RubyEditor"
 	include "Sandbox"
 group ""

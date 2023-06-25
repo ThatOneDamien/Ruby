@@ -16,7 +16,7 @@
 #ifdef RB_USE_OPENGL
 //FROM glad.h
 typedef void*(*GLADloadproc)(const char*);
-namespace Ruby { namespace Renderer { void setGladLoadProc(GLADloadproc loadProc); } }
+namespace Ruby { namespace Renderer { namespace API { void setGladLoadProc(GLADloadproc loadProc); } } }
 #endif
 
 namespace Ruby {
@@ -52,6 +52,12 @@ namespace Ruby {
 				WindowCloseEvent e;
 				App::getInstance().onEvent(e);
 
+			});
+
+		glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* window, int width, int height) 
+			{
+				WindowResizeEvent e(width, height);
+				App::getInstance().onEvent(e);
 			});
 
 		glfwSetKeyCallback(m_Window, [](GLFWwindow* window, int key, int scancode, int action, int mods) 
@@ -117,7 +123,7 @@ namespace Ruby {
 		glfwSwapInterval((int)vSync);
 
 	#ifdef RB_USE_OPENGL
-		Renderer::setGladLoadProc((GLADloadproc)glfwGetProcAddress);
+		Renderer::API::setGladLoadProc((GLADloadproc)glfwGetProcAddress);
 	#endif
 	}
 

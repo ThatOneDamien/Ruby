@@ -55,6 +55,9 @@
     <Filter Include="src\Ruby\Render">
       <UniqueIdentifier>{8D1D25BF-F9A8-9283-02BA-15786EC4EE83}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\Ruby\Utility">
+      <UniqueIdentifier>{21E15EAD-0DDA-7DFF-360C-638422645D0B}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Dependencies\glm\glm\common.hpp">
@@ -1311,13 +1314,10 @@
     <ClInclude Include="src\API\OpenGL\OpenGLBuffers.h">
       <Filter>src\API\OpenGL</Filter>
     </ClInclude>
-    <ClInclude Include="src\API\OpenGL\OpenGLImGui_Impl.h">
-      <Filter>src\API\OpenGL</Filter>
-    </ClInclude>
-    <ClInclude Include="src\API\OpenGL\OpenGLRenderer.h">
-      <Filter>src\API\OpenGL</Filter>
-    </ClInclude>
     <ClInclude Include="src\API\OpenGL\OpenGLShader.h">
+      <Filter>src\API\OpenGL</Filter>
+    </ClInclude>
+    <ClInclude Include="src\API\OpenGL\OpenGLTexture.h">
       <Filter>src\API\OpenGL</Filter>
     </ClInclude>
     <ClInclude Include="src\API\OpenGL\OpenGLVertexArray.h">
@@ -1356,6 +1356,12 @@
     <ClInclude Include="src\Ruby\Main\Core.h">
       <Filter>src\Ruby\Main</Filter>
     </ClInclude>
+    <ClInclude Include="src\Ruby\Main\Font.h">
+      <Filter>src\Ruby\Main</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Ruby\Main\Input.h">
+      <Filter>src\Ruby\Main</Filter>
+    </ClInclude>
     <ClInclude Include="src\Ruby\Main\KeyCodes.h">
       <Filter>src\Ruby\Main</Filter>
     </ClInclude>
@@ -1363,6 +1369,9 @@
       <Filter>src\Ruby\Main</Filter>
     </ClInclude>
     <ClInclude Include="src\Ruby\Main\Logging.h">
+      <Filter>src\Ruby\Main</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Ruby\Main\MainFunctionEntry.h">
       <Filter>src\Ruby\Main</Filter>
     </ClInclude>
     <ClInclude Include="src\Ruby\Main\MouseCodes.h">
@@ -1377,24 +1386,34 @@
     <ClInclude Include="src\Ruby\Render\Buffers.h">
       <Filter>src\Ruby\Render</Filter>
     </ClInclude>
+    <ClInclude Include="src\Ruby\Render\Camera.h">
+      <Filter>src\Ruby\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Ruby\Render\Framebuffer.h">
+      <Filter>src\Ruby\Render</Filter>
+    </ClInclude>
     <ClInclude Include="src\Ruby\Render\Renderer.h">
       <Filter>src\Ruby\Render</Filter>
     </ClInclude>
     <ClInclude Include="src\Ruby\Render\Shader.h">
       <Filter>src\Ruby\Render</Filter>
     </ClInclude>
+    <ClInclude Include="src\Ruby\Render\Texture.h">
+      <Filter>src\Ruby\Render</Filter>
+    </ClInclude>
     <ClInclude Include="src\Ruby\Render\VertexArray.h">
       <Filter>src\Ruby\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Ruby\Utility\Pointers.h">
+      <Filter>src\Ruby\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Ruby\Utility\SimpleBuffers.h">
+      <Filter>src\Ruby\Utility</Filter>
     </ClInclude>
     <ClInclude Include="src\ruby_pch.h">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="src\Ruby\Render\Texture.h" />
-    <ClInclude Include="src\API\OpenGL\OpenGLTexture.h" />
-    <ClInclude Include="src\Ruby\Render\Camera.h" />
-    <ClInclude Include="src\Ruby\Main\Input.h" />
-    <ClInclude Include="src\Ruby\Utility\Pointers.h" />
-    <ClInclude Include="src\Ruby\Utility\SimpleBuffers.h" />
+    <ClInclude Include="src\API\OpenGL\OpenGLFramebuffer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Dependencies\stb_image\stb_image.cpp">
@@ -1403,7 +1422,13 @@
     <ClCompile Include="src\API\OpenGL\OpenGLBuffers.cpp">
       <Filter>src\API\OpenGL</Filter>
     </ClCompile>
+    <ClCompile Include="src\API\OpenGL\OpenGLRenderer.cpp">
+      <Filter>src\API\OpenGL</Filter>
+    </ClCompile>
     <ClCompile Include="src\API\OpenGL\OpenGLShader.cpp">
+      <Filter>src\API\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="src\API\OpenGL\OpenGLTexture.cpp">
       <Filter>src\API\OpenGL</Filter>
     </ClCompile>
     <ClCompile Include="src\API\OpenGL\OpenGLVertexArray.cpp">
@@ -1416,6 +1441,9 @@
       <Filter>src\Ruby\GUI</Filter>
     </ClCompile>
     <ClCompile Include="src\Ruby\Main\App.cpp">
+      <Filter>src\Ruby\Main</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Ruby\Main\Font.cpp">
       <Filter>src\Ruby\Main</Filter>
     </ClCompile>
     <ClCompile Include="src\Ruby\Main\Layer.cpp">
@@ -1433,7 +1461,19 @@
     <ClCompile Include="src\Ruby\Render\Buffers.cpp">
       <Filter>src\Ruby\Render</Filter>
     </ClCompile>
+    <ClCompile Include="src\Ruby\Render\Camera.cpp">
+      <Filter>src\Ruby\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Ruby\Render\Framebuffer.cpp">
+      <Filter>src\Ruby\Render</Filter>
+    </ClCompile>
     <ClCompile Include="src\Ruby\Render\Renderer.cpp">
+      <Filter>src\Ruby\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Ruby\Render\Shader.cpp">
+      <Filter>src\Ruby\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Ruby\Render\Texture.cpp">
       <Filter>src\Ruby\Render</Filter>
     </ClCompile>
     <ClCompile Include="src\Ruby\Render\VertexArray.cpp">
@@ -1442,13 +1482,6 @@
     <ClCompile Include="src\ruby_pch.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="src\Ruby\Render\Shader.cpp" />
-    <ClCompile Include="src\Ruby\Render\Texture.cpp" />
-    <ClCompile Include="src\API\OpenGL\OpenGLTexture.cpp" />
-    <ClCompile Include="src\Ruby\Render\Camera.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="res\shaders\default.glsl" />
-    <None Include="res\shaders\quad_shader.glsl" />
+    <ClCompile Include="src\API\OpenGL\OpenGLFramebuffer.cpp" />
   </ItemGroup>
 </Project>

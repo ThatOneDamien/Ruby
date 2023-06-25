@@ -7,6 +7,12 @@
 
 namespace Ruby {
 
+	/*
+	* 
+	* --------------VERTEX BUFFER----------------
+	* 
+	*/
+
 	OpenGLVB::OpenGLVB(const void* vertices, uint32_t size)
 		: m_Size(size)
 	{
@@ -46,6 +52,17 @@ namespace Ruby {
 		glNamedBufferSubData(m_RendererID, (GLintptr)offset, (GLsizeiptr)size, vertices);
 	}
 
+
+
+
+
+
+	/*
+	*
+	* --------------INDEX BUFFER----------------
+	*
+	*/
+
 	OpenGLIB::OpenGLIB(const uint32_t* indices, uint32_t count)
 		: m_Count(count)
 	{
@@ -67,5 +84,55 @@ namespace Ruby {
 	{
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	}
+
+
+
+
+
+
+	/*
+	*
+	* --------------UNIFORM BUFFER----------------
+	*
+	*/
+
+
+	OpenGLUB::OpenGLUB(const void* data, uint32_t size, uint8_t binding)
+		: m_Size(size), m_Binding(binding)
+	{
+		glCreateBuffers(1, &m_RendererID);
+		glNamedBufferData(m_RendererID, size, data, GL_DYNAMIC_DRAW);
+		glBindBufferBase(GL_UNIFORM_BUFFER, binding, m_RendererID);
+	}
+
+	OpenGLUB::OpenGLUB(uint32_t size, uint8_t binding)
+		: m_Size(size), m_Binding(binding)
+	{
+		glCreateBuffers(1, &m_RendererID);
+		glNamedBufferData(m_RendererID, size, nullptr, GL_DYNAMIC_DRAW);
+		glBindBufferBase(GL_UNIFORM_BUFFER, binding, m_RendererID);
+	}
+
+	OpenGLUB::~OpenGLUB()
+	{
+		glDeleteBuffers(1, &m_RendererID);
+	}
+
+	void OpenGLUB::bind() const
+	{
+		glBindBuffer(GL_UNIFORM_BUFFER, m_RendererID);
+	}
+
+	void OpenGLUB::unbind() const
+	{
+		glBindBuffer(GL_UNIFORM_BUFFER, 0);
+	}
+
+	void OpenGLUB::setData(const void* data, uint32_t size, uint32_t offset)
+	{
+		glNamedBufferSubData(m_RendererID, (GLintptr)offset, (GLsizeiptr)size, data);
+	}
+
+
 
 }

@@ -58,7 +58,7 @@
       <PrecompiledHeaderFile>ruby_pch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>GLFW_INCLUDE_NONE;_CRT_SECURE_NO_WARNINGS;RB_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;..\third_party\GLFW\include;..\third_party\glad\include;..\third_party\ImGui;Dependencies\glm;Dependencies\stb_image;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;..\third_party\GLFW\include;..\third_party\glad\include;..\third_party\FreeType\include;..\third_party\ImGui;Dependencies\glm;Dependencies\stb_image;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -79,7 +79,7 @@
       <PrecompiledHeaderFile>ruby_pch.h</PrecompiledHeaderFile>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>GLFW_INCLUDE_NONE;_CRT_SECURE_NO_WARNINGS;RB_RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;..\third_party\GLFW\include;..\third_party\glad\include;..\third_party\ImGui;Dependencies\glm;Dependencies\stb_image;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;..\third_party\GLFW\include;..\third_party\glad\include;..\third_party\FreeType\include;..\third_party\ImGui;Dependencies\glm;Dependencies\stb_image;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -517,8 +517,7 @@
     <ClInclude Include="Dependencies\glm\glm\vector_relational.hpp" />
     <ClInclude Include="Dependencies\stb_image\stb_image.h" />
     <ClInclude Include="src\API\OpenGL\OpenGLBuffers.h" />
-    <ClInclude Include="src\API\OpenGL\OpenGLImGui_Impl.h" />
-    <ClInclude Include="src\API\OpenGL\OpenGLRenderer.h" />
+    <ClInclude Include="src\API\OpenGL\OpenGLFramebuffer.h" />
     <ClInclude Include="src\API\OpenGL\OpenGLShader.h" />
     <ClInclude Include="src\API\OpenGL\OpenGLTexture.h" />
     <ClInclude Include="src\API\OpenGL\OpenGLVertexArray.h" />
@@ -533,38 +532,45 @@
     <ClInclude Include="src\Ruby\GUI\ImGuiUtil.h" />
     <ClInclude Include="src\Ruby\Main\App.h" />
     <ClInclude Include="src\Ruby\Main\Core.h" />
+    <ClInclude Include="src\Ruby\Main\Font.h" />
     <ClInclude Include="src\Ruby\Main\Input.h" />
     <ClInclude Include="src\Ruby\Main\KeyCodes.h" />
     <ClInclude Include="src\Ruby\Main\Layer.h" />
     <ClInclude Include="src\Ruby\Main\Logging.h" />
+    <ClInclude Include="src\Ruby\Main\MainFunctionEntry.h" />
     <ClInclude Include="src\Ruby\Main\MouseCodes.h" />
     <ClInclude Include="src\Ruby\Main\Time.h" />
     <ClInclude Include="src\Ruby\Main\Window.h" />
     <ClInclude Include="src\Ruby\Render\Buffers.h" />
     <ClInclude Include="src\Ruby\Render\Camera.h" />
+    <ClInclude Include="src\Ruby\Render\Framebuffer.h" />
     <ClInclude Include="src\Ruby\Render\Renderer.h" />
     <ClInclude Include="src\Ruby\Render\Shader.h" />
     <ClInclude Include="src\Ruby\Render\Texture.h" />
     <ClInclude Include="src\Ruby\Render\VertexArray.h" />
+    <ClInclude Include="src\Ruby\Utility\Pointers.h" />
     <ClInclude Include="src\Ruby\Utility\SimpleBuffers.h" />
     <ClInclude Include="src\ruby_pch.h" />
-    <ClInclude Include="src\Ruby\Utility\Pointers.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Dependencies\stb_image\stb_image.cpp" />
     <ClCompile Include="src\API\OpenGL\OpenGLBuffers.cpp" />
+    <ClCompile Include="src\API\OpenGL\OpenGLFramebuffer.cpp" />
+    <ClCompile Include="src\API\OpenGL\OpenGLRenderer.cpp" />
     <ClCompile Include="src\API\OpenGL\OpenGLShader.cpp" />
     <ClCompile Include="src\API\OpenGL\OpenGLTexture.cpp" />
     <ClCompile Include="src\API\OpenGL\OpenGLVertexArray.cpp" />
     <ClCompile Include="src\PlatformSpecific\Windows\WindowsWindow.cpp" />
     <ClCompile Include="src\Ruby\GUI\ImGuiUtil.cpp" />
     <ClCompile Include="src\Ruby\Main\App.cpp" />
+    <ClCompile Include="src\Ruby\Main\Font.cpp" />
     <ClCompile Include="src\Ruby\Main\Layer.cpp" />
     <ClCompile Include="src\Ruby\Main\Logging.cpp" />
     <ClCompile Include="src\Ruby\Main\Time.cpp" />
     <ClCompile Include="src\Ruby\Main\Window.cpp" />
     <ClCompile Include="src\Ruby\Render\Buffers.cpp" />
     <ClCompile Include="src\Ruby\Render\Camera.cpp" />
+    <ClCompile Include="src\Ruby\Render\Framebuffer.cpp" />
     <ClCompile Include="src\Ruby\Render\Renderer.cpp" />
     <ClCompile Include="src\Ruby\Render\Shader.cpp" />
     <ClCompile Include="src\Ruby\Render\Texture.cpp" />
@@ -583,10 +589,9 @@
     <ProjectReference Include="..\third_party\ImGui\ImGui.vcxproj">
       <Project>{C0FF640D-2C14-8DBE-F595-301E616989EF}</Project>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="res\shaders\default.glsl" />
-    <None Include="res\shaders\quad_shader.glsl" />
+    <ProjectReference Include="..\third_party\FreeType\FreeType.vcxproj">
+      <Project>{49610F50-352E-6A5B-5E47-58034A739FE9}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

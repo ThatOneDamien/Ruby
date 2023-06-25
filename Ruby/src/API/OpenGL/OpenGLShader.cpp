@@ -178,7 +178,7 @@ namespace Ruby {
 
                 size_t dataType = source.find_first_not_of(" \t", lineLocation + 7);
                 size_t uniformName = source.find_first_not_of(" \t", source.find_first_of(" \t", dataType + 1) + 1);
-                size_t endUniformName = source.find_first_of(" =[;{\r\n\t", uniformName + 1);
+                size_t endUniformName = source.find_first_of(" =([;{\r\n\t", uniformName + 1);
                
                 m_CachedUniforms[source.substr(uniformName, endUniformName - uniformName)] = -1;
                 lineLocation = source.find("uniform", endUniformName);

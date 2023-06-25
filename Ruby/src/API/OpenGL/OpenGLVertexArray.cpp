@@ -67,7 +67,7 @@ namespace Ruby {
 			default:
 				RB_ASSERT(false, "Unsupported data type!");
 			}
-			offset += e[i].count * sizeOfLayoutType(e[i].type);
+			offset += (uint64_t)e[i].count * (uint64_t)sizeOfLayoutType(e[i].type);
 		}
 
 		m_VertexBuffers.push_back(buffer);

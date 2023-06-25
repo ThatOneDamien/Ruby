@@ -13,7 +13,7 @@ namespace Ruby {
 
 	App* App::s_Instance = nullptr;
 
-	App::App(int argc, char** argv, const std::string& mainDir)
+	App::App(int argc, char** argv, const std::string& mainDir, const char* name, int width, int height)
 		: m_Argc(argc), m_Argv(argv), m_MainDir(mainDir), m_DT(TimingPrecision::Seconds)
 	{
 		RB_ASSERT(!s_Instance, "An instance of App already exists in the program.");
@@ -24,7 +24,7 @@ namespace Ruby {
 			std::filesystem::current_path(mainDir);
 
 		// Create window and initialize windowing library.
-		m_Window = Window::createWindow();
+		m_Window = Window::createWindow(name, width, height);
 		
 		// Initialize the renderer, depending on API this will incorporate the windowing library.
 		Renderer::init();
@@ -48,9 +48,15 @@ namespace Ruby {
 			case EventType::WindowResized:
 			{
 				WindowResizeEvent& event = static_cast<WindowResizeEvent&>(e);
-				m_Window->windowResized(event.getWidth(), event.getHeight());
-				e.handeled = true;
-				Renderer::setViewport(0, 0, (int)event.getWidth(), (int)event.getHeight());
+				uint32_t width = event.getWidth(), height = event.getHeight();
+				if (width == 0)
+				{
+					m_Minimized = true;
+					return;
+				}
+				m_Minimized = false;
+				m_Window->windowResized(width, height);
+				Renderer::API::setViewport(0, 0, (int)width, (int)height);
 				break;
 			}
 		}
@@ -69,19 +75,21 @@ namespace Ruby {
 	void App::run()
 	{
 		m_DT.getAndClock();
-		Renderer::setClearColor(0.2f, 0.2f, 0.2f, 1.0f);
+		Renderer::API::setClearColor(0.1f, 0.1f, 0.1f, 1.1f);
 		while (m_Running)
 		{
 			double delta_time = m_DT.getAndClock();
-			Renderer::clear();
+			
+			if (!m_Minimized)
+			{
+				for (size_t i = 0; i < m_LayerStack.size(); i++)
+					m_LayerStack[i].update(delta_time);
 
-			for (size_t i = 0; i < m_LayerStack.size(); i++)
-				m_LayerStack[i].update(delta_time);
-
-			ImGuiUtil::begin();
-			for (size_t i = 0; i < m_LayerStack.size(); i++)
-				m_LayerStack[i].ImGuiRender();
-			ImGuiUtil::end();
+				ImGuiUtil::begin();
+				for (size_t i = 0; i < m_LayerStack.size(); i++)
+					m_LayerStack[i].ImGuiRender();
+				ImGuiUtil::end();
+			}
 
 			m_Window->update();
 		}

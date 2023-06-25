@@ -20,12 +20,7 @@ namespace Ruby {
 		virtual bool isKeyDown(KeyCode code) const = 0;
 		virtual bool isMouseButtonDown(MouseCode code) const = 0;
 
-		static std::unique_ptr<Window> createWindow(
-			const char* name = "Ruby",
-			uint16_t width = 1280,
-			uint16_t height = 720,
-			bool vSync = true
-		);
+		static UniPtr<Window> createWindow(const char* name, uint16_t width, uint16_t height, bool vSync = true);
 
 	};
 

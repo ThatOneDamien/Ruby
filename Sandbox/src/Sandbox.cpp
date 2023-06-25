@@ -1,4 +1,5 @@
 #include <Ruby.h>
+#include <Ruby/Main/MainFunctionEntry.h>
 #include <ImGui/imgui.h>
 #include <string>
 
@@ -58,7 +59,7 @@ public:
 		vao->pushVertexBuffer(vbo);
 		vao->pushVertexBuffer(vbo2);
 		float a = 1280.0f / 720.0f * 2.0f;
-		cam = std::make_unique<Camera>(-a, a, -2.0f, 2.0f);
+		cam = createUniPtr<Camera>(-a, a, -2.0f, 2.0f);
 	}
 
 	virtual void update(double deltaSeconds) override 
@@ -83,15 +84,15 @@ private:
 	SharedPtr<Texture> tex;
 	SharedPtr<Shader> shader;
 	SharedPtr<VertexArray> vao;
-	std::unique_ptr<Camera> cam;
+	UniPtr<Camera> cam;
 	float x = 0.0f;
 };
 
 class Sandbox : public App
 {
 public:
-	Sandbox(int argc, char** argv, const std::string& mainDir) 
-		: App(argc, argv, mainDir)
+	Sandbox(int argc, char** argv, const std::string& mainDir, const char* name, int width, int height) 
+		: App(argc, argv, mainDir, name, width, height)
 	{
 		pushOverlay(new TestLayer());
 	}
@@ -102,4 +103,7 @@ public:
 	}
 };
 
-RUBY_MAIN_FUNCTION_ENTRY(Sandbox, std::string("../Ruby"))
+Ruby::App* createApp(int argc, char** argv)
+{
+	return new Sandbox(argc, argv, ".", "Sandbox App", 1280, 720);
+}

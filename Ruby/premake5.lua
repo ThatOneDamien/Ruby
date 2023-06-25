@@ -25,6 +25,7 @@ project "Ruby"
 		"src",
 		"%{wks.location}/third_party/GLFW/include",
 		"%{wks.location}/third_party/glad/include",
+		"%{wks.location}/third_party/FreeType/include",
 		"%{wks.location}/third_party/ImGui",
 		"Dependencies/glm",
 		"Dependencies/stb_image"
@@ -35,6 +36,7 @@ project "Ruby"
 		"GLFW",
 		"glad",
 		"ImGui",
+		"FreeType",
 		"opengl32.lib"
 	}
 

@@ -1,5 +1,10 @@
 #pragma once
 
+
+#define RB_DEFINED
+
+
+
 // Core components
 #include "Ruby/Utility/Pointers.h"
 #include "Ruby/Main/Core.h"
@@ -10,21 +15,22 @@
 #include "Ruby/Main/Input.h"
 
 
+
+
+//Events
+#include "Ruby/Event/KeyEvent.h"
+#include "Ruby/Event/MouseEvent.h"
+#include "Ruby/Event/AppEvent.h"
+
+
+
+
+
 // Rendering
 #include "Ruby/Render/Renderer.h"
 #include "Ruby/Render/Buffers.h"
 #include "Ruby/Render/VertexArray.h"
+#include "Ruby/Render/Framebuffer.h"
 #include "Ruby/Render/Shader.h"
 #include "Ruby/Render/Texture.h"
 #include "Ruby/Render/Camera.h"
-
-
-
-// For entry/main
-#define RUBY_MAIN_FUNCTION_ENTRY(AppClassName, MainDir) int main(int argc, char** argv)\
-		{\
-			::Ruby::Logger::init();\
-			::Ruby::Time::init();\
-			AppClassName app(argc, argv, MainDir);\
-			app.run();\
-		}
