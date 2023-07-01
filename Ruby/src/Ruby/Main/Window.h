@@ -1,11 +1,12 @@
 #pragma once
 
+#include "Ruby/Main/Core.h"
 #include "MouseCodes.h"
 #include "KeyCodes.h"
 
 namespace Ruby {
 
-	class Window
+	class RB_NOVTABLE Window
 	{
 	public:
 		virtual ~Window() {};

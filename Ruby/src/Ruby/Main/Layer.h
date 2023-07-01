@@ -8,7 +8,10 @@ namespace Ruby {
 	class Layer
 	{
 	public:
-		Layer(const char* name = "Unnamed Layer");
+		constexpr Layer(const char* name = "Unnamed Layer")
+			: m_Name(name) 
+		{}
+
 		virtual ~Layer() {}
 		virtual void update(double deltaSeconds) {}
 		virtual void ImGuiRender() {}
@@ -21,7 +24,7 @@ namespace Ruby {
 	};
 
 	// Should not be subclassed.
-	class LayerStack
+	class RB_NOVTABLE LayerStack
 	{
 	public:
 		LayerStack() {}

@@ -58,7 +58,7 @@ namespace Ruby {
 		uint32_t m_Stride = 0;
 	};
 
-	class VertexBuffer 
+	class RB_NOVTABLE VertexBuffer 
 	{
 	public:
 		virtual ~VertexBuffer() {}
@@ -76,7 +76,7 @@ namespace Ruby {
 
 	};
 
-	class IndexBuffer
+	class RB_NOVTABLE IndexBuffer
 	{
 	public:
 		virtual ~IndexBuffer() {}
@@ -90,7 +90,7 @@ namespace Ruby {
 
 	};
 
-	class UniformBuffer
+	class RB_NOVTABLE UniformBuffer
 	{
 	public:
 		virtual ~UniformBuffer() {}

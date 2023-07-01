@@ -1,12 +1,14 @@
 #pragma once
 
+#include "Ruby/Main/Core.h"
+
 #include <glm/glm.hpp>
 #include <unordered_map>
 #include <string>
 
 namespace Ruby {
 
-    class Shader
+    class RB_NOVTABLE Shader
     {
     public:
         virtual ~Shader() = default;
@@ -39,7 +41,7 @@ namespace Ruby {
         static SharedPtr<Shader> createAndAddShaderToLibrary(const std::string& name, const std::string& filepath);
         static SharedPtr<Shader> createAndAddShaderToLibrary(const std::string& name, const std::string& vertSrc, const std::string& fragSrc);
 
-        static inline SharedPtr<Shader> getShaderFromLibrary(const std::string& name)
+        static inline const SharedPtr<Shader>& getShaderFromLibrary(const std::string& name)
         {
             RB_ASSERT(shaderLibraryContains(name), "Shader not found in library.");
             return s_ShaderLibrary[name];

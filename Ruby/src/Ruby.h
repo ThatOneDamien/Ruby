@@ -1,7 +1,7 @@
 #pragma once
 
 
-#define RB_DEFINED
+#define RB_EXTERNAL_DEF
 
 
 
@@ -34,3 +34,4 @@
 #include "Ruby/Render/Shader.h"
 #include "Ruby/Render/Texture.h"
 #include "Ruby/Render/Camera.h"
+#include "Ruby/Render/Font.h"

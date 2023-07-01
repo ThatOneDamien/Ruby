@@ -1,10 +1,12 @@
 #pragma once
 
-// From Hazel repository by The Cherno for easy use
-
-typedef unsigned char MouseCode;
+// From the github repository Hazel by The Cherno
+// He copied the codes from glfw3.h but formatted them
+// in an enum that looks really nice, so I stole it :)
 
 namespace Ruby { 
+
+	typedef unsigned char MouseCode;
 	
 	namespace Mouse {
 

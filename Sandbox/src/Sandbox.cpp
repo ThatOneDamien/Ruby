@@ -3,31 +3,24 @@
 #include <ImGui/imgui.h>
 #include <string>
 
-using namespace Ruby;
-
-class TestLayer : public Layer
+class TestLayer : public Ruby::Layer
 {
 public:
-	TestLayer() : Layer("Test Layer")
+	TestLayer() : Ruby::Layer("Test Layer")
 	{
+		Ruby::Logger::getClientLogger()->basicLog("balls");
 	}
 
 	virtual ~TestLayer() {}
 
-	virtual void onEvent(Event& e) override
+	virtual void onEvent(Ruby::Event& e) override
 	{
-		switch (e.getType())
-		{
-		case EventType::KeyPressed:
-			break;
-		}
 	}
 
 	virtual void onPush() override 
 	{
-		tex = Texture::createTexture("res/images/poop.jpg");
-		shader = Shader::createShader("res/shaders/default.glsl");
-		vao = VertexArray::createVAO();
+		shader = Ruby::Shader::createShader("res/shaders/default.glsl");
+		vao = Ruby::VertexArray::createVAO();
 
 		float vertices[] =
 		{
@@ -43,36 +36,25 @@ public:
 			2, 3, 0
 		};
 
-		auto vbo = VertexBuffer::createVBO(vertices, sizeof(vertices));
-		for (int i = 0; i < 4; i++)
-			vertices[i * 2] += 1.5f;
-		auto vbo2 = VertexBuffer::createVBO(vertices, sizeof(vertices));
-		auto ibo = IndexBuffer::createIBO(indices, 6);
+		auto vbo = Ruby::VertexBuffer::createVBO(vertices, sizeof(vertices));
+		auto ibo = Ruby::IndexBuffer::createIBO(indices, 6);
 
-		VertexLayout layout;
-		layout.push({LayoutType::Float, 2, false});
+		Ruby::VertexLayout layout;
+		layout.push({ Ruby::LayoutType::Float, 2, false});
 
 		vbo->setLayout(layout);
-		vbo2->setLayout(layout);
 
 		vao->setIndexBuffer(ibo);
-		vao->pushVertexBuffer(vbo);
-		vao->pushVertexBuffer(vbo2);
+		vao->setVertexBuffer(vbo);
 		float a = 1280.0f / 720.0f * 2.0f;
-		cam = createUniPtr<Camera>(-a, a, -2.0f, 2.0f);
+		cam = Ruby::createUniPtr<Ruby::Camera>(-a, a, -2.0f, 2.0f);
 	}
 
 	virtual void update(double deltaSeconds) override 
 	{
-		const auto& a = vao->getVertexBufferList();
-		cam->setPosition({ x, 0.0f });
-		vao->bind();
-		a[1]->bind();
-		Renderer::renderSubmit(vao, shader, cam->getViewProjectionMatrix());
-		/*vao->bind();
-		a[1]->bind();
-		Renderer::renderSubmit(vao, shader, cam->getViewProjectionMatrix());*/
-		x += 0.8f * (float)deltaSeconds;
+		Ruby::Renderer::API::clear();
+		Ruby::Renderer::resetBatch();
+		Ruby::Renderer::renderBatched();
 	}
 	virtual void ImGuiRender() override 
 	{
@@ -81,14 +63,14 @@ public:
 		ImGui::End();
 	}
 private:
-	SharedPtr<Texture> tex;
-	SharedPtr<Shader> shader;
-	SharedPtr<VertexArray> vao;
-	UniPtr<Camera> cam;
-	float x = 0.0f;
+	Ruby::SharedPtr<Ruby::Texture> tex;
+	Ruby::SharedPtr<Ruby::Shader> shader;
+	Ruby::SharedPtr<Ruby::VertexArray> vao;
+	Ruby::UniPtr<Ruby::Camera> cam;
+	//Ruby::Font* font{ nullptr };
 };
 
-class Sandbox : public App
+class Sandbox : public Ruby::App
 {
 public:
 	Sandbox(int argc, char** argv, const std::string& mainDir, const char* name, int width, int height) 

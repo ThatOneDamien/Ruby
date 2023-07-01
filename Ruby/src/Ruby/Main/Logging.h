@@ -22,7 +22,7 @@ namespace Ruby {
 		Gray = 8,
 		Blue = 9,
 		Green = 10,
-		Aqua = 11, cyan = 11,
+		Aqua = 11, Cyan = 11,
 		Red = 12,
 		Purple = 13, Magenta = 13,
 		Yellow = 14,
@@ -33,32 +33,39 @@ namespace Ruby {
 	{
 	public:
 
-		Logger(const char* prefix, LogLevel logLevel = LogLevel::Trace);
+		Logger(const char* name, LogLevel logLevel = LogLevel::Trace);
 		~Logger() = default;
-
-		static void init();
-		static inline SharedPtr<Logger>& getEngineLogger() { return s_EngineLogger; }
 		
-		inline void setLogPrefix(const char* name) { m_Name = name; }
+		inline void setLogPrefix(const char* name) { m_Name = name;   }
+		inline void setLogLevel(LogLevel level)    { m_Level = level; }
 
 		void setLogColor(LogColor textColor, LogColor highlightColor);
 		void setLogTextColor(LogColor textColor);
 		void setLogHighlightColor(LogColor highlightColor);
 
-		inline void setLogLevel(LogLevel level) { m_Level = level; }
+		inline const char* getLogName()           { return m_Name;  }
+		inline LogLevel getLogLevel()             { return m_Level; }
 
 		void resetDefaultLogColor();
 
-		inline const char* getLogPrefix() { return m_Name; }
-		inline LogLevel getLogLevel() { return m_Level; }
 
 
-		template<typename ...Args>
+
+		static void init();
+		static SharedPtr<Logger>& getEngineLogger() { return s_EngineLogger; }
+		static SharedPtr<Logger>& getClientLogger() { return s_ClientLogger; }
+
+
+
+
+		template<typename... Args>
 		inline void basicLog(const char* message, Args... args)
 		{
 			TimeStruct time = Time::getLocalTime();
+			internalSetLogColor(m_SavedColor);
 			printf("[%.2d:%.2d:%.2d] %s: ", time.hour, time.minute, time.second, m_Name);
-			printf(message, args...);
+			printf(message, std::forward<Args>(args)...);
+			internalResetLogColor();
 			printf("\n");
 		}
 
@@ -69,11 +76,10 @@ namespace Ruby {
 			if (getLogLevel() != LogLevel::Trace)
 				return;
 
-			setLogColor(LogColor::Green, LogColor::Black);
+			internalSetLogColor(LogColor::Green, LogColor::Black);
 			TimeStruct time = Time::getLocalTime();
 			printf("[%.2d:%.2d:%.2d] %s: ", time.hour, time.minute, time.second, m_Name);
-			printf(message, args...);
-			resetDefaultLogColor();
+			printf(message, std::forward<Args>(args)...);
 			printf("\n");
 		}
 
@@ -83,11 +89,10 @@ namespace Ruby {
 			if (getLogLevel() > LogLevel::Info)
 				return;
 
-			setLogColor(LogColor::Yellow, LogColor::Black);
+			internalSetLogColor(LogColor::Yellow, LogColor::Black);
 			TimeStruct time = Time::getLocalTime();
 			printf("[%.2d:%.2d:%.2d] %s: ", time.hour, time.minute, time.second, m_Name);
 			printf(message, args...);
-			resetDefaultLogColor();
 			printf("\n");
 		}
 
@@ -97,11 +102,10 @@ namespace Ruby {
 			if (getLogLevel() > LogLevel::Warn)
 				return;
 
-			setLogColor(LogColor::Purple, LogColor::Black);
+			internalSetLogColor(LogColor::Purple, LogColor::Black);
 			TimeStruct time = Time::getLocalTime();
 			printf("[%.2d:%.2d:%.2d] %s: ", time.hour, time.minute, time.second, m_Name);
-			printf(message, args...);
-			resetDefaultLogColor();
+			printf(message, std::forward<Args>(args)...);
 			printf("\n");
 		}
 
@@ -111,31 +115,35 @@ namespace Ruby {
 			if (getLogLevel() == LogLevel::Critical)
 				return;
 
-			setLogColor(LogColor::Red, LogColor::Black);
+			internalSetLogColor(LogColor::Red, LogColor::Black);
 			TimeStruct time = Time::getLocalTime();
 			printf("[%.2d:%.2d:%.2d] %s: ", time.hour, time.minute, time.second, m_Name);
-			printf(message, args...);
-			resetDefaultLogColor();
+			printf(message, std::forward<Args>(args)...);
 			printf("\n");
 		}
 
 		template<typename... Args>
 		inline void critical(const char* message, Args... args)
 		{
-			setLogColor(LogColor::White, LogColor::Dark_Red);
+			internalSetLogColor(LogColor::White, LogColor::Dark_Red);
 			TimeStruct time = Time::getLocalTime();
 			printf("[%.2d:%.2d:%.2d] %s: ", time.hour, time.minute, time.second, m_Name);
-			printf(message, args...);
-			resetDefaultLogColor();
+			printf(message, std::forward<Args>(args)...);
+			internalResetLogColor();
 			printf("\n");
 		}
 
 
 	private:
-		uint16_t m_ConsoleColor;
+		void internalSetLogColor(LogColor textColor, LogColor highlightColor);
+		void internalSetLogColor(uint16_t color);
+		void internalResetLogColor();
+
+		uint16_t m_CurrentColor, m_SavedColor;
 		LogLevel m_Level;
 		const char* m_Name; // Aka the Log Prefix.
 		static SharedPtr<Logger> s_EngineLogger;
+		static SharedPtr<Logger> s_ClientLogger;
 	};
 
 }

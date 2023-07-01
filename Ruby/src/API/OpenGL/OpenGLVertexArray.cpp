@@ -26,7 +26,7 @@ namespace Ruby {
 		glBindVertexArray(0);
 	}
 
-	void OpenGLVA::pushVertexBuffer(const SharedPtr<VertexBuffer>& buffer)
+	void OpenGLVA::setVertexBuffer(const SharedPtr<VertexBuffer>& buffer)
 	{
 		glBindVertexArray(m_RendererID);
 		buffer->bind();
@@ -70,7 +70,7 @@ namespace Ruby {
 			offset += (uint64_t)e[i].count * (uint64_t)sizeOfLayoutType(e[i].type);
 		}
 
-		m_VertexBuffers.push_back(buffer);
+		m_VertexBuffer = buffer;
 	}
 
 	void OpenGLVA::setIndexBuffer(const SharedPtr<IndexBuffer>& buffer)

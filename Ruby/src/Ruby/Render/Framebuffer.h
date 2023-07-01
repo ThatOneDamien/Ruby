@@ -4,7 +4,7 @@
 
 namespace Ruby {
 
-	class Framebuffer 
+	class RB_NOVTABLE Framebuffer
 	{
 	public:
 		virtual ~Framebuffer() = default;

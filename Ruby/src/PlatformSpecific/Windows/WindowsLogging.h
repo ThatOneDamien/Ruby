@@ -11,6 +11,7 @@ namespace Ruby {
 	static HANDLE s_ConsoleHandle;
 	static uint16_t s_DefaultColor;
 	SharedPtr<Logger> Logger::s_EngineLogger;
+	SharedPtr<Logger> Logger::s_ClientLogger;
 
 	void Logger::init()
 	{
@@ -21,41 +22,67 @@ namespace Ruby {
 		// Gets the first byte of data in the wAttributes which holds the color info. 
 		// This contains the current text color in the first 4 bits and the highlight color in the last 4.
 		s_DefaultColor = (info.wAttributes & 0xFF);
-		s_EngineLogger = createShared<Logger>("Engine");
+		s_EngineLogger = createShared<Logger>("Engine", LogLevel::Trace);
+		s_ClientLogger = createShared<Logger>("Client", LogLevel::Trace);
 		
 	}
 
-	Logger::Logger(const char* prefix, LogLevel logLevel)
-		: m_Name(prefix), m_Level(logLevel), m_ConsoleColor(s_DefaultColor)
-	{
-	}
+	Logger::Logger(const char* name, LogLevel logLevel)
+		: m_Name(name), m_Level(logLevel), m_CurrentColor(s_DefaultColor), m_SavedColor(s_DefaultColor)
+	{}
 
 	void Logger::setLogColor(LogColor textColor, LogColor highlightColor)
 	{
 		// Prevents both the text and highlight from being the same color, which would render the text invisible.
-		if (textColor == highlightColor) return;
-		m_ConsoleColor = ((uint8_t)highlightColor << 4) | (uint8_t)textColor;
-		SetConsoleTextAttribute(s_ConsoleHandle, m_ConsoleColor);
+		if (textColor != highlightColor)
+		{
+			m_SavedColor = ((uint8_t)highlightColor << 4) | (uint8_t)textColor;
+		}
 	}
 
 	void Logger::setLogTextColor(LogColor textColor)
 	{
-		if ((uint8_t)textColor == (m_ConsoleColor >> 4)) return;
-		m_ConsoleColor = (m_ConsoleColor & 0xF0) | (uint8_t)textColor;
-		SetConsoleTextAttribute(s_ConsoleHandle, m_ConsoleColor);
+		if ((uint8_t)textColor != (m_SavedColor >> 4))
+		{
+			m_SavedColor = (m_SavedColor & 0xF0) | (uint8_t)textColor;
+		}
 	}
 
 	void Logger::setLogHighlightColor(LogColor highlightColor)
 	{
-		if ((uint8_t)highlightColor == (m_ConsoleColor & 0x0F)) return;
-		m_ConsoleColor = (m_ConsoleColor & 0x0F) | (uint8_t)highlightColor;
-		SetConsoleTextAttribute(s_ConsoleHandle, m_ConsoleColor);
+		if ((uint8_t)highlightColor != (m_SavedColor & 0x0F))
+		{
+			m_SavedColor = (m_SavedColor & 0x0F) | (uint8_t)highlightColor;
+		}
 	}
 
 	void Logger::resetDefaultLogColor()
 	{
-		m_ConsoleColor = s_DefaultColor;
-		SetConsoleTextAttribute(s_ConsoleHandle, m_ConsoleColor);
+		m_SavedColor = s_DefaultColor;
 	}
 
+	void Logger::internalSetLogColor(LogColor textColor, LogColor highlightColor)
+	{
+		uint16_t color = ((uint8_t)highlightColor << 4) | (uint8_t)textColor;
+		if (m_CurrentColor != color)
+		{
+			SetConsoleTextAttribute(s_ConsoleHandle, color);
+			m_CurrentColor = color;
+		}
+	}
+
+	void Logger::internalSetLogColor(uint16_t color)
+	{
+		if (m_CurrentColor != color)
+		{
+			SetConsoleTextAttribute(s_ConsoleHandle, color);
+			m_CurrentColor = color;
+		}
+	}
+
+	void Logger::internalResetLogColor()
+	{
+		SetConsoleTextAttribute(s_ConsoleHandle, s_DefaultColor);
+		m_CurrentColor = s_DefaultColor;
+	}
 }

@@ -32,7 +32,7 @@ namespace Ruby {
 
 	}
 
-	static inline const char* timingPrecisionToStr(TimingPrecision tp)
+	inline const char* timingPrecisionToStr(TimingPrecision tp)
 	{
 		switch (tp)
 		{
@@ -41,6 +41,7 @@ namespace Ruby {
 		case TimingPrecision::Milliseconds: return "Milliseconds";
 		case TimingPrecision::Seconds:      return "Seconds";
 		}
+		return "";
 	}
 
 	DeltaTime::DeltaTime(TimingPrecision precision)

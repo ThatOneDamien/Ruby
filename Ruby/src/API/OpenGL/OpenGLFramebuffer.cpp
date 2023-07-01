@@ -45,14 +45,19 @@ namespace Ruby {
 	{
 		glDeleteTextures(1, &m_ColorTextureID);
 		glCreateTextures(GL_TEXTURE_2D, 1, &m_ColorTextureID);
+
 		glBindFramebuffer(GL_FRAMEBUFFER, m_RendererID);
 		glBindTexture(GL_TEXTURE_2D, m_ColorTextureID);
+
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_ColorTextureID, 0);
+
 		GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
 		RB_ASSERT(status == GL_FRAMEBUFFER_COMPLETE, "Framebuffer incomplete!");
+
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		m_Width = width;
 		m_Height = height;

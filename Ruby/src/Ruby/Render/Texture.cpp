@@ -14,9 +14,9 @@ namespace Ruby {
 		return createShared<TEXTURE>(filepath);
 	}
 
-	SharedPtr<Texture> Texture::createTexture(int width, int height)
+	SharedPtr<Texture> Texture::createTexture(int width, int height, PixelFormat format)
 	{
-		return createShared<TEXTURE>(width, height);
+		return createShared<TEXTURE>(width, height, format);
 	}
 
 	SubTexture::SubTexture(const SharedPtr<Texture>& texture, const glm::vec2& bottomLeftCorner, const glm::vec2& topRightCorner)

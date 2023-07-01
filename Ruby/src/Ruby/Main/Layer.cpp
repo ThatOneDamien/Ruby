@@ -4,13 +4,6 @@
 
 namespace Ruby {
 
-	Layer::Layer(const char* name)
-		: m_Name(name)
-	{
-
-	}
-
-
 	LayerStack::~LayerStack()
 	{
 		for (size_t i = 0; i < m_Stack.size(); i++)

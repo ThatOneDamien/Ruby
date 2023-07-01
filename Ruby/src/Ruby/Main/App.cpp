@@ -1,6 +1,8 @@
 #include "ruby_pch.h"
 
 #include "Ruby/Main/App.h"
+#include "Ruby/Main/Core.h"
+#include "Ruby/Render/Font.h"
 #include "Ruby/Render/Renderer.h"
 
 #include "Ruby/Event/AppEvent.h"
@@ -26,8 +28,11 @@ namespace Ruby {
 		// Create window and initialize windowing library.
 		m_Window = Window::createWindow(name, width, height);
 		
+		//Font::init();
+
 		// Initialize the renderer, depending on API this will incorporate the windowing library.
 		Renderer::init();
+
 		ImGuiUtil::init();
 
 	}
@@ -36,6 +41,7 @@ namespace Ruby {
 	{
 		ImGuiUtil::deInit();
 		Renderer::deInit();
+		//Font::deInit();
 	}
 
 	void App::onEvent(Event& e)

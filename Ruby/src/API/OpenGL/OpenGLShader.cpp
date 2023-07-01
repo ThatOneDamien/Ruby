@@ -12,77 +12,80 @@ namespace Ruby {
 
     using ShaderCollection = std::unordered_map<GLenum, std::string>;
 
-    static ShaderCollection parseShaders(const std::string& fileSourceCode)
-    {
-        ShaderCollection shaders;
+    namespace Internal {
 
-        size_t header = fileSourceCode.find("#shader");
-
-        while (header != std::string::npos)
+        static ShaderCollection parseShaders(const std::string& fileSourceCode)
         {
-            size_t firstLineEnd = fileSourceCode.find_first_of("\r\n", header);
-            RB_ASSERT(firstLineEnd != std::string::npos, "Syntax error no line end found.");
+            ShaderCollection shaders;
 
-            size_t end = fileSourceCode.find_last_not_of(" \t\r\n", firstLineEnd-1);
-            RB_ASSERT(end != std::string::npos && end > header + 7, "Shader syntax error, incomplete shader type");
+            size_t header = fileSourceCode.find("#shader");
 
-            size_t beg = fileSourceCode.find_last_of(" \t", end - 1) + 1;
-            RB_ASSERT(beg != std::string::npos && beg > header + 7, "Syntax error.");
-            std::string type = fileSourceCode.substr(beg, end - beg + 1);
+            while (header != std::string::npos)
+            {
+                size_t firstLineEnd = fileSourceCode.find_first_of("\r\n", header);
+                RB_ASSERT(firstLineEnd != std::string::npos, "Syntax error no line end found.");
 
-            size_t nextLine = fileSourceCode.find_first_not_of("\r\n\t ", firstLineEnd + 1);
-            RB_ASSERT(nextLine != std::string::npos, "Syntax error");
-            header = fileSourceCode.find("#shader", nextLine);
+                size_t end = fileSourceCode.find_last_not_of(" \t\r\n", firstLineEnd - 1);
+                RB_ASSERT(end != std::string::npos && end > header + 7, "Shader syntax error, incomplete shader type");
 
-            GLenum typeEnum = GL_NONE;
+                size_t beg = fileSourceCode.find_last_of(" \t", end - 1) + 1;
+                RB_ASSERT(beg != std::string::npos && beg > header + 7, "Syntax error.");
+                std::string type = fileSourceCode.substr(beg, end - beg + 1);
 
-            if (type == "vertex")
-                typeEnum = GL_VERTEX_SHADER;
-            else if (type == "fragment")
-                typeEnum = GL_FRAGMENT_SHADER;
-            else if (type == "geometry" || type == "geo")
-                typeEnum = GL_GEOMETRY_SHADER;
-            else
-                RB_ASSERT(false, "Unknown/unsupported shader type.");
+                size_t nextLine = fileSourceCode.find_first_not_of("\r\n\t ", firstLineEnd + 1);
+                RB_ASSERT(nextLine != std::string::npos, "Syntax error");
+                header = fileSourceCode.find("#shader", nextLine);
 
-            shaders[typeEnum] = header == std::string::npos ? fileSourceCode.substr(nextLine, fileSourceCode.size() - nextLine)
-                                                            : fileSourceCode.substr(nextLine, header - nextLine);
+                GLenum typeEnum = GL_NONE;
+
+                if (type == "vertex")
+                    typeEnum = GL_VERTEX_SHADER;
+                else if (type == "fragment")
+                    typeEnum = GL_FRAGMENT_SHADER;
+                else if (type == "geometry" || type == "geo")
+                    typeEnum = GL_GEOMETRY_SHADER;
+                else
+                    RB_ASSERT(false, "Unknown/unsupported shader type.");
+
+                shaders[typeEnum] = header == std::string::npos ? fileSourceCode.substr(nextLine, fileSourceCode.size() - nextLine)
+                    : fileSourceCode.substr(nextLine, header - nextLine);
+            }
+
+            return shaders;
         }
 
-        return shaders;
-    }
-
-    static std::string loadShaderFromFile(const std::string& filepath)
-    {
-        // Input stream is read-only, reads in binary, and starts at the end of the file.
-        std::ifstream is(filepath, std::ios::in | std::ios::binary | std::ios::ate);
-        std::string source;
-
-        if (is)
+        static std::string loadShaderFromFile(const std::string& filepath)
         {
-            size_t size = is.tellg();
-            if (size != -1)
+            // Input stream is read-only, reads in binary, and starts at the end of the file.
+            std::ifstream is(filepath, std::ios::in | std::ios::binary | std::ios::ate);
+            std::string source;
+
+            if (is)
             {
-                // Source is resized to the size of the file, and the entire contents are read in.
-                source.resize(size);
-                is.seekg(0, std::ios::beg);
-                is.read(&source[0], size);
+                size_t size = is.tellg();
+                if (size != -1)
+                {
+                    // Source is resized to the size of the file, and the entire contents are read in.
+                    source.resize(size);
+                    is.seekg(0, std::ios::beg);
+                    is.read(&source[0], size);
+                }
+                else
+                    RB_ERROR("Unable to read file %s", filepath);
             }
             else
-                RB_ERROR("Unable to read file %s", filepath);
+                RB_ERROR("Unable to open file %s", filepath);
+
+            return source;
+
         }
-        else
-            RB_ERROR("Unable to open file %s", filepath);
-
-        return source;
-
     }
 
     OpenGLShader::OpenGLShader(const std::string& filepath)
         : m_Filepath(filepath)
     {
-        std::string fileSourceCode = loadShaderFromFile(filepath);
-        ShaderCollection shaderCollection = parseShaders(fileSourceCode);
+        std::string fileSourceCode = Internal::loadShaderFromFile(filepath);
+        ShaderCollection shaderCollection = Internal::parseShaders(fileSourceCode);
         compileShader(shaderCollection);
 
         size_t lastSlash = 0, extension = 0;
@@ -105,8 +108,8 @@ namespace Ruby {
     OpenGLShader::OpenGLShader(const std::string& name, const std::string& filepath)
         : m_Filepath(filepath), m_Name(name)
     {
-        std::string fileSourceCode = loadShaderFromFile(filepath);
-        ShaderCollection shaderCollection = parseShaders(fileSourceCode);
+        std::string fileSourceCode = Internal::loadShaderFromFile(filepath);
+        ShaderCollection shaderCollection = Internal::parseShaders(fileSourceCode);
         compileShader(shaderCollection);
     }
 

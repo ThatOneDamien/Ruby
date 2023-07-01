@@ -23,7 +23,6 @@ namespace Ruby {
 			Data = other.Data;
 			Size = other.Size;
 			other.Data = nullptr;
-			other.Size = 0;
 		}
 
 		DataBuffer(const DataBuffer& other) noexcept
@@ -35,15 +34,15 @@ namespace Ruby {
 
 		~DataBuffer() noexcept = default;
 
-		inline void Allocate(uint64_t size)
+		inline void allocate(uint64_t size)
 		{
-			Release();
+			clear();
 
 			Data = new uint8_t[size];
 			Size = size;
 		}
 
-		inline void Release()
+		inline void clear()
 		{
 			delete[] Data;
 			Data = nullptr;
@@ -81,7 +80,6 @@ namespace Ruby {
 			Data = buffer.Data;
 			Size = buffer.Size;
 			buffer.Data = nullptr;
-			buffer.Size = 0;
 		}
 
 		ScopedBuffer(ScopedBuffer&& other) noexcept // Takes ownership of buffer
@@ -89,7 +87,6 @@ namespace Ruby {
 			Data = other.Data;
 			Size = other.Size;
 			other.Data = nullptr;
-			other.Size = 0;
 		}
 
 		ScopedBuffer(const ScopedBuffer& other) noexcept // Creates new buffer.

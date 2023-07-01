@@ -2,6 +2,7 @@
 
 #include "Ruby/Main/Core.h"
 #include "Ruby/Render/Renderer.h"
+#include "Ruby/Render/Font.h"
 #include "Ruby/Main/App.h"
 
 #pragma warning(disable: 6385, 6386) // Compiler warning about overflowing buffer which wont happen.
@@ -54,6 +55,8 @@ namespace Ruby {
 		static glm::mat4 s_CameraViewProj;
 		static SharedPtr<UniformBuffer> s_CamUBO{ nullptr };
 
+		//static Font* s_Font{ nullptr };
+
 		// ---------------END BATCH RENDERER STUFF-----------------
 
 
@@ -74,7 +77,7 @@ namespace Ruby {
 				s_QuadVBO->setLayout(layout);
 			}
 
-			s_QuadVAO->pushVertexBuffer(s_QuadVBO);
+			s_QuadVAO->setVertexBuffer(s_QuadVBO);
 
 
 			s_QuadVBData = new QuadVertex[MAX_VERTICES];
@@ -120,12 +123,14 @@ namespace Ruby {
 				s_QuadShader->setUniformIntArray("u_Textures", 32, arr);
 			}
 
+			//s_Font = new Font("res/fonts/Roboto-Regular.ttf", 12);
 		}
 
 
 
 		void deInit()
 		{
+			//delete s_Font;
 			delete[] s_QuadVBData;
 			API::deInitAPI();
 		}
@@ -239,7 +244,7 @@ namespace Ruby {
 				s_TextureInsert++;
 			}
 
-			float halfSize[2] = { size.x * 0.5, size.y * 0.5 };
+			float halfSize[2] = { size.x * 0.5f, size.y * 0.5f };
 			s_QuadVBOffset[0].x = position.x - halfSize[0];
 			s_QuadVBOffset[0].y = position.y - halfSize[1];
 			s_QuadVBOffset[0].z = 0;
@@ -300,7 +305,7 @@ namespace Ruby {
 			}
 
 			const glm::vec2* coords = subTexture->getTexCoords();
-			float halfSize[2] = { size.x * 0.5, size.y * 0.5 };
+			float halfSize[2] = { size.x * 0.5f, size.y * 0.5f };
 			s_QuadVBOffset[0].x = position.x - halfSize[0];
 			s_QuadVBOffset[0].y = position.y - halfSize[1];
 			s_QuadVBOffset[0].z = 0;
