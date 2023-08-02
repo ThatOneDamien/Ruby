@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Ruby/Main/Core.h"
 #include "Ruby/Render/Buffers.h"
 
 namespace Ruby {
@@ -22,7 +23,7 @@ namespace Ruby {
 		virtual inline const VertexLayout& getLayout() const override { return m_Layout; }
 
 	private:
-		uint32_t m_RendererID = 0;
+		RendererID m_RendererID = 0;
 		uint32_t m_Size;
 		VertexLayout m_Layout;
 	};
@@ -40,7 +41,7 @@ namespace Ruby {
 		virtual inline uint32_t getCount() const override { return m_Count; }
 
 	private:
-		uint32_t m_RendererID = 0;
+		RendererID m_RendererID = 0;
 		uint32_t m_Count;
 	};
 
@@ -61,7 +62,7 @@ namespace Ruby {
 		virtual inline uint8_t getBinding() const override { return m_Binding; }
 
 	private:
-		uint32_t m_RendererID = 0;
+		RendererID m_RendererID = 0;
 		uint32_t m_Size;
 		uint8_t m_Binding;
 	};

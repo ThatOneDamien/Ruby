@@ -6,83 +6,87 @@
 #define RB_NOVTABLE
 #endif
 
-#include <utility>
+#include <type_traits>
 #include <iostream>
 
 // a lot taken from SharedPtr, but slightly modified to better suit my needs.
 namespace Ruby {
 
-	typedef decltype(__nullptr) nullptr_t;
+	typedef decltype(nullptr) nullptr_t;
 
 	template<typename T>
 	class SharedPtr;
 
-	class RB_NOVTABLE _COUNTER_BASE 
+	template<typename T>
+	struct Wrapper { T Value; };
+
+	class RB_NOVTABLE COUNTER_BASE
 	{
 	private:
 		template<typename T>
 		friend class SharedPtr;
 
-		virtual void _Destroy() noexcept = 0;
+		virtual void Destroy() noexcept = 0;
 
-		uint32_t _Uses = 1;
+		uint32_t Uses = 1;
 
 	protected:
-		constexpr _COUNTER_BASE() noexcept = default;
+		constexpr COUNTER_BASE() noexcept = default;
 
 	public:
-		_COUNTER_BASE(const _COUNTER_BASE&) = delete;
-		_COUNTER_BASE& operator=(const _COUNTER_BASE&) = delete;
+		COUNTER_BASE(const COUNTER_BASE&) = delete;
+		COUNTER_BASE& operator=(const COUNTER_BASE&) = delete;
 
-		virtual ~_COUNTER_BASE() noexcept {}
+		virtual ~COUNTER_BASE() noexcept {}
 
-		void _Incref() noexcept 
+		void IncRef() noexcept
 		{
-			_Uses++;
+			Uses++;
 		}
 
-		void _Decref() noexcept 
+		void DecRef() noexcept
 		{
-			if (--_Uses == 0) 
+			if (--Uses == 0)
 			{
-				_Destroy();
+				Destroy();
 			}
 		}
 
 		uint32_t _Use_count() const noexcept
 		{
-			return _Uses;
+			return Uses;
 		}
+
 	};
 
 	template<typename T>
-	class _PTR_BASE : public _COUNTER_BASE
+	class PTR_BASE : public COUNTER_BASE
 	{
 	public:
 		template<typename... Args>
-		explicit _PTR_BASE(Args&&... args) 
-			: _COUNTER_BASE()
+		explicit PTR_BASE(Args&&... args)
+			: COUNTER_BASE()
 		{
-			new (&(_Storage._Value)) T(std::forward<Args>(args)...);
+			new (&(Storage.Value)) T(std::forward<Args>(args)...);
 		}
 
-		~_PTR_BASE() noexcept override {}
+		~PTR_BASE() noexcept override {}
 
-	
+
 	private:
 
 		template<typename T2 = T, typename... Args>
 		friend SharedPtr<T2> createShared(Args&&... args);
 
-		void _Destroy() noexcept override
+		void Destroy() noexcept override
 		{
-			_Storage._Value.~T();
+			Storage.Value.~T();
 			delete this;
 		}
 
-		union 
+		union
 		{
-			std::_Wrap<T> _Storage;
+			Wrapper<T> Storage;
 		};
 
 	};
@@ -113,7 +117,7 @@ namespace Ruby {
 			refCount = other.refCount;
 			base = other.base;
 			if (base)
-				base->_Incref();
+				base->IncRef();
 			else
 				(*refCount)++;
 		}
@@ -125,7 +129,7 @@ namespace Ruby {
 			refCount = other.refCount;
 			base = other.base;
 			if (base)
-				base->_Incref();
+				base->IncRef();
 			else
 				(*refCount)++;
 		}
@@ -153,7 +157,7 @@ namespace Ruby {
 
 		~SharedPtr() noexcept
 		{
-			if (base) base->_Decref();
+			if (base) base->DecRef();
 			else if (refCount && --(*refCount) == 0)
 			{
 				delete refCount;
@@ -165,7 +169,7 @@ namespace Ruby {
 		inline uint32_t getRefCount() const noexcept { return *refCount; }
 		inline void reset()
 		{
-			if (base) base->_Decref();
+			if (base) base->DecRef();
 			else if (refCount && --(*refCount) == 0)
 			{
 				delete refCount;
@@ -178,7 +182,7 @@ namespace Ruby {
 
 		SharedPtr& operator=(const SharedPtr& right) noexcept 
 		{
-			if (base) base->_Decref();
+			if (base) base->DecRef();
 			else if (refCount && --(*refCount) == 0)
 			{
 				delete refCount;
@@ -188,7 +192,7 @@ namespace Ruby {
 			refCount = right.refCount;
 			base = right.base;
 			if (base)
-				base->_Incref();
+				base->IncRef();
 			else
 				(*refCount)++;
 			return *this;
@@ -197,7 +201,7 @@ namespace Ruby {
 		template <typename T2, std::enable_if_t<std::_SP_pointer_compatible<T2, T>::value, int> = 0>
 		SharedPtr& operator=(const SharedPtr<T2>& right) noexcept 
 		{
-			if (base) base->_Decref();
+			if (base) base->DecRef();
 			else if (refCount && --(*refCount) == 0)
 			{
 				delete refCount;
@@ -207,7 +211,7 @@ namespace Ruby {
 			refCount = right.refCount;
 			base = right.base;
 			if (base)
-				base->_Incref();
+				base->IncRef();
 			else
 				(*refCount)++;
 			return *this;
@@ -215,7 +219,7 @@ namespace Ruby {
 
 		SharedPtr& operator=(SharedPtr&& right) noexcept 
 		{
-			if (base) base->_Decref();
+			if (base) base->DecRef();
 			else if (refCount && --(*refCount) == 0)
 			{
 				delete refCount;
@@ -233,7 +237,7 @@ namespace Ruby {
 		template <typename T2, std::enable_if_t<std::_SP_pointer_compatible<T2, T>::value, int> = 0>
 		SharedPtr& operator=(SharedPtr<T2>&& right) noexcept 
 		{
-			if (base) base->_Decref();
+			if (base) base->DecRef();
 			else if (refCount && --(*refCount) == 0)
 			{
 				delete refCount;
@@ -269,7 +273,7 @@ namespace Ruby {
 		{
 			if (!base) return;
 			ref = _ref;
-			refCount = &(base->_Uses);
+			refCount = &(base->Uses);
 		}
 
 		template<typename T2>
@@ -280,7 +284,7 @@ namespace Ruby {
 
 		T* ref{ nullptr };
 		uint32_t* refCount{ nullptr };
-		_COUNTER_BASE* base{ nullptr };
+		COUNTER_BASE* base{ nullptr };
 	};
 
 	template<typename T, typename... Args>
@@ -288,9 +292,9 @@ namespace Ruby {
 		SharedPtr<T> createShared(Args&&... args)
 	{
 		SharedPtr<T> temp;
-		const auto base = new _PTR_BASE<T>(std::forward<Args>(args)...);
+		const auto base = new PTR_BASE<T>(std::forward<Args>(args)...);
 		temp.base = base;
-		temp.setData(&(base->_Storage._Value));
+		temp.setData(&(base->Storage.Value));
 		return temp;
 	}
 
@@ -452,7 +456,7 @@ namespace Ruby {
 		{
 			if (!base) return;
 			ref = _ref;
-			refCount = &(base->_Uses);
+			refCount = &(base->Uses);
 		}
 
 		template<typename T2>

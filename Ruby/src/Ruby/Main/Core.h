@@ -23,9 +23,9 @@
 #endif
 
 #include <stdint.h>
-#include "Ruby/Main/Logging.h"
+typedef uint32_t RendererID;
 
-#include <filesystem>
+#include "Ruby/Main/Logging.h"
 
 #ifdef RB_EXTERNAL_DEF
 #define RB_TRACE(msg, ...)                          ::Ruby::Logger::getClientLogger()->trace(msg, __VA_ARGS__);
@@ -53,3 +53,5 @@
 		#define RB_ASSERT(x, msg)
 	#endif
 #endif
+
+#include <filesystem>

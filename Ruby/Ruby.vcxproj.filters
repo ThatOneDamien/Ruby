@@ -55,6 +55,9 @@
     <Filter Include="src\Ruby\Render">
       <UniqueIdentifier>{8D1D25BF-F9A8-9283-02BA-15786EC4EE83}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\Ruby\Scene-Entity">
+      <UniqueIdentifier>{E51ADBFD-5187-96F8-1A7B-2E5686A6B860}</UniqueIdentifier>
+    </Filter>
     <Filter Include="src\Ruby\Utility">
       <UniqueIdentifier>{21E15EAD-0DDA-7DFF-360C-638422645D0B}</UniqueIdentifier>
     </Filter>
@@ -1326,12 +1329,6 @@
     <ClInclude Include="src\API\OpenGL\OpenGLVertexArray.h">
       <Filter>src\API\OpenGL</Filter>
     </ClInclude>
-    <ClInclude Include="src\PlatformSpecific\Windows\WindowsLogging.h">
-      <Filter>src\PlatformSpecific\Windows</Filter>
-    </ClInclude>
-    <ClInclude Include="src\PlatformSpecific\Windows\WindowsTime.h">
-      <Filter>src\PlatformSpecific\Windows</Filter>
-    </ClInclude>
     <ClInclude Include="src\PlatformSpecific\Windows\WindowsWindow.h">
       <Filter>src\PlatformSpecific\Windows</Filter>
     </ClInclude>
@@ -1407,6 +1404,12 @@
     <ClInclude Include="src\Ruby\Render\VertexArray.h">
       <Filter>src\Ruby\Render</Filter>
     </ClInclude>
+    <ClInclude Include="src\Ruby\Scene-Entity\ECS.h">
+      <Filter>src\Ruby\Scene-Entity</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Ruby\Scene-Entity\Scene.h">
+      <Filter>src\Ruby\Scene-Entity</Filter>
+    </ClInclude>
     <ClInclude Include="src\Ruby\Utility\Pointers.h">
       <Filter>src\Ruby\Utility</Filter>
     </ClInclude>
@@ -1439,6 +1442,12 @@
     <ClCompile Include="src\API\OpenGL\OpenGLVertexArray.cpp">
       <Filter>src\API\OpenGL</Filter>
     </ClCompile>
+    <ClCompile Include="src\PlatformSpecific\Windows\WindowsLogging.cpp">
+      <Filter>src\PlatformSpecific\Windows</Filter>
+    </ClCompile>
+    <ClCompile Include="src\PlatformSpecific\Windows\WindowsTime.cpp">
+      <Filter>src\PlatformSpecific\Windows</Filter>
+    </ClCompile>
     <ClCompile Include="src\PlatformSpecific\Windows\WindowsWindow.cpp">
       <Filter>src\PlatformSpecific\Windows</Filter>
     </ClCompile>
@@ -1449,12 +1458,6 @@
       <Filter>src\Ruby\Main</Filter>
     </ClCompile>
     <ClCompile Include="src\Ruby\Main\Layer.cpp">
-      <Filter>src\Ruby\Main</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Ruby\Main\Logging.cpp">
-      <Filter>src\Ruby\Main</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Ruby\Main\Time.cpp">
       <Filter>src\Ruby\Main</Filter>
     </ClCompile>
     <ClCompile Include="src\Ruby\Main\Window.cpp">
@@ -1483,6 +1486,9 @@
     </ClCompile>
     <ClCompile Include="src\Ruby\Render\VertexArray.cpp">
       <Filter>src\Ruby\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Ruby\Scene-Entity\Scene.cpp">
+      <Filter>src\Ruby\Scene-Entity</Filter>
     </ClCompile>
     <ClCompile Include="src\ruby_pch.cpp">
       <Filter>src</Filter>

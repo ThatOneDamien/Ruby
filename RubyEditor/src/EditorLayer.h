@@ -17,9 +17,10 @@ namespace Ruby {
 		virtual void onPop() override;
 
 	private:
-		UniPtr<Camera> cam;
-		SharedPtr<Framebuffer> fb;
-
+		Camera m_Cam{1.0f,1.0f};
+		SharedPtr<Texture> m_Tex;
+		SharedPtr<Framebuffer> m_FBO;
+		float m_InvAspectRatio = 1.0f;
 	};
 
 }

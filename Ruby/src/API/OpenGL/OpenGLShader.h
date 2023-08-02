@@ -4,10 +4,9 @@
 
 typedef unsigned int GLenum;
 typedef int GLint;
+typedef std::unordered_map<GLenum, std::string> ShaderCollection;
 
 namespace Ruby {
-
-    using ShaderCollection = std::unordered_map<GLenum, std::string>;
 
     class OpenGLShader : public Shader
     {
@@ -43,7 +42,7 @@ namespace Ruby {
             return m_CachedUniforms[name];
         }
 
-        uint32_t m_ProgramID;
+        RendererID m_ProgramID;
         std::string m_Name, m_Filepath;
         mutable std::unordered_map<std::string, GLint> m_CachedUniforms;
     };

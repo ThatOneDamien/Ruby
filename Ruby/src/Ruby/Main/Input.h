@@ -4,7 +4,6 @@
 #include "MouseCodes.h"
 
 #include "App.h"
-#include "Window.h"
 
 namespace Ruby
 {

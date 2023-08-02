@@ -1,6 +1,8 @@
-#pragma once
+#include "ruby_pch.h"
 
+#include "Ruby/Main/Core.h"
 
+#ifdef RB_PLAT_WIND
 // NOTE: DO NOT INCLUDE ANYWHERE ELSE IN THE PROGRAM EXCEPT IN
 // Logging.cpp, AS THIS FILE CONTAINS SOURCE CODE THAT WOULD RESULT
 // IN A MULTIPLE DECLARATIONS ERROR IF DUPLICATED.
@@ -24,7 +26,7 @@ namespace Ruby {
 		s_DefaultColor = (info.wAttributes & 0xFF);
 		s_EngineLogger = createShared<Logger>("Engine", LogLevel::Trace);
 		s_ClientLogger = createShared<Logger>("Client", LogLevel::Trace);
-		
+
 	}
 
 	Logger::Logger(const char* name, LogLevel logLevel)
@@ -86,3 +88,4 @@ namespace Ruby {
 		m_CurrentColor = s_DefaultColor;
 	}
 }
+#endif

@@ -1,8 +1,7 @@
 #include "ruby_pch.h"
 
-#include "Ruby/Main/Core.h"
-#include "Ruby/Main/App.h"
 #include "ImGuiUtil.h"
+#include "Ruby/Main/App.h"
 
 #pragma warning(push, 0)
 #ifdef RB_USE_OPENGL

@@ -16,7 +16,7 @@ namespace Ruby {
 
 		virtual void regenerate(int width, int height) override;
 	private:
-		uint32_t m_RendererID = 0;
+		RendererID m_RendererID = 0;
 		uint32_t m_ColorTextureID = 0;
 		int m_Width, m_Height;
 	};

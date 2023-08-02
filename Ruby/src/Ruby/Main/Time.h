@@ -1,18 +1,11 @@
 #pragma once
 
+typedef void(*ScopedTimerFunc) (double);
 
 namespace Ruby {
 
-	enum class TimingPrecision : uint32_t
+	struct TimeStruct 
 	{
-		Nanoseconds    = 1000000000,
-		Microseconds   = 1000000,
-		Milliseconds   = 1000,
-		Seconds        = 1
-	};
-
-	struct TimeStruct {
-
 		uint16_t  year;
 		uint16_t  month;
 		uint16_t  dayOfWeek;
@@ -38,27 +31,28 @@ namespace Ruby {
 	class DeltaTime
 	{
 	public:
-		DeltaTime(TimingPrecision precision);
+		DeltaTime();
 		~DeltaTime() = default;
 
-		double getAndClock();
+		[[nodiscard]] double getSecondsAndClock();
+		[[nodiscard]] double getMillisAndClock();
+		[[nodiscard]] double getMicrosAndClock();
+		[[nodiscard]] double getNanosAndClock();
 
 	private:
-		double m_Factor;
 		int64_t m_PreviousTime;
-
 	};
 
 	class ScopedTimer
 	{
 	public:
-		ScopedTimer(const char* name, TimingPrecision precision = TimingPrecision::Seconds);
+		ScopedTimer(const char* name, ScopedTimerFunc func);
 		~ScopedTimer();
 
 	private:
-		double m_Factor;
+		ScopedTimerFunc m_Func;
 		int64_t m_Start;
-		const char* m_Name, *m_Str;
+		const char* m_Name;
 
 	};
 

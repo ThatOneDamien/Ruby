@@ -1,6 +1,7 @@
 #pragma once
 
-#include "Ruby/Main/Core.h"
+#include "Core.h"
+
 #include "MouseCodes.h"
 #include "KeyCodes.h"
 

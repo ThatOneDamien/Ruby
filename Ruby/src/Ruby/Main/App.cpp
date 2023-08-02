@@ -1,22 +1,20 @@
 #include "ruby_pch.h"
 
-#include "Ruby/Main/App.h"
-#include "Ruby/Main/Core.h"
-#include "Ruby/Render/Font.h"
+#include "App.h"
+#include "Core.h"
 #include "Ruby/Render/Renderer.h"
-
+//#include "Ruby/Render/Font.h"
 #include "Ruby/Event/AppEvent.h"
-#include "Ruby/Event/KeyEvent.h"
-#include "Ruby/Event/MouseEvent.h"
-
 #include "Ruby/GUI/ImGuiUtil.h"
+
+#include <filesystem>
 
 namespace Ruby {
 
 	App* App::s_Instance = nullptr;
 
 	App::App(int argc, char** argv, const std::string& mainDir, const char* name, int width, int height)
-		: m_Argc(argc), m_Argv(argv), m_MainDir(mainDir), m_DT(TimingPrecision::Seconds)
+		: m_Argc(argc), m_Argv(argv), m_MainDir(mainDir), m_DT()
 	{
 		RB_ASSERT(!s_Instance, "An instance of App already exists in the program.");
 		s_Instance = this;
@@ -80,11 +78,10 @@ namespace Ruby {
 
 	void App::run()
 	{
-		m_DT.getAndClock();
 		Renderer::API::setClearColor(0.1f, 0.1f, 0.1f, 1.1f);
 		while (m_Running)
 		{
-			double delta_time = m_DT.getAndClock();
+			double delta_time = m_DT.getMillisAndClock();
 			
 			if (!m_Minimized)
 			{

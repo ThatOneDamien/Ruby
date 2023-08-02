@@ -10,7 +10,6 @@ namespace Ruby {
 	
 	namespace Mouse {
 
-
 		enum : MouseCode
 		{
 			// From glfw3.h
@@ -23,10 +22,10 @@ namespace Ruby {
 			Button6 = 6,
 			Button7 = 7,
 	
-			ButtonLast   = Button7,
 			LeftClick    = Button0,
 			RightClick   = Button1,
-			ScrollButton = Button2
+			ScrollButton = Button2,
+			ButtonLast   = Button7
 		};
 
 

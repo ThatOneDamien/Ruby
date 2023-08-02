@@ -1,6 +1,6 @@
 #include "ruby_pch.h"
 
-#include "Ruby/Main/Layer.h"
+#include "Layer.h"
 
 namespace Ruby {
 

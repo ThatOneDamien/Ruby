@@ -20,7 +20,7 @@ namespace Ruby {
 		virtual inline const SharedPtr<IndexBuffer>& getIndexBuffer() const override { return m_IndexBuffer; }
 
 	private:
-		uint32_t m_RendererID;
+		RendererID m_RendererID;
 		SharedPtr<VertexBuffer> m_VertexBuffer;
 		SharedPtr<IndexBuffer> m_IndexBuffer;
 	};

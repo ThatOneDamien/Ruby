@@ -3,8 +3,6 @@
 
 namespace Ruby {
 
-	static uint32_t texHeight = 0, texWidth = 0;
-
 	EditorLayer::EditorLayer() : Layer("Editor Layer")
 	{
 
@@ -16,13 +14,33 @@ namespace Ruby {
 
 	void EditorLayer::update(double deltaSeconds)
 	{
-		fb->bind();
+		glm::vec2 pos = m_Cam.getPosition();
+		if (Input::isKeyDown(Key::A))
+		{
+			pos.x -= 0.05f;
+		}
+		else if (Input::isKeyDown(Key::D))
+		{
+			pos.x += 0.05f;
+		}
+
+		if (Input::isKeyDown(Key::W))
+		{
+			pos.y += 0.05f;
+		}
+		else if (Input::isKeyDown(Key::S))
+		{
+			pos.y -= 0.05f;
+		}
+
+		m_Cam.setPosition(pos);
+		m_FBO->bind();
 		Renderer::API::clear();
-		Renderer::updateCamera(*cam);
+		Renderer::updateCamera(m_Cam);
 		Renderer::resetBatch();
-		Renderer::drawQuad({0.0f, 0.0f}, {1.0f, 1.0f}, {0.8f, 0.2f, 0.3f, 1.0f});
+		Renderer::drawQuadTexture({0.0f, 0.0f}, m_Tex->getSize()* 0.001f, m_Tex);
 		Renderer::renderBatched();
-		fb->unbind();
+		m_FBO->unbind();
 	}
 
 	void EditorLayer::ImGuiRender()
@@ -103,16 +121,14 @@ namespace Ruby {
 		}
 
 		ImGui::Begin("Settings");
-		ImGui::Image((void*)fb->getTextureID(), ImVec2{ (float)texWidth, (float)texHeight });
 
 		ImGui::End();
 
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });
 		ImGui::Begin("Viewport");
-		auto viewportMinRegion = ImGui::GetWindowContentRegionMin();
-		auto viewportMaxRegion = ImGui::GetWindowContentRegionMax();
-		auto viewportOffset = ImGui::GetWindowPos();
-		
+		ImVec2 viewportMaxRegion = ImGui::GetWindowContentRegionMax();
+
+		ImGui::Image((void*)m_FBO->getTextureID(), ImVec2{ viewportMaxRegion.x, viewportMaxRegion.x * m_InvAspectRatio}, {0, 1}, {1, 0});
 
 		ImGui::End();
 		ImGui::PopStyleVar();
@@ -122,26 +138,36 @@ namespace Ruby {
 
 	void EditorLayer::onEvent(Event& e)
 	{
-		if (e.getType() == EventType::WindowResized)
+		switch (e.getType())
 		{
-			WindowResizeEvent& wrEvent = static_cast<WindowResizeEvent&>(e);
-			uint32_t width = wrEvent.getWidth(), height = wrEvent.getHeight();
-			fb->regenerate(width, height);
-			cam->setProjection((float)width / (float)height);
-			texHeight = height >> 1;
-			texWidth = width >> 1;
+			case EventType::WindowResized:
+			{
+				WindowResizeEvent& wrEvent = static_cast<WindowResizeEvent&>(e);
+				uint32_t width = wrEvent.getWidth(), height = wrEvent.getHeight();
+				m_FBO->regenerate(width, height);
+				m_InvAspectRatio = (float)height / (float)width;
+				m_Cam.setProjection((float)width / (float)height);
+				break;
+			}
+			case EventType::MouseScroll:
+			{
+				MouseScrollEvent& msEvent = static_cast<MouseScrollEvent&>(e);
+				break;
+			}
 		}
 	}
 
 	void EditorLayer::onPush()
 	{
+		m_Tex = Texture::createTexture("res/images/poop.jpg");
+
 		auto& wind = App::getInstance().getWindow();
 		uint32_t width = wind.getWidth(), height = wind.getHeight();
-		cam = createUniPtr<Camera>((float)width / (float)height);
-		fb = Framebuffer::create(width, height);
-		texHeight = height >> 1;
-		texWidth = width >> 1;
+		m_FBO = Framebuffer::create(width, height);
+		m_InvAspectRatio = (float)height / (float)width;
 
+
+		m_Cam.setProjection((float)width / (float)height);
 	}
 
 	void EditorLayer::onPop()

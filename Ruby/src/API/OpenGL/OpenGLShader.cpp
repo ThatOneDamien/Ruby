@@ -10,11 +10,9 @@
 
 namespace Ruby {
 
-    using ShaderCollection = std::unordered_map<GLenum, std::string>;
-
     namespace Internal {
 
-        static ShaderCollection parseShaders(const std::string& fileSourceCode)
+        ShaderCollection parseShaders(const std::string& fileSourceCode)
         {
             ShaderCollection shaders;
 
@@ -54,7 +52,7 @@ namespace Ruby {
             return shaders;
         }
 
-        static std::string loadShaderFromFile(const std::string& filepath)
+        std::string loadShaderFromFile(const std::string& filepath)
         {
             // Input stream is read-only, reads in binary, and starts at the end of the file.
             std::ifstream is(filepath, std::ios::in | std::ios::binary | std::ios::ate);

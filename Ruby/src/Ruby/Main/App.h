@@ -1,8 +1,9 @@
 #pragma once
 
-#include "Ruby/Main/Window.h"
+#include "Layer.h"
+#include "Window.h"
+
 #include "Ruby/Event/Event.h"
-#include "Ruby/Main/Layer.h"
 
 namespace Ruby {
 

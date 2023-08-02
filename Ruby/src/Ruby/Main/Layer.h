@@ -1,6 +1,9 @@
 #pragma once
 
+#include "Core.h"
 #include "Ruby/Event/Event.h"
+
+
 #include <vector>
 
 namespace Ruby {
@@ -13,7 +16,7 @@ namespace Ruby {
 		{}
 
 		virtual ~Layer() {}
-		virtual void update(double deltaSeconds) {}
+		virtual void update(double deltaMillis) {}
 		virtual void ImGuiRender() {}
 		virtual void onEvent(Event& e) {}
 		virtual void onPush() {}
