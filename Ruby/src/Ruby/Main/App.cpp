@@ -3,7 +3,7 @@
 #include "App.h"
 #include "Core.h"
 #include "Ruby/Render/Renderer.h"
-//#include "Ruby/Render/Font.h"
+#include "Ruby/Render/Font.h"
 #include "Ruby/Event/AppEvent.h"
 #include "Ruby/GUI/ImGuiUtil.h"
 
@@ -26,7 +26,7 @@ namespace Ruby {
 		// Create window and initialize windowing library.
 		m_Window = Window::createWindow(name, width, height);
 		
-		//Font::init();
+		Font::init();
 
 		// Initialize the renderer, depending on API this will incorporate the windowing library.
 		Renderer::init();
@@ -39,7 +39,7 @@ namespace Ruby {
 	{
 		ImGuiUtil::deInit();
 		Renderer::deInit();
-		//Font::deInit();
+		Font::deInit();
 	}
 
 	void App::onEvent(Event& e)

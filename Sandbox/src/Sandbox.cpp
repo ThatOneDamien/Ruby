@@ -18,16 +18,19 @@ public:
 
 	virtual void onPush() override 
 	{
-		shader = Ruby::Shader::createShader("res/shaders/default.glsl");
+		auto& window = Ruby::App::getInstance().getWindow();
+		cam.setProjection((float)window.getWidth() / (float)window.getHeight());
+		font = new Ruby::Font("res/fonts/Roboto-Regular.ttf", 70);
+		shader = Ruby::Shader::createShader("res/shaders/text.glsl");
 		vao = Ruby::VertexArray::createVAO();
 
-		float vertices[] =
-		{
-			-0.5f, -0.5f,
-			 0.5f, -0.5f,
-			 0.5f,  0.5f,
-			-0.5f,  0.5f
-		};
+		vbo = Ruby::VertexBuffer::createVBO(64);
+
+		Ruby::VertexLayout layout;
+		layout.push(Ruby::LayoutType::Float, 2, false);
+		layout.push(Ruby::LayoutType::Float, 2, false);
+		vbo->setLayout(layout);
+		vao->setVertexBuffer(vbo);
 
 		uint32_t indices[] =
 		{
@@ -35,38 +38,55 @@ public:
 			2, 3, 0
 		};
 
-		auto vbo = Ruby::VertexBuffer::createVBO(vertices, sizeof(vertices));
-		auto ibo = Ruby::IndexBuffer::createIBO(indices, 6);
-
-		Ruby::VertexLayout layout;
-		layout.push({ Ruby::LayoutType::Float, 2, false});
-
-		vbo->setLayout(layout);
-
+		ibo = Ruby::IndexBuffer::createIBO(indices, 6);
 		vao->setIndexBuffer(ibo);
-		vao->setVertexBuffer(vbo);
-		float a = 1280.0f / 720.0f * 2.0f;
-		cam = Ruby::createUniPtr<Ruby::Camera>(-a, a, -2.0f, 2.0f);
+
+		shader->bind();
+		shader->setUniformInt("u_Tex", 0);
+		shader->setUniformMat4("u_ViewProj", cam.getViewProjectionMatrix());
 	}
 
-	virtual void update(double deltaSeconds) override 
+	virtual void update(double deltaMillis) override 
 	{
+		static double curSec = 0.0f;
+		auto size = font->getTexture(test)->getSize() * 0.0025f;
+		
+		float vertices[] =
+		{
+			-size.x, -size.y, 0.0f, 1.0f,
+			 size.x, -size.y, 1.0f, 1.0f,
+			 size.x,  size.y, 1.0f, 0.0f,
+			-size.x,  size.y, 0.0f, 0.0f
+		};
+
+		vbo->bind();
+		vbo->setVertexData(vertices, 64, 0);
+
 		Ruby::Renderer::API::clear();
-		Ruby::Renderer::resetBatch();
-		Ruby::Renderer::renderBatched();
+		const auto& tex = font->getTexture(test);
+		tex->bind(0);
+		Ruby::Renderer::renderSubmit(vao, shader);
+		if (curSec >= 10.0f && test < 128)
+		{
+			while (!font->getTexture(++test) && test < 128);
+			curSec = 0.0f;
+		}
+		curSec += deltaMillis;
 	}
-	virtual void ImGuiRender() override 
+
+	virtual void ImGuiRender() override
 	{
-		ImGui::Begin("Test Window");
-		ImGui::Text("Poop");
-		ImGui::End();
+
 	}
+
 private:
-	Ruby::SharedPtr<Ruby::Texture> tex;
-	Ruby::SharedPtr<Ruby::Shader> shader;
 	Ruby::SharedPtr<Ruby::VertexArray> vao;
-	Ruby::UniPtr<Ruby::Camera> cam;
-	//Ruby::Font* font{ nullptr };
+	Ruby::SharedPtr<Ruby::VertexBuffer> vbo;
+	Ruby::SharedPtr<Ruby::IndexBuffer> ibo;
+	Ruby::SharedPtr<Ruby::Shader> shader;
+	Ruby::Font* font{ nullptr };
+	Ruby::Camera cam{1.0f};
+	uint8_t test = '1';
 };
 
 class Sandbox : public Ruby::App

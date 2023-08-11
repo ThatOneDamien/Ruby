@@ -89,26 +89,52 @@ namespace Ruby {
 		stbi_image_free(data);
 	}
 
-	OpenGLTexture::OpenGLTexture(int width, int height, PixelFormat format)
-		: m_Width(width), m_Height(height), m_BoundSlot(-1)
+	OpenGLTexture::OpenGLTexture(const TextureSpec& spec)
+		: m_Width(spec.Width), m_Height(spec.Height), m_BoundSlot(-1)
 	{
 		// No negative values. Parameters are ints because that is what stb_image
 		// takes as params for load func. Could use unsigned int but it works like
 		// this too as I would still have to check the size of the texture anyway.
-		RB_ASSERT(~(width >> 31 | height >> 31), "Negative width/height not allowed.");
+		RB_ASSERT(~(m_Width >> 31 | m_Height >> 31), "Negative width/height not allowed.");
 
-		m_FormatIntern = Internal::pixelFormatToOpenGLInternal(format);
-		m_FormatBase = Internal::pixelFormatToOpenGLBase(format);
-		m_BPP = Internal::bppFromPixelFormat(format);
+		m_FormatIntern = Internal::pixelFormatToOpenGLInternal(spec.Format);
+		m_FormatBase = Internal::pixelFormatToOpenGLBase(spec.Format);
+		m_BPP = Internal::bppFromPixelFormat(spec.Format);
 
 		glCreateTextures(GL_TEXTURE_2D, 1, &m_RendererID);
 		glTextureStorage2D(m_RendererID, 1, m_FormatIntern, m_Width, m_Height);
 
-		glTextureParameteri(m_RendererID, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTextureParameteri(m_RendererID, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTextureParameteri(m_RendererID, GL_TEXTURE_MIN_FILTER, (GLint)spec.MinFilter);
+		glTextureParameteri(m_RendererID, GL_TEXTURE_MAG_FILTER, (GLint)spec.MagFilter);
 
-		glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_S, (GLint)spec.WrapS);
+		glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_T, (GLint)spec.WrapT);
+	}
+	
+	
+	OpenGLTexture::OpenGLTexture(const void* data, const TextureSpec& spec)
+		: m_Width(spec.Width), m_Height(spec.Height), m_BoundSlot(-1)
+	{
+		// No negative values. Parameters are ints because that is what stb_image
+		// takes as params for load func. Could use unsigned int but it works like
+		// this too as I would still have to check the size of the texture anyway.
+		RB_ASSERT(~(m_Width >> 31 | m_Height >> 31), "Negative width/height not allowed.");
+		RB_ASSERT(m_Width && m_Height, "Values of 0 are not allowed.");
+
+		m_FormatIntern = Internal::pixelFormatToOpenGLInternal(spec.Format);
+		m_FormatBase = Internal::pixelFormatToOpenGLBase(spec.Format);
+		m_BPP = Internal::bppFromPixelFormat(spec.Format);
+
+		glCreateTextures(GL_TEXTURE_2D, 1, &m_RendererID);
+		glTextureStorage2D(m_RendererID, 1, GL_R8, m_Width, m_Height);
+
+		glTextureParameteri(m_RendererID, GL_TEXTURE_MIN_FILTER, (GLint)spec.MinFilter);
+		glTextureParameteri(m_RendererID, GL_TEXTURE_MAG_FILTER, (GLint)spec.MagFilter);
+
+		glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_S, (GLint)spec.WrapS);
+		glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_T, (GLint)spec.WrapT);
+		
+		glTextureSubImage2D(m_RendererID, 0, 0, 0, m_Width, m_Height, m_FormatBase, GL_UNSIGNED_BYTE, data);
 	}
 
 	OpenGLTexture::~OpenGLTexture()

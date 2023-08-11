@@ -1,4 +1,4 @@
-//#include "ruby_pch.h"
+#include "ruby_pch.h"
 //
 //#include "Scene.h"
 //

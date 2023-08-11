@@ -20,6 +20,42 @@ namespace Ruby {
 		RGBA8 = (0x8058 << 3) + 4
 	};
 
+
+	// FROM OPENGL
+	enum class TextureFilter
+	{
+		Nearest = 0x2600,
+		Linear  = 0x2601,
+	};
+
+	// FROM OPENGL
+	enum class TextureWrap
+	{
+		ClampToEdge       = 0x812F,
+		ClampToBorder     = 0x812D,
+		MirroredRepeat    = 0x8370,
+		Repeat            = 0x2901,
+		MirrorClampToEdge = 0x8743
+	};
+
+	struct TextureSpec
+	{
+		int Width;
+		int Height;
+		PixelFormat Format;
+		TextureFilter MinFilter; // Minimizing function for when the texture needs to be rendered at a smaller size.
+		TextureFilter MagFilter; // Magnifying function for when the texture needs to be rendered at a larger size.
+		TextureWrap WrapS;
+		TextureWrap WrapT;
+		
+		TextureSpec()
+			: Width(1), Height(1), Format(PixelFormat::RGBA8),
+			MinFilter(TextureFilter::Linear), MagFilter(TextureFilter::Linear),
+			WrapS(TextureWrap::ClampToEdge),
+			WrapT(TextureWrap::ClampToEdge)
+		{}
+	};
+
 	class RB_NOVTABLE Texture
 	{
 	public:
@@ -33,7 +69,8 @@ namespace Ruby {
 		virtual inline glm::vec2 getSize() const = 0;
 
 		static SharedPtr<Texture> createTexture(const std::string& filepath);
-		static SharedPtr<Texture> createTexture(int width, int height, PixelFormat format = PixelFormat::RGBA8);
+		static SharedPtr<Texture> createTexture(const TextureSpec& spec = TextureSpec());
+		static SharedPtr<Texture> createTexture(const void* data, const TextureSpec& spec = TextureSpec());
 	};
 
 	class SubTexture

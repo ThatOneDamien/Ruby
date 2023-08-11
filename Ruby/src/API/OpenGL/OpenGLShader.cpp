@@ -172,7 +172,7 @@ namespace Ruby {
             glAttachShader(programID, shaderID);
 
             size_t lineLocation = source.find("uniform");
-            while (lineLocation != std::string::npos && source.find_last_not_of(" \t\r\n", lineLocation - 1) == source.find_last_of(';', lineLocation - 1))
+            while (lineLocation != std::string::npos)
             {
                 // This should be guaranteed to be found because the shader has already been successfully compiled,
                 // and the syntax requires the uniforms be layed out as such when not put into blocks.

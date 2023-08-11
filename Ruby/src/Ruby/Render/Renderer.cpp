@@ -104,7 +104,7 @@ namespace Ruby {
 
 			s_QuadVAO->setIndexBuffer(s_QuadIBO);
 
-			s_BlankColorTexture = Texture::createTexture(1, 1);
+			s_BlankColorTexture = Texture::createTexture();
 
 			// This sets the data of the white texture to 1 pixel of white, which allows the card to multiply by color to produce
 			// purely colored quads with no texture, while still allowing batching.
@@ -141,10 +141,10 @@ namespace Ruby {
 			s_CamUBO->setData(&s_CameraViewProj[0][0], sizeof(glm::mat4), 0);
 		}
 
-		void renderSubmit(const SharedPtr<VertexArray>& vao, const SharedPtr<Shader> shader, const glm::mat4& transform)
+		void renderSubmit(const SharedPtr<VertexArray>& vao, const SharedPtr<Shader> shader)
 		{
 			shader->bind();
-			shader->setUniformMat4("u_ViewProj", transform);
+			//shader->setUniformMat4("u_ViewProj", scene->cam.viewProj() or something like that);
 
 			API::drawCall(vao);
 		}

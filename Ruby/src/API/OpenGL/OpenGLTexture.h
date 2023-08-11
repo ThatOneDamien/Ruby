@@ -9,7 +9,8 @@ namespace Ruby {
 	{
 	public:
 		OpenGLTexture(const std::string& filepath);
-		OpenGLTexture(int width, int height, PixelFormat format);
+		OpenGLTexture(const TextureSpec& spec);
+		OpenGLTexture(const void* data, const TextureSpec& spec);
 	
 		virtual ~OpenGLTexture();
 

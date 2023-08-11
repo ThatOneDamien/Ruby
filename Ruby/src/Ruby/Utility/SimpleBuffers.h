@@ -18,6 +18,14 @@ namespace Ruby {
 			Size = size;
 		}
 
+		// Wraps an existing pointer to a buffer, but does not take ownership, as
+		// the releasing of the memory is still controlled by the user, not automatic.
+		DataBuffer(uint8_t* buffer, uint64_t size) noexcept
+		{
+			Data = buffer;
+			Size = size;
+		}
+
 		DataBuffer(DataBuffer&& other) noexcept
 		{
 			Data = other.Data;

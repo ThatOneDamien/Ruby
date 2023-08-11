@@ -31,7 +31,7 @@ namespace Ruby {
 		void deInit();
 		
 		void updateCamera(const Camera& cam);
-		void renderSubmit(const SharedPtr<VertexArray>& vao, const SharedPtr<Shader> shader, const glm::mat4& transform);
+		void renderSubmit(const SharedPtr<VertexArray>& vao, const SharedPtr<Shader> shader);
 
 
 		// BATCH RENDERER
