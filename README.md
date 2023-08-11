@@ -2,7 +2,7 @@
 
 <img src="Ruby_logo.png" align="right"
      alt="Ruby2D Logo by me, Damien Wilson" width="128" height="128">
-Ruby2D is a game engine project for designing 2D games like RPGs. I have used The Cherno's series as guides for most of the setup of the projects, as I haven't had any prior exposure to this type of development. You can find his YouTube channel [here](https://www.youtube.com/@TheCherno), so go check him out!
+Ruby2D is a game engine project for designing 2D games like RPGs. I have used The Cherno's series as guides for most of the setup of the projects, as I haven't had any prior exposure to game engine development. You can find his YouTube channel [here](https://www.youtube.com/@TheCherno), so go check him out!
 
 ## Usage
 ----------------- 
