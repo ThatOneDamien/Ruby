@@ -50,13 +50,6 @@ namespace Ruby {
 	{
 		glm::vec2 position = { x, y };
 		if (position == m_Position) return;
-		if (m_CurrentRotation == 0.0f)
-		{
-			// TODO: Check and make sure this works as intended.
-			m_ViewProj = glm::translate(m_ViewProj, { m_Position - position, 0.0f });
-			m_Position = position;
-			return;
-		}
 
 		m_Position = position;
 		m_View = glm::inverse(glm::rotate(glm::translate(glm::mat4(1.0f), { m_Position, 0.0f }), glm::radians(m_CurrentRotation), glm::vec3(0.0f, 0.0f, 1.0f)));
@@ -66,13 +59,6 @@ namespace Ruby {
 	void Camera::setPosition(const glm::vec2& position)
 	{
 		if (position == m_Position) return;
-		if (m_CurrentRotation == 0.0f)
-		{
-			// TODO: Check and make sure this works as intended.
-			m_ViewProj = glm::translate(m_ViewProj, { m_Position - position, 0.0f });
-			m_Position = position;
-			return;
-		}
 
 		m_Position = position;
 		m_View = glm::inverse(glm::rotate(glm::translate(glm::mat4(1.0f), { m_Position, 0.0f }), glm::radians(m_CurrentRotation), glm::vec3(0.0f, 0.0f, 1.0f)));

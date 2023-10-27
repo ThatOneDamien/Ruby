@@ -41,6 +41,8 @@ namespace Ruby {
 		void drawQuadTexture(const glm::vec2& position, const glm::vec2& size, const SharedPtr<Texture>& texture);
 		void drawQuadSubTexture(const glm::vec2& position, const glm::vec2& size, const SharedPtr<SubTexture>& subTexture);
 		void drawQuadRotated(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color);
+		//void drawText(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color);
+		//void drawText(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color, const SharedPtr<Font>& font);
 
 	}
 

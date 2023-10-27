@@ -4,58 +4,39 @@
 #include FT_FREETYPE_H
 
 #include "Font.h"
+#include "Ruby/Main/App.h"
 
 namespace Ruby {
 
 	static FT_Library s_Lib{ nullptr };
+	constexpr int Font::GLYPH_CNT;
+	constexpr char Font::DESIRED_GLYPHS[96];
 
 	Font::Font(const std::string& filepath, uint32_t pixelSize)
 		: m_PixelSize(pixelSize)
 	{
-		RB_ASSERT(s_Lib, "FT Library not initialized, maybe you forgot to call Font::init()?");
-		
-		
+		RB_ASSERT(s_Lib, "FT Library not initialized, maybe you forgot to call Ruby::Font::init()?");
+
+
 		RB_ASSERT(!FT_New_Face(s_Lib, filepath.c_str(), 0, &m_FontFace), "Unable to load font '%s'.", filepath.c_str());
 		FT_Set_Pixel_Sizes(m_FontFace, 0, m_PixelSize);
 
-        for (uint8_t c = 0; c < 128; c++)
-        {
-            // load character glyph 
-            if (FT_Load_Char(m_FontFace, c, FT_LOAD_RENDER))
-            {
-                RB_ERROR("Unable to load glyph %c", c);
-                continue;
-            }
+		uint32_t textureW = 0, textureH = 0;
 
-            if (m_FontFace->glyph->bitmap.width == 0 || m_FontFace->glyph->bitmap.rows == 0)
-                continue;
+		const uint32_t SCREEN_WIDTH = App::getInstance().getWindow().getWidth();
 
-            TextureSpec spec;
-            spec.Format = PixelFormat::R8;
-            spec.Width = m_FontFace->glyph->bitmap.width;
-            spec.Height = m_FontFace->glyph->bitmap.rows;
-            spec.MagFilter = TextureFilter::Linear;
-            spec.MinFilter = TextureFilter::Linear;
-            spec.WrapS = TextureWrap::ClampToEdge;
-            spec.WrapT = TextureWrap::ClampToEdge;
+		getAtlasDims(&textureW, &textureH, SCREEN_WIDTH);
 
-            // now store character for later use
-            Character character = {
-                Texture::createTexture((const void*)m_FontFace->glyph->bitmap.buffer, spec),
-                glm::ivec2(m_FontFace->glyph->bitmap.width, m_FontFace->glyph->bitmap.rows),
-                glm::ivec2(m_FontFace->glyph->bitmap_left, m_FontFace->glyph->bitmap_top),
-                m_FontFace->glyph->advance.x
-            };
-            m_Characters.emplace(c, character);
-        }
+		generateAtlasTex(textureW, textureH, SCREEN_WIDTH);
 	}
 
 	Font::~Font()
 	{
-		FT_Done_Face(m_FontFace);
+		if (s_Lib)
+			FT_Done_Face(m_FontFace);
 	}
 
-    void Font::init()
+	void Font::init()
 	{
 		RB_ASSERT(!FT_Init_FreeType(&s_Lib), "Freetype failed to initialize!");
 	}
@@ -63,6 +44,120 @@ namespace Ruby {
 	void Font::deInit()
 	{
 		FT_Done_FreeType(s_Lib);
+		s_Lib = nullptr;
 	}
 
+	void Font::getAtlasDims(uint32_t* width, uint32_t* height, uint32_t cutoff)
+	{
+		uint32_t curRowW = 0, curRowH = 0;
+		uint32_t maxW = 0, maxH = 0;
+
+		for (int i = 0; i < GLYPH_CNT; i++)
+		{
+			if (FT_Load_Char(m_FontFace, DESIRED_GLYPHS[i], FT_LOAD_RENDER))
+			{
+				RB_ERROR("Unable to load glyph %c", DESIRED_GLYPHS[i]);
+				continue;
+			}
+
+			FT_Bitmap& bmp = m_FontFace->glyph->bitmap;
+
+			if (bmp.width == 0 || bmp.rows == 0)
+				continue;
+
+			if (curRowW + bmp.width + 1 >= cutoff)
+			{
+				maxW = std::max(maxW, curRowW);
+				maxH += curRowH;
+				curRowW = 0;
+				curRowH = 0;
+			}
+			curRowW += bmp.width + 1;
+			curRowH = std::max(curRowH, bmp.rows);
+		}
+
+		*width = std::max(maxW, curRowW);
+		*height = curRowH + maxH;
+	}
+
+	void Font::generateAtlasTex(uint32_t texW, uint32_t texH, uint32_t cutoff)
+	{
+		uint8_t* pixels = (uint8_t*)calloc(texW * texH, 1);
+
+		RB_ASSERT(pixels, "'pixels' was nullptr, possibly ran out of memory.");
+
+		TextureSpec spec;
+		spec.Format = PixelFormat::R8;
+		spec.Width = texW;
+		spec.Height = texH;
+		spec.MagFilter = TextureFilter::Linear;
+		spec.MinFilter = TextureFilter::Linear;
+		spec.WrapS = TextureWrap::ClampToEdge;
+		spec.WrapT = TextureWrap::ClampToEdge;
+
+		m_AtlasTexture = Texture::createTexture(spec);
+
+
+		uint32_t offX = 0, offY = 0;
+		uint32_t curRowH = 0;
+
+		double invW = 1.0 / texW;
+		double invH = 1.0 / texH;
+
+		for (int i = 0; i < GLYPH_CNT; i++)
+		{
+			uint8_t ch = DESIRED_GLYPHS[i];
+
+			// load character glyph 
+			if (FT_Load_Char(m_FontFace, ch, FT_LOAD_RENDER))
+			{
+				RB_ERROR("Unable to load glyph %c", ch);
+				continue;
+			}
+
+			FT_Bitmap& bmp = m_FontFace->glyph->bitmap;
+
+			if (bmp.width == 0 || bmp.rows == 0)
+				continue;
+
+			if (offX + bmp.width + 1 >= cutoff)
+			{
+				offY += curRowH;
+				curRowH = 0;
+				offX = 0;
+			}
+
+			for (int row = 0; row < bmp.rows; row++)
+			{
+				for (int col = 0; col < bmp.width; col++)
+				{
+					pixels[(offY + row) * texW + offX + col] = bmp.buffer[row * bmp.width + col];
+				}
+			}
+
+			SharedPtr<SubTexture> sbt = SubTexture::createSubTexture(
+				m_AtlasTexture,
+				{ (double)offX * invW, (double)offY * invH },
+				{ (offX + bmp.width) * invW, (offY + bmp.rows) * invH }
+			);
+
+
+			// now store character for later use
+			CharacterInfo character = {
+				sbt,
+				glm::ivec2(bmp.width, bmp.rows),
+				glm::ivec2(m_FontFace->glyph->bitmap_left, m_FontFace->glyph->bitmap_top),
+				m_FontFace->glyph->advance.x >> 6
+			};
+
+			m_Characters.emplace(ch, character);
+
+			curRowH = std::max(curRowH, bmp.rows);
+			offX += bmp.width + 1;
+		}
+
+		m_AtlasTexture->setData(pixels, texW * texH);
+
+		free(pixels);
+	}
 }

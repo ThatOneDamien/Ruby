@@ -33,7 +33,7 @@ namespace Ruby {
 
 		};
 
-		static constexpr uint16_t MAX_QUADS = 250;
+		static constexpr uint16_t MAX_QUADS = 1000;
 		static constexpr size_t MAX_VERTICES = MAX_QUADS * 4;
 		static constexpr size_t MAX_INDICES = MAX_QUADS * 6;
 
@@ -46,6 +46,12 @@ namespace Ruby {
 		static QuadVertex* s_QuadVBOffset{ nullptr };
 		static uint16_t s_QuadCount = 0;
 
+		static SharedPtr<VertexArray> s_TextVAO{ nullptr };
+		static SharedPtr<VertexBuffer> s_TextVBO{ nullptr };
+		static SharedPtr<IndexBuffer> s_TextIBO{ nullptr };
+		static SharedPtr<Shader> s_TextShader{ nullptr };
+		static SharedPtr<Font> s_DefaultFont{ nullptr };
+
 		// TODO : Abstract the size of array into a system that auto detects the max number of texture slots for the card.
 		// for now it is 31, with one of the slots being reserved for basic white 1 pixel texture for colored quads.
 		static SharedPtr<Texture> s_BoundTextures[31] = { nullptr };
@@ -54,8 +60,6 @@ namespace Ruby {
 
 		static glm::mat4 s_CameraViewProj;
 		static SharedPtr<UniformBuffer> s_CamUBO{ nullptr };
-
-		//static Font* s_Font{ nullptr };
 
 		// ---------------END BATCH RENDERER STUFF-----------------
 
@@ -123,7 +127,66 @@ namespace Ruby {
 				s_QuadShader->setUniformIntArray("u_Textures", 32, arr);
 			}
 
-			//s_Font = new Font("res/fonts/Roboto-Regular.ttf", 12);
+			s_DefaultFont = createShared<Font>("res/fonts/Roboto-Regular.ttf", 12);
+
+			//s_TextVAO = VertexArray::createVAO();
+			//s_TextVBO = VertexBuffer::createVBO(MAX_VERTICES * sizeof(QuadVertex));
+
+			//{
+			//	VertexLayout layout;
+			//	layout.push({ LayoutType::Float, 3, false });
+			//	layout.push({ LayoutType::Float, 4, false });
+			//	layout.push({ LayoutType::Float, 2, false });
+			//	layout.push({ LayoutType::Float, 1, false });
+
+			//	s_QuadVBO->setLayout(layout);
+			//}
+
+			//s_QuadVAO->setVertexBuffer(s_QuadVBO);
+
+
+			//s_QuadVBData = new QuadVertex[MAX_VERTICES];
+
+			//{
+			//	uint32_t indices[MAX_INDICES];
+
+			//	// Pattern for indices 0, 1, 2, 2, 3, 0 for drawing a basic quad. This will always be the same no matter what so it
+			//	// is better to only send the data to the graphics card once and not update it ass quads are added.
+			//	uint32_t offset = 0;
+			//	for (size_t i = 0; i < MAX_INDICES; i += 6, offset += 4)
+			//	{
+			//		indices[i] = offset;
+			//		indices[i + 1] = offset + 1;
+			//		indices[i + 2] = offset + 2;
+
+			//		indices[i + 3] = offset + 2;
+			//		indices[i + 4] = offset + 3;
+			//		indices[i + 5] = offset;
+			//	}
+
+			//	s_QuadIBO = IndexBuffer::createIBO(indices, MAX_INDICES);
+			//}
+
+			//s_QuadVAO->setIndexBuffer(s_QuadIBO);
+
+			//s_BlankColorTexture = Texture::createTexture();
+
+			//// This sets the data of the white texture to 1 pixel of white, which allows the card to multiply by color to produce
+			//// purely colored quads with no texture, while still allowing batching.
+			//uint32_t white = 0xFFFFFFFF;
+			//s_BlankColorTexture->setData((const void*)&white, sizeof(uint32_t));
+
+			//s_QuadShader = Shader::createShader("res/shaders/quad_shader.glsl");
+
+			//s_QuadShader->bind();
+			//s_CamUBO = UniformBuffer::createUBO(sizeof(glm::mat4), 0);
+			//{
+			//	int arr[32];
+			//	for (int i = 0; i < 32; i++)
+			//		arr[i] = i;
+
+			//	s_QuadShader->setUniformIntArray("u_Textures", 32, arr);
+			//}
 		}
 
 

@@ -5,22 +5,38 @@
 
 class TestLayer : public Ruby::Layer
 {
+	template<typename T>
+	using SP = Ruby::SharedPtr<T>;
 public:
 	TestLayer() : Ruby::Layer("Test Layer")
 	{
 	}
 
-	virtual ~TestLayer() {}
+	virtual ~TestLayer() 
+	{
+	}
 
 	virtual void onEvent(Ruby::Event& e) override
 	{
+		if (e.getType() == Ruby::EventType::MouseScroll)
+		{
+			Ruby::MouseScrollEvent& l = (Ruby::MouseScrollEvent&)e;
+			scale -= l.getYOffset() * 0.05f * scale;
+			cam.setProjection(aspectRatio, scale);
+		}
 	}
 
 	virtual void onPush() override 
 	{
+		clip = Ruby::createShared<Ruby::AudioClip>("res/sounds/f.mp3");
 		auto& window = Ruby::App::getInstance().getWindow();
-		cam.setProjection((float)window.getWidth() / (float)window.getHeight());
-		font = new Ruby::Font("res/fonts/Roboto-Regular.ttf", 70);
+		aspectRatio = (float)window.getWidth() / (float)window.getHeight();
+		cam.setProjection(aspectRatio);
+		
+		
+		font = Ruby::createShared<Ruby::Font>("res/fonts/Roboto-Regular.ttf", 50);
+		tex = font->getAtlasTexture();
+		
 		shader = Ruby::Shader::createShader("res/shaders/text.glsl");
 		vao = Ruby::VertexArray::createVAO();
 
@@ -44,31 +60,38 @@ public:
 		shader->bind();
 		shader->setUniformInt("u_Tex", 0);
 		shader->setUniformMat4("u_ViewProj", cam.getViewProjectionMatrix());
+
+		Ruby::Audio::play(*clip);
 	}
 
 	virtual void update(double deltaMillis) override 
 	{
-		static double curSec = 0.0f;
-		auto size = font->getTexture(test)->getSize() * 0.0025f;
+		updateInputs();
+		Ruby::Renderer::API::clear();
+
+		static double curSec = -800.0f;
 		
+		auto& info = font->getCharInfo(test);
+		auto* texCoords = info.SubTex->getTexCoords();
+		glm::vec2 size = { info.Size.x * 0.0025f, info.Size.y * 0.0025f };
+
 		float vertices[] =
 		{
-			-size.x, -size.y, 0.0f, 1.0f,
-			 size.x, -size.y, 1.0f, 1.0f,
-			 size.x,  size.y, 1.0f, 0.0f,
-			-size.x,  size.y, 0.0f, 0.0f
+			-size.x, -size.y, texCoords[3].x, texCoords[3].y,
+			 size.x, -size.y, texCoords[2].x, texCoords[2].y,
+			 size.x,  size.y, texCoords[1].x, texCoords[1].y,
+			-size.x,  size.y, texCoords[0].x, texCoords[0].y,
 		};
 
 		vbo->bind();
 		vbo->setVertexData(vertices, 64, 0);
 
 		Ruby::Renderer::API::clear();
-		const auto& tex = font->getTexture(test);
 		tex->bind(0);
 		Ruby::Renderer::renderSubmit(vao, shader);
-		if (curSec >= 10.0f && test < 128)
+		if (curSec >= 475.0f && test < 128)
 		{
-			while (!font->getTexture(++test) && test < 128);
+			while (!font->getCharSubTexture(++test) || test >= 128);
 			curSec = 0.0f;
 		}
 		curSec += deltaMillis;
@@ -80,13 +103,41 @@ public:
 	}
 
 private:
-	Ruby::SharedPtr<Ruby::VertexArray> vao;
-	Ruby::SharedPtr<Ruby::VertexBuffer> vbo;
-	Ruby::SharedPtr<Ruby::IndexBuffer> ibo;
-	Ruby::SharedPtr<Ruby::Shader> shader;
-	Ruby::Font* font{ nullptr };
+	SP<Ruby::VertexArray> vao;
+	SP<Ruby::VertexBuffer> vbo;
+	SP<Ruby::IndexBuffer> ibo;
+	SP<Ruby::Shader> shader;
+	SP<Ruby::Font> font;
+	SP<Ruby::Texture> tex;
 	Ruby::Camera cam{1.0f};
 	uint8_t test = '1';
+	float aspectRatio = 0.0f;
+	float scale = 1.0f;
+	SP<Ruby::AudioClip> clip;
+
+	void updateInputs()
+	{
+		float xDelt = 0, yDelt = 0;
+		if (Ruby::Input::isKeyDown(Ruby::Key::A)) 
+		{
+			xDelt = -0.05 * scale;
+		}
+		else if(Ruby::Input::isKeyDown(Ruby::Key::D)) 
+		{
+			xDelt = 0.05 * scale;
+		}
+		if (Ruby::Input::isKeyDown(Ruby::Key::W)) 
+		{
+			yDelt = 0.05 * scale;
+		}
+		else if (Ruby::Input::isKeyDown(Ruby::Key::S)) 
+		{
+			yDelt = -0.05 * scale;
+		}
+		const glm::vec2& pos = cam.getPosition();
+		cam.setPosition({ pos.x + xDelt, pos.y + yDelt });
+		shader->setUniformMat4("u_ViewProj", cam.getViewProjectionMatrix());
+	}
 };
 
 class Sandbox : public Ruby::App
