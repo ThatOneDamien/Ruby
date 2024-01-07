@@ -10,7 +10,15 @@ typedef struct FT_FaceRec_* FT_Face;
 
 namespace Ruby {
 
-	struct CharacterInfo
+	struct FontMetrics
+	{
+		int16_t Ascender;
+		int16_t Descender;
+		int16_t Height;
+		int64_t SpaceSize;
+	};
+
+	struct CharMetrics
 	{
 		SharedPtr<SubTexture> SubTex{ nullptr }; // Texture ref
 		glm::ivec2            Size{ 0, 0 };      // Size of glyph
@@ -34,7 +42,7 @@ namespace Ruby {
 			return nullptr;
 		}
 
-		inline const CharacterInfo& getCharInfo(char ch)
+		inline const CharMetrics& getCharMetrics(char ch)
 		{
 			if (m_Characters.count(ch))
 				return m_Characters[ch];
@@ -46,6 +54,8 @@ namespace Ruby {
 			return m_AtlasTexture;
 		}
 
+		const FontMetrics& getMetrics() const;
+
 		static void init();
 		static void deInit();
 	private:
@@ -54,12 +64,13 @@ namespace Ruby {
 
 	private:
 		SharedPtr<Texture> m_AtlasTexture;
+		FontMetrics m_Metrics;
 		FT_Face m_FontFace;
 		uint32_t m_PixelSize;
-		std::unordered_map<char, CharacterInfo> m_Characters;
+		std::unordered_map<char, CharMetrics> m_Characters;
 		// The characters we desire to get from the font face.
 		static constexpr char DESIRED_GLYPHS[] =
-			" !\"#$%&'()*+,-./0123456789:;<=>?@"
+			"!\"#$%&'()*+,-./0123456789:;<=>?@"
 			"ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`"
 			"abcdefghijklmnopqrstuvwxyz{|}~";
 

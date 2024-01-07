@@ -33,13 +33,27 @@ namespace Ruby {
 
 		};
 
+		// 36 bytes in size, composed of position, color, texture coordinates, and texture slot.
+		struct TextVertex
+		{
+			union
+			{
+				struct { float x, y, z; };
+				glm::vec3 position;
+			};
+
+			glm::vec4 color;
+			glm::vec2 texCoords;
+
+		};
+
 		static constexpr uint16_t MAX_QUADS = 1000;
 		static constexpr size_t MAX_VERTICES = MAX_QUADS * 4;
 		static constexpr size_t MAX_INDICES = MAX_QUADS * 6;
 
 		static SharedPtr<VertexArray> s_QuadVAO{ nullptr };
 		static SharedPtr<VertexBuffer> s_QuadVBO{ nullptr };
-		static SharedPtr<IndexBuffer> s_QuadIBO{ nullptr };
+		static SharedPtr<IndexBuffer> s_QuadTextIBO{ nullptr };
 		static SharedPtr<Shader> s_QuadShader{ nullptr };
 
 		static QuadVertex* s_QuadVBData{ nullptr };
@@ -48,7 +62,6 @@ namespace Ruby {
 
 		static SharedPtr<VertexArray> s_TextVAO{ nullptr };
 		static SharedPtr<VertexBuffer> s_TextVBO{ nullptr };
-		static SharedPtr<IndexBuffer> s_TextIBO{ nullptr };
 		static SharedPtr<Shader> s_TextShader{ nullptr };
 		static SharedPtr<Font> s_DefaultFont{ nullptr };
 
@@ -58,8 +71,12 @@ namespace Ruby {
 		static SharedPtr<Texture> s_BlankColorTexture{ nullptr };
 		static uint8_t s_TextureInsert = 0;
 
-		static glm::mat4 s_CameraViewProj;
+		static const Camera* s_MainCam;
 		static SharedPtr<UniformBuffer> s_CamUBO{ nullptr };
+
+		static TextVertex* s_TextVBData{ nullptr };
+		static TextVertex* s_TextVBOffset{ nullptr };
+		static uint16_t s_TextCount = 0;
 
 		// ---------------END BATCH RENDERER STUFF-----------------
 
@@ -68,15 +85,17 @@ namespace Ruby {
 		{
 			API::initAPI();
 
+			// QUAD STUFF
+			
 			s_QuadVAO = VertexArray::createVAO();
 			s_QuadVBO = VertexBuffer::createVBO(MAX_VERTICES * sizeof(QuadVertex));
 
 			{
 				VertexLayout layout;
-				layout.push({ LayoutType::Float, 3, false });
-				layout.push({ LayoutType::Float, 4, false });
-				layout.push({ LayoutType::Float, 2, false });
-				layout.push({ LayoutType::Float, 1, false });
+				layout.push({ LayoutType::Float, 3, false }); // Position
+				layout.push({ LayoutType::Float, 4, false }); // Color
+				layout.push({ LayoutType::Float, 2, false }); // Texture Coords
+				layout.push({ LayoutType::Float, 1, false }); // Texture Slot
 
 				s_QuadVBO->setLayout(layout);
 			}
@@ -85,12 +104,16 @@ namespace Ruby {
 
 
 			s_QuadVBData = new QuadVertex[MAX_VERTICES];
+			s_QuadVBOffset = s_QuadVBData;
 
 			{
 				uint32_t indices[MAX_INDICES];
 
-				// Pattern for indices 0, 1, 2, 2, 3, 0 for drawing a basic quad. This will always be the same no matter what so it
-				// is better to only send the data to the graphics card once and not update it ass quads are added.
+				// Send all the indices as a static buffer to the GPU, as
+				// we can already know which indices will match to each quad
+				// even before they are drawn. This is because each quad follows
+				// the same pattern of indices, and they only have 4 indices each,
+				// with 2 occurring twice.
 				uint32_t offset = 0;
 				for (size_t i = 0; i < MAX_INDICES; i += 6, offset += 4)
 				{
@@ -103,15 +126,40 @@ namespace Ruby {
 					indices[i + 5] = offset;
 				}
 
-				s_QuadIBO = IndexBuffer::createIBO(indices, MAX_INDICES);
+				s_QuadTextIBO = IndexBuffer::createIBO(indices, MAX_INDICES);
 			}
 
-			s_QuadVAO->setIndexBuffer(s_QuadIBO);
+			s_QuadVAO->setIndexBuffer(s_QuadTextIBO);
+
+			
+			// TEXT STUFF
+
+			s_TextVAO = VertexArray::createVAO();
+			s_TextVBO = VertexBuffer::createVBO(MAX_VERTICES * sizeof(TextVertex));
+
+			{
+				VertexLayout layout;
+				layout.push({ LayoutType::Float, 3, false }); // Positions
+				layout.push({ LayoutType::Float, 4, false }); // Color
+				layout.push({ LayoutType::Float, 2, false }); // Texture Coords
+
+				s_TextVBO->setLayout(layout);
+			}
+
+			s_TextVAO->setVertexBuffer(s_TextVBO);
+
+
+			s_TextVBData = new TextVertex[MAX_VERTICES];
+			s_TextVBOffset = s_TextVBData;
+
+			// We render text as quads, and the sizes are the same, so we can
+			// reuse the same index buffer object to draw both text and quads
+			s_TextVAO->setIndexBuffer(s_QuadTextIBO);
 
 			s_BlankColorTexture = Texture::createTexture();
 
-			// This sets the data of the white texture to 1 pixel of white, which allows the card to multiply by color to produce
-			// purely colored quads with no texture, while still allowing batching.
+			// This sets the data of the white texture to 1 pixel of white, which allows simple
+			// colored quads with no separate texture all within the batch.
 			uint32_t white = 0xFFFFFFFF;
 			s_BlankColorTexture->setData((const void*)&white, sizeof(uint32_t));
 
@@ -127,81 +175,24 @@ namespace Ruby {
 				s_QuadShader->setUniformIntArray("u_Textures", 32, arr);
 			}
 
-			s_DefaultFont = createShared<Font>("res/fonts/Roboto-Regular.ttf", 12);
+			s_DefaultFont = createShared<Font>("res/fonts/Roboto-Regular.ttf", 60);
 
-			//s_TextVAO = VertexArray::createVAO();
-			//s_TextVBO = VertexBuffer::createVBO(MAX_VERTICES * sizeof(QuadVertex));
+			s_TextShader = Shader::createShader("res/shaders/text.glsl");
 
-			//{
-			//	VertexLayout layout;
-			//	layout.push({ LayoutType::Float, 3, false });
-			//	layout.push({ LayoutType::Float, 4, false });
-			//	layout.push({ LayoutType::Float, 2, false });
-			//	layout.push({ LayoutType::Float, 1, false });
-
-			//	s_QuadVBO->setLayout(layout);
-			//}
-
-			//s_QuadVAO->setVertexBuffer(s_QuadVBO);
-
-
-			//s_QuadVBData = new QuadVertex[MAX_VERTICES];
-
-			//{
-			//	uint32_t indices[MAX_INDICES];
-
-			//	// Pattern for indices 0, 1, 2, 2, 3, 0 for drawing a basic quad. This will always be the same no matter what so it
-			//	// is better to only send the data to the graphics card once and not update it ass quads are added.
-			//	uint32_t offset = 0;
-			//	for (size_t i = 0; i < MAX_INDICES; i += 6, offset += 4)
-			//	{
-			//		indices[i] = offset;
-			//		indices[i + 1] = offset + 1;
-			//		indices[i + 2] = offset + 2;
-
-			//		indices[i + 3] = offset + 2;
-			//		indices[i + 4] = offset + 3;
-			//		indices[i + 5] = offset;
-			//	}
-
-			//	s_QuadIBO = IndexBuffer::createIBO(indices, MAX_INDICES);
-			//}
-
-			//s_QuadVAO->setIndexBuffer(s_QuadIBO);
-
-			//s_BlankColorTexture = Texture::createTexture();
-
-			//// This sets the data of the white texture to 1 pixel of white, which allows the card to multiply by color to produce
-			//// purely colored quads with no texture, while still allowing batching.
-			//uint32_t white = 0xFFFFFFFF;
-			//s_BlankColorTexture->setData((const void*)&white, sizeof(uint32_t));
-
-			//s_QuadShader = Shader::createShader("res/shaders/quad_shader.glsl");
-
-			//s_QuadShader->bind();
-			//s_CamUBO = UniformBuffer::createUBO(sizeof(glm::mat4), 0);
-			//{
-			//	int arr[32];
-			//	for (int i = 0; i < 32; i++)
-			//		arr[i] = i;
-
-			//	s_QuadShader->setUniformIntArray("u_Textures", 32, arr);
-			//}
 		}
 
 
 
 		void deInit()
 		{
-			//delete s_Font;
 			delete[] s_QuadVBData;
 			API::deInitAPI();
 		}
 
+		// Sets main camera of the scene
 		void updateCamera(const Camera& cam)
 		{
-			s_CameraViewProj = cam.getViewProjectionMatrix();
-			s_CamUBO->setData(&s_CameraViewProj[0][0], sizeof(glm::mat4), 0);
+			s_MainCam = &cam;
 		}
 
 		void renderSubmit(const SharedPtr<VertexArray>& vao, const SharedPtr<Shader> shader)
@@ -214,27 +205,48 @@ namespace Ruby {
 
 
 
-		void resetBatch()
-		{
-			s_QuadVBOffset = s_QuadVBData;
-		}
-
-
-
 		void renderBatched()
 		{
-			s_QuadVAO->bind();
-			s_QuadVBO->setVertexData(s_QuadVBData, (uint32_t)((uint8_t*)s_QuadVBOffset - (uint8_t*)s_QuadVBData), 0);
-			s_QuadShader->bind();
+			if (s_MainCam)
+			{
+				const glm::mat4& viewProj = s_MainCam->getViewProjectionMatrix();
+				s_CamUBO->setData(&viewProj[0][0], sizeof(glm::mat4), 0);
+			}
 
-			s_BlankColorTexture->bind(0);
-			for (int i = 0; i < 31 && s_BoundTextures[i]; i++)
-				s_BoundTextures[i]->bind(i + 1);
+			if (s_QuadCount) 
+			{
+				s_QuadVAO->bind();
+				s_QuadVBO->setVertexData(s_QuadVBData, (uint32_t)((uint8_t*)s_QuadVBOffset - (uint8_t*)s_QuadVBData), 0);
+				s_QuadShader->bind();
 
-			API::drawCall(s_QuadVAO);
+				s_BlankColorTexture->bind(0);
+				for (int i = 0; i < s_TextureInsert; i++)
+					s_BoundTextures[i]->bind(i + 1);
+
+				API::drawCall(s_QuadVAO);
+			}
+
+			if (s_TextCount) 
+			{
+				s_TextVAO->bind();
+				s_TextVBO->setVertexData(s_TextVBData, (uint32_t)((uint8_t*)s_TextVBOffset - (uint8_t*)s_TextVBData), 0);
+				s_TextShader->bind();
+
+				s_DefaultFont->getAtlasTexture()->bind(0);
+
+				API::drawCall(s_TextVAO);
+			}
+
+
 
 			s_QuadCount = 0;
-			s_TextureInsert = 0;
+			s_TextCount = 0;
+
+			s_QuadVBOffset = s_QuadVBData;
+			s_TextVBOffset = s_TextVBData;
+
+
+			s_TextureInsert = 1;
 
 		}
 
@@ -245,7 +257,6 @@ namespace Ruby {
 			if (s_QuadCount >= MAX_QUADS)
 			{
 				renderBatched();
-				resetBatch();
 			}
 			float halfSize[2] = { size.x * 0.5f, size.y * 0.5f };
 			s_QuadVBOffset[0].x = position.x - halfSize[0];
@@ -287,7 +298,6 @@ namespace Ruby {
 			if (s_QuadCount >= MAX_QUADS || s_TextureInsert > 30)
 			{
 				renderBatched();
-				resetBatch();
 			}
 
 			float textureSlot = 0.0f;
@@ -347,7 +357,6 @@ namespace Ruby {
 			if (s_QuadCount >= MAX_QUADS || s_TextureInsert > 30)
 			{
 				renderBatched();
-				resetBatch();
 			}
 
 			float textureSlot = 0.0f;
@@ -367,40 +376,126 @@ namespace Ruby {
 				s_TextureInsert++;
 			}
 
-			const glm::vec2* coords = subTexture->getTexCoords();
+			const glm::vec4& coords = subTexture->getTexCoords();
 			float halfSize[2] = { size.x * 0.5f, size.y * 0.5f };
 			s_QuadVBOffset[0].x = position.x - halfSize[0];
 			s_QuadVBOffset[0].y = position.y - halfSize[1];
 			s_QuadVBOffset[0].z = 0;
 			s_QuadVBOffset[0].color = { 1.0f, 1.0f, 1.0f, 1.0f };
-			s_QuadVBOffset[0].texCoords = coords[0];
+			s_QuadVBOffset[0].texCoords = { coords.x, coords.y };
 			s_QuadVBOffset[0].textureSlot = textureSlot;
 
 			s_QuadVBOffset[1].x = position.x + halfSize[0];
 			s_QuadVBOffset[1].y = position.y - halfSize[1];
 			s_QuadVBOffset[1].z = 0;
 			s_QuadVBOffset[1].color = { 1.0f, 1.0f, 1.0f, 1.0f };
-			s_QuadVBOffset[1].texCoords = coords[1];
+			s_QuadVBOffset[1].texCoords = { coords.z, coords.y };
 			s_QuadVBOffset[1].textureSlot = textureSlot;
 
 			s_QuadVBOffset[2].x = position.x + halfSize[0];
 			s_QuadVBOffset[2].y = position.y + halfSize[1];
 			s_QuadVBOffset[2].z = 0;
 			s_QuadVBOffset[2].color = { 1.0f, 1.0f, 1.0f, 1.0f };
-			s_QuadVBOffset[2].texCoords = coords[2];
+			s_QuadVBOffset[2].texCoords = { coords.z, coords.w };
 			s_QuadVBOffset[2].textureSlot = textureSlot;
 
 			s_QuadVBOffset[3].x = position.x - halfSize[0];
 			s_QuadVBOffset[3].y = position.y + halfSize[1];
 			s_QuadVBOffset[3].z = 0;
 			s_QuadVBOffset[3].color = { 1.0f, 1.0f, 1.0f, 1.0f };
-			s_QuadVBOffset[3].texCoords = coords[3];
+			s_QuadVBOffset[3].texCoords = { coords.x, coords.w };
 			s_QuadVBOffset[3].textureSlot = textureSlot;
 
 			s_QuadVBOffset += 4;
 			s_QuadCount++;
 		}
 	
+
+		void drawText(const std::string& str, const glm::vec2& position, float size, const glm::vec4& color)
+		{
+
+			FontMetrics metrics = s_DefaultFont->getMetrics();
+
+			float x = position.x;
+			float y = position.y;
+
+			for (int i = 0; i < str.size(); i++)
+			{
+				if (s_TextCount >= MAX_QUADS)
+				{
+					renderBatched();
+				}
+
+				if (str[i] == '\n')
+				{
+					x = position.x;
+					y -= size * metrics.Height * 1.5;
+					continue;
+				}
+				if (str[i] == ' ')
+				{
+					x += size * metrics.SpaceSize;
+					continue;
+				}
+				if (str[i] == '\t')
+				{
+					x += size * metrics.SpaceSize * 4;
+					continue;
+				}
+
+				CharMetrics charMetrics = s_DefaultFont->getCharMetrics(str[i]);
+
+				if (!charMetrics.SubTex)
+				{
+					charMetrics = s_DefaultFont->getCharMetrics('?');
+				}
+				if (!charMetrics.SubTex)
+				{
+					RB_ERROR("Unknown symbol. \'?\' is also missing in the font.");
+					return;
+				}
+
+				glm::vec2 quadPos 
+				{
+					x + charMetrics.Bearing.x * size, 
+					y - (charMetrics.Size.y - charMetrics.Bearing.y) * size 
+				};
+
+				float w = charMetrics.Size.x * size;
+				float h = charMetrics.Size.y * size;
+
+				const glm::vec4& coords = charMetrics.SubTex->getTexCoords();
+
+				s_TextVBOffset[0].x = quadPos.x;
+				s_TextVBOffset[0].y = quadPos.y;
+				s_TextVBOffset[0].z = 0;
+				s_TextVBOffset[0].color = color;
+				s_TextVBOffset[0].texCoords = { coords.x, coords.y };
+				  
+				s_TextVBOffset[1].x = quadPos.x + w;
+				s_TextVBOffset[1].y = quadPos.y;
+				s_TextVBOffset[1].z = 0;
+				s_TextVBOffset[1].color = color;
+				s_TextVBOffset[1].texCoords = { coords.z, coords.y };
+				  
+				s_TextVBOffset[2].x = quadPos.x + w;
+				s_TextVBOffset[2].y = quadPos.y + h;
+				s_TextVBOffset[2].z = 0;
+				s_TextVBOffset[2].color = color;
+				s_TextVBOffset[2].texCoords = { coords.z, coords.w };
+				  
+				s_TextVBOffset[3].x = quadPos.x;
+				s_TextVBOffset[3].y = quadPos.y + h;
+				s_TextVBOffset[3].z = 0;
+				s_TextVBOffset[3].color = color;
+				s_TextVBOffset[3].texCoords = { coords.x, coords.w };
+				  
+				s_TextVBOffset += 4;
+				s_TextCount++;
+
+				x += charMetrics.Advance * size;
+			}
+		}
 
 	}
 

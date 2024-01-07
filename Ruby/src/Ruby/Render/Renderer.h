@@ -35,13 +35,12 @@ namespace Ruby {
 
 
 		// BATCH RENDERER
-		void resetBatch();
 		void renderBatched();
 		void drawQuad(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color);
 		void drawQuadTexture(const glm::vec2& position, const glm::vec2& size, const SharedPtr<Texture>& texture);
 		void drawQuadSubTexture(const glm::vec2& position, const glm::vec2& size, const SharedPtr<SubTexture>& subTexture);
 		void drawQuadRotated(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color);
-		//void drawText(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color);
+		void drawText(const std::string& str, const glm::vec2& position, float size, const glm::vec4& color);
 		//void drawText(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color, const SharedPtr<Font>& font);
 
 	}

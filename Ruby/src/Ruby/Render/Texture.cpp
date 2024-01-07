@@ -27,10 +27,12 @@ namespace Ruby {
 	SubTexture::SubTexture(const SharedPtr<Texture>& texture, const glm::vec2& bottomLeftCorner, const glm::vec2& topRightCorner)
 	{
 		m_Texture = texture;
-		m_TexCoords[0] = { bottomLeftCorner.x, bottomLeftCorner.y };
-		m_TexCoords[1] = { topRightCorner.x, bottomLeftCorner.y };
-		m_TexCoords[2] = { topRightCorner.x, topRightCorner.y };
-		m_TexCoords[3] = { bottomLeftCorner.x, topRightCorner.y };
+		m_TexCoords = { 
+			bottomLeftCorner.x, 
+			bottomLeftCorner.y, 
+			topRightCorner.x, 
+			topRightCorner.y 
+		};
 	}
 
 }

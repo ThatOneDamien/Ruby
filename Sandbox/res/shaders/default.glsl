@@ -1,5 +1,5 @@
 #shader vertex
-#version 410 core
+#version 450 core
 
 layout(location = 0) in vec2 a_Position;
 
@@ -11,7 +11,7 @@ void main()
 }
 
 #shader fragment
-#version 410 core
+#version 450 core
 
 void main()
 {

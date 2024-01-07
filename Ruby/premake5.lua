@@ -28,8 +28,10 @@ project "Ruby"
 		"%{wks.location}/third_party/FreeType/include",
 		"%{wks.location}/third_party/imgui",
 		"%{wks.location}/third_party/soloud/include",
+        "%{wks.location}/third_party/entt/include",
 		"Dependencies/glm",
 		"Dependencies/stb_image"
+
 	}
 
 	links

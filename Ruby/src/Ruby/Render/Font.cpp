@@ -10,7 +10,7 @@ namespace Ruby {
 
 	static FT_Library s_Lib{ nullptr };
 	constexpr int Font::GLYPH_CNT;
-	constexpr char Font::DESIRED_GLYPHS[96];
+	constexpr char Font::DESIRED_GLYPHS[95];
 
 	Font::Font(const std::string& filepath, uint32_t pixelSize)
 		: m_PixelSize(pixelSize)
@@ -22,11 +22,16 @@ namespace Ruby {
 		FT_Set_Pixel_Sizes(m_FontFace, 0, m_PixelSize);
 
 		uint32_t textureW = 0, textureH = 0;
-
 		const uint32_t SCREEN_WIDTH = App::getInstance().getWindow().getWidth();
 
-		getAtlasDims(&textureW, &textureH, SCREEN_WIDTH);
+		m_Metrics = { 
+			(int16_t)(m_FontFace->ascender >> 6), 
+			(int16_t)(m_FontFace->descender * 0.015625),
+			(int16_t)(m_FontFace->height >> 6), 
+			0 
+		};
 
+		getAtlasDims(&textureW, &textureH, SCREEN_WIDTH);
 		generateAtlasTex(textureW, textureH, SCREEN_WIDTH);
 	}
 
@@ -82,9 +87,10 @@ namespace Ruby {
 
 	void Font::generateAtlasTex(uint32_t texW, uint32_t texH, uint32_t cutoff)
 	{
-		uint8_t* pixels = (uint8_t*)calloc(texW * texH, 1);
+		uint8_t* pixels = new uint8_t[(size_t)texW * texH];
+		memset(pixels, 0, (size_t)texW * texH);
 
-		RB_ASSERT(pixels, "'pixels' was nullptr, possibly ran out of memory.");
+		RB_ASSERT(pixels && texW * texH > 1, "'pixels' was nullptr, possibly ran out of memory.");
 
 		TextureSpec spec;
 		spec.Format = PixelFormat::R8;
@@ -103,6 +109,15 @@ namespace Ruby {
 
 		double invW = 1.0 / texW;
 		double invH = 1.0 / texH;
+
+		if (FT_Load_Char(m_FontFace, ' ', FT_LOAD_RENDER))
+		{
+			RB_ERROR("Unable to load space key glyph.");
+		}
+		else
+		{
+			m_Metrics.SpaceSize = m_FontFace->glyph->advance.x >> 6;
+		}
 
 		for (int i = 0; i < GLYPH_CNT; i++)
 		{
@@ -137,13 +152,13 @@ namespace Ruby {
 
 			SharedPtr<SubTexture> sbt = SubTexture::createSubTexture(
 				m_AtlasTexture,
-				{ (double)offX * invW, (double)offY * invH },
-				{ (offX + bmp.width) * invW, (offY + bmp.rows) * invH }
+				{ (double)offX * invW, (double)(offY + bmp.rows) * invH },
+				{ (double)(offX + bmp.width) * invW, (double)offY * invH }
 			);
 
 
 			// now store character for later use
-			CharacterInfo character = {
+			CharMetrics character = {
 				sbt,
 				glm::ivec2(bmp.width, bmp.rows),
 				glm::ivec2(m_FontFace->glyph->bitmap_left, m_FontFace->glyph->bitmap_top),
@@ -158,6 +173,11 @@ namespace Ruby {
 
 		m_AtlasTexture->setData(pixels, texW * texH);
 
-		free(pixels);
+		delete[] pixels;
+	}
+
+	const FontMetrics& Font::getMetrics() const 
+	{
+		return m_Metrics;
 	}
 }
