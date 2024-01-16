@@ -41,7 +41,7 @@ namespace Ruby {
 
 		void IncRef() noexcept
 		{
-			Uses++;
+			++Uses;
 		}
 
 		void DecRef() noexcept
@@ -119,7 +119,7 @@ namespace Ruby {
 			if (base)
 				base->IncRef();
 			else
-				(*refCount)++;
+				++(*refCount);
 		}
 
 		template <typename T2, std::enable_if_t<std::_SP_pointer_compatible<T2, T>::value, int> = 0>
@@ -131,7 +131,7 @@ namespace Ruby {
 			if (base)
 				base->IncRef();
 			else
-				(*refCount)++;
+				++(*refCount);
 		}
 
 		SharedPtr(SharedPtr&& other) noexcept
@@ -194,7 +194,7 @@ namespace Ruby {
 			if (base)
 				base->IncRef();
 			else
-				(*refCount)++;
+				++(*refCount);
 			return *this;
 		}
 
@@ -213,7 +213,7 @@ namespace Ruby {
 			if (base)
 				base->IncRef();
 			else
-				(*refCount)++;
+				++(*refCount);
 			return *this;
 		}
 
@@ -304,13 +304,13 @@ namespace Ruby {
 		return left.get() == right.get();
 	}
 
-	template <typename T, typename T2>
+	template <typename T, typename = void>
 	bool operator==(const SharedPtr<T>& left, nullptr_t) noexcept
 	{
 		return left.get() == nullptr;
 	}
 
-	template <typename T, typename T2>
+	template <typename T, typename = void>
 	bool operator==(nullptr_t, const SharedPtr<T>& right) noexcept
 	{
 		return right.get() == nullptr;
@@ -322,13 +322,13 @@ namespace Ruby {
 		return left.get() != right.get();
 	}
 
-	template <typename T, typename T2>
+	template <typename T, typename = void>
 	bool operator!=(const SharedPtr<T>& left, nullptr_t) noexcept
 	{
 		return left.get() != nullptr;
 	}
 
-	template <typename T, typename T2>
+	template <typename T, typename = void>
 	bool operator!=(nullptr_t, const SharedPtr<T>& right) noexcept
 	{
 		return right.get() != nullptr;

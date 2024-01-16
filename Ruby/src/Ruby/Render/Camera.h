@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Ruby/Main/App.h"
+
 #include <glm/glm.hpp>
 
 namespace Ruby {
@@ -9,7 +11,7 @@ namespace Ruby {
 	{
 	public:
 		Camera(float left, float right, float bottom, float top);
-		Camera(float aspectRatio, float scale = 1.0f);
+		Camera(float aspectRatio = -1.0f, float scale = 1.0f);
 		~Camera() = default;
 
 

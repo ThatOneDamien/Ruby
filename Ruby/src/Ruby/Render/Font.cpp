@@ -57,7 +57,7 @@ namespace Ruby {
 		uint32_t curRowW = 0, curRowH = 0;
 		uint32_t maxW = 0, maxH = 0;
 
-		for (int i = 0; i < GLYPH_CNT; i++)
+		for (int i = 0; i < GLYPH_CNT; ++i)
 		{
 			if (FT_Load_Char(m_FontFace, DESIRED_GLYPHS[i], FT_LOAD_RENDER))
 			{
@@ -119,7 +119,7 @@ namespace Ruby {
 			m_Metrics.SpaceSize = m_FontFace->glyph->advance.x >> 6;
 		}
 
-		for (int i = 0; i < GLYPH_CNT; i++)
+		for (int i = 0; i < GLYPH_CNT; ++i)
 		{
 			uint8_t ch = DESIRED_GLYPHS[i];
 
@@ -142,9 +142,9 @@ namespace Ruby {
 				offX = 0;
 			}
 
-			for (int row = 0; row < bmp.rows; row++)
+			for (int row = 0; row < bmp.rows; ++row)
 			{
-				for (int col = 0; col < bmp.width; col++)
+				for (int col = 0; col < bmp.width; ++col)
 				{
 					pixels[(offY + row) * texW + offX + col] = bmp.buffer[row * bmp.width + col];
 				}

@@ -5,6 +5,8 @@
 #include "Ruby/Render/Font.h"
 #include "Ruby/Main/App.h"
 
+#include <glm/gtc/matrix_transform.hpp>
+
 #pragma warning(disable: 6385, 6386) // Compiler warning about overflowing buffer which wont happen.
 
 namespace Ruby {
@@ -50,6 +52,13 @@ namespace Ruby {
 		static constexpr uint16_t MAX_QUADS = 1000;
 		static constexpr size_t MAX_VERTICES = MAX_QUADS * 4;
 		static constexpr size_t MAX_INDICES = MAX_QUADS * 6;
+		static constexpr glm::vec4 VERTEX_POSITIONS[] =
+		{
+			{-0.5f, -0.5f, 0.0f, 1.0f},
+			{ 0.5f, -0.5f, 0.0f, 1.0f},
+			{ 0.5f,  0.5f, 0.0f, 1.0f},
+			{-0.5f,  0.5f, 0.0f, 1.0f},
+		};
 
 		static SharedPtr<VertexArray> s_QuadVAO{ nullptr };
 		static SharedPtr<VertexBuffer> s_QuadVBO{ nullptr };
@@ -117,7 +126,7 @@ namespace Ruby {
 				uint32_t offset = 0;
 				for (size_t i = 0; i < MAX_INDICES; i += 6, offset += 4)
 				{
-					indices[i] = offset;
+					indices[i]     = offset;
 					indices[i + 1] = offset + 1;
 					indices[i + 2] = offset + 2;
 
@@ -169,7 +178,7 @@ namespace Ruby {
 			s_CamUBO = UniformBuffer::createUBO(sizeof(glm::mat4), 0);
 			{
 				int arr[32];
-				for (int i = 0; i < 32; i++)
+				for (int i = 0; i < 32; ++i)
 					arr[i] = i;
 
 				s_QuadShader->setUniformIntArray("u_Textures", 32, arr);
@@ -204,7 +213,6 @@ namespace Ruby {
 		}
 
 
-
 		void renderBatched()
 		{
 			if (s_MainCam)
@@ -213,20 +221,20 @@ namespace Ruby {
 				s_CamUBO->setData(&viewProj[0][0], sizeof(glm::mat4), 0);
 			}
 
-			if (s_QuadCount) 
+			if (s_QuadCount)
 			{
 				s_QuadVAO->bind();
 				s_QuadVBO->setVertexData(s_QuadVBData, (uint32_t)((uint8_t*)s_QuadVBOffset - (uint8_t*)s_QuadVBData), 0);
 				s_QuadShader->bind();
 
 				s_BlankColorTexture->bind(0);
-				for (int i = 0; i < s_TextureInsert; i++)
+				for (int i = 0; i < s_TextureInsert; ++i)
 					s_BoundTextures[i]->bind(i + 1);
 
 				API::drawCall(s_QuadVAO);
 			}
 
-			if (s_TextCount) 
+			if (s_TextCount)
 			{
 				s_TextVAO->bind();
 				s_TextVBO->setVertexData(s_TextVBData, (uint32_t)((uint8_t*)s_TextVBOffset - (uint8_t*)s_TextVBData), 0);
@@ -246,168 +254,139 @@ namespace Ruby {
 			s_TextVBOffset = s_TextVBData;
 
 
-			s_TextureInsert = 1;
+			s_TextureInsert = 0;
 
 		}
 
 
 
-		void drawQuad(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color)
+
+
+	namespace internal 
+	{
+		int getTextureSlotOrAdd(const SharedPtr<Texture>& tex)
+		{
+			int res = 0;
+			for (int i = 0; i < s_TextureInsert; ++i)
+			{
+				if (s_BoundTextures[i] == tex)
+				{
+					res = i + 1;
+					break;
+				}
+			}
+
+			if (!res)
+			{
+				if (s_TextureInsert >= 30)
+					renderBatched();
+
+				res = (float)s_TextureInsert + 1;
+				s_BoundTextures[s_TextureInsert] = tex; // Warning disabled at top of header.
+				++s_TextureInsert;
+			}
+
+			return res;
+		}
+
+		void drawQuadBasic(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color, 
+			               const SharedPtr<Texture>& tex, const TexCoords& texCoords = TexCoords())
 		{
 			if (s_QuadCount >= MAX_QUADS)
 			{
 				renderBatched();
 			}
-			float halfSize[2] = { size.x * 0.5f, size.y * 0.5f };
-			s_QuadVBOffset[0].x = position.x - halfSize[0];
-			s_QuadVBOffset[0].y = position.y - halfSize[1];
-			s_QuadVBOffset[0].z = 0;
-			s_QuadVBOffset[0].color = color;
-			s_QuadVBOffset[0].texCoords = { 0.0f, 0.0f };
-			s_QuadVBOffset[0].textureSlot = 0.0f;
 
-			s_QuadVBOffset[1].x = position.x + halfSize[0];
-			s_QuadVBOffset[1].y = position.y - halfSize[1];
-			s_QuadVBOffset[1].z = 0;
-			s_QuadVBOffset[1].color = color;
-			s_QuadVBOffset[1].texCoords = { 1.0f, 0.0f };
-			s_QuadVBOffset[1].textureSlot = 0.0f;
+			float texSlot = (tex == nullptr) ? 0.0f : getTextureSlotOrAdd(tex);
 
-			s_QuadVBOffset[2].x = position.x + halfSize[0];
-			s_QuadVBOffset[2].y = position.y + halfSize[1];
-			s_QuadVBOffset[2].z = 0;
-			s_QuadVBOffset[2].color = color;
-			s_QuadVBOffset[2].texCoords = { 1.0f, 1.0f };
-			s_QuadVBOffset[2].textureSlot = 0.0f;
-
-			s_QuadVBOffset[3].x = position.x - halfSize[0];
-			s_QuadVBOffset[3].y = position.y + halfSize[1];
-			s_QuadVBOffset[3].z = 0;
-			s_QuadVBOffset[3].color = color;
-			s_QuadVBOffset[3].texCoords = { 0.0f, 1.0f };
-			s_QuadVBOffset[3].textureSlot = 0.0f;
+			for (size_t i = 0; i < 4; ++i)
+			{
+				s_QuadVBOffset[i].x = position.x + VERTEX_POSITIONS[i].x * size.x;
+				s_QuadVBOffset[i].y = position.y + VERTEX_POSITIONS[i].y * size.y;
+				s_QuadVBOffset[i].z = 0.0f;
+				s_QuadVBOffset[i].color = color;
+				s_QuadVBOffset[i].texCoords = texCoords[i];
+				s_QuadVBOffset[i].textureSlot = texSlot;
+			}
 
 			s_QuadVBOffset += 4;
-			s_QuadCount++;
+			++s_QuadCount;
 		}
 
-
-
-		void drawQuadTexture(const glm::vec2& position, const glm::vec2& size, const SharedPtr<Texture>& texture)
+		void drawQuadRotBasic(const glm::vec2& position, const glm::vec2& size, float rotation, const glm::vec4& color,
+							  const SharedPtr<Texture>& tex, const TexCoords& texCoords = TexCoords())
 		{
-			if (s_QuadCount >= MAX_QUADS || s_TextureInsert > 30)
+			if (s_QuadCount >= MAX_QUADS)
 			{
 				renderBatched();
 			}
 
-			float textureSlot = 0.0f;
-			for (int i = 0; i < 31; i++)
+			float texSlot = (tex == nullptr) ? 0.0f : getTextureSlotOrAdd(tex);
+
+			glm::mat4 transform = 
+				glm::scale(
+					glm::rotate(
+						glm::translate(glm::mat4(1.0f), { position.x, position.y, 0.0f }), 
+						rotation, 
+						{ 0.0f, 0.0f, 1.0f }
+					), 
+					{ size.x, size.y, 1.0f }
+				);
+
+			for (size_t i = 0; i < 4; ++i)
 			{
-				if (s_BoundTextures[i] == texture)
-				{
-					textureSlot = (float)i;
-					break;
-				}
+				glm::vec4 pos = transform * VERTEX_POSITIONS[i];
+
+				s_QuadVBOffset[i].x = pos.x;
+				s_QuadVBOffset[i].y = pos.y;
+				s_QuadVBOffset[i].z = 0.0f;
+				s_QuadVBOffset[i].color = color;
+				s_QuadVBOffset[i].texCoords = texCoords[i];
+				s_QuadVBOffset[i].textureSlot = texSlot;
 			}
-
-			if (textureSlot == 0.0f)
-			{
-				textureSlot = (float)s_TextureInsert + 1.0f;
-				s_BoundTextures[s_TextureInsert] = texture; // Warning disabled at top of header.
-				s_TextureInsert++;
-			}
-
-			float halfSize[2] = { size.x * 0.5f, size.y * 0.5f };
-			s_QuadVBOffset[0].x = position.x - halfSize[0];
-			s_QuadVBOffset[0].y = position.y - halfSize[1];
-			s_QuadVBOffset[0].z = 0;
-			s_QuadVBOffset[0].color = { 1.0f, 1.0f, 1.0f, 1.0f };
-			s_QuadVBOffset[0].texCoords = { 0.0f, 0.0f };
-			s_QuadVBOffset[0].textureSlot = textureSlot;
-
-			s_QuadVBOffset[1].x = position.x + halfSize[0];
-			s_QuadVBOffset[1].y = position.y - halfSize[1];
-			s_QuadVBOffset[1].z = 0;
-			s_QuadVBOffset[1].color = { 1.0f, 1.0f, 1.0f, 1.0f };
-			s_QuadVBOffset[1].texCoords = { 1.0f, 0.0f };
-			s_QuadVBOffset[1].textureSlot = textureSlot;
-
-			s_QuadVBOffset[2].x = position.x + halfSize[0];
-			s_QuadVBOffset[2].y = position.y + halfSize[1];
-			s_QuadVBOffset[2].z = 0;
-			s_QuadVBOffset[2].color = { 1.0f, 1.0f, 1.0f, 1.0f };
-			s_QuadVBOffset[2].texCoords = { 1.0f, 1.0f };
-			s_QuadVBOffset[2].textureSlot = textureSlot;
-
-			s_QuadVBOffset[3].x = position.x - halfSize[0];
-			s_QuadVBOffset[3].y = position.y + halfSize[1];
-			s_QuadVBOffset[3].z = 0;
-			s_QuadVBOffset[3].color = { 1.0f, 1.0f, 1.0f, 1.0f };
-			s_QuadVBOffset[3].texCoords = { 0.0f, 1.0f };
-			s_QuadVBOffset[3].textureSlot = textureSlot;
 
 			s_QuadVBOffset += 4;
-			s_QuadCount++;
+			++s_QuadCount;
+		}
+	}
+
+
+		void drawQuad(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color)
+		{
+			internal::drawQuadBasic(position, size, color, nullptr);
 		}
 
 
 
-		void drawQuadSubTexture(const glm::vec2& position, const glm::vec2& size, const SharedPtr<SubTexture>& subTexture)
+		void drawQuadTex(const glm::vec2& position, const glm::vec2& size, 
+						const SharedPtr<Texture>& texture, const glm::vec4& color)
 		{
-			if (s_QuadCount >= MAX_QUADS || s_TextureInsert > 30)
-			{
-				renderBatched();
-			}
+			internal::drawQuadBasic(position, size, color, texture);
+		}
 
-			float textureSlot = 0.0f;
-			for (int i = 0; i < 31; i++)
-			{
-				if (s_BoundTextures[i] == subTexture->getTexture())
-				{
-					textureSlot = (float)i;
-					break;
-				}
-			}
 
-			if (textureSlot == 0.0f)
-			{
-				textureSlot = (float)s_TextureInsert + 1.0f;
-				s_BoundTextures[s_TextureInsert] = subTexture->getTexture(); // Warning disabled at top of header.
-				s_TextureInsert++;
-			}
 
-			const glm::vec4& coords = subTexture->getTexCoords();
-			float halfSize[2] = { size.x * 0.5f, size.y * 0.5f };
-			s_QuadVBOffset[0].x = position.x - halfSize[0];
-			s_QuadVBOffset[0].y = position.y - halfSize[1];
-			s_QuadVBOffset[0].z = 0;
-			s_QuadVBOffset[0].color = { 1.0f, 1.0f, 1.0f, 1.0f };
-			s_QuadVBOffset[0].texCoords = { coords.x, coords.y };
-			s_QuadVBOffset[0].textureSlot = textureSlot;
+		void drawQuadSubTex(const glm::vec2& position, const glm::vec2& size, 
+							const SharedPtr<SubTexture>& subTexture, const glm::vec4& color)
+		{
+			internal::drawQuadBasic(position, size, color, subTexture->getTexture(), subTexture->getTexCoords());
+		}
 
-			s_QuadVBOffset[1].x = position.x + halfSize[0];
-			s_QuadVBOffset[1].y = position.y - halfSize[1];
-			s_QuadVBOffset[1].z = 0;
-			s_QuadVBOffset[1].color = { 1.0f, 1.0f, 1.0f, 1.0f };
-			s_QuadVBOffset[1].texCoords = { coords.z, coords.y };
-			s_QuadVBOffset[1].textureSlot = textureSlot;
+		void drawQuadRot(const glm::vec2& position, const glm::vec2& size, float rotation, const glm::vec4& color)
+		{
+			internal::drawQuadRotBasic(position, size, rotation, color, nullptr);
+		}
 
-			s_QuadVBOffset[2].x = position.x + halfSize[0];
-			s_QuadVBOffset[2].y = position.y + halfSize[1];
-			s_QuadVBOffset[2].z = 0;
-			s_QuadVBOffset[2].color = { 1.0f, 1.0f, 1.0f, 1.0f };
-			s_QuadVBOffset[2].texCoords = { coords.z, coords.w };
-			s_QuadVBOffset[2].textureSlot = textureSlot;
+		void drawQuadRotTex(const glm::vec2& position, const glm::vec2& size, float rotation,
+			const SharedPtr<Texture>& texture, const glm::vec4& color)
+		{
+			internal::drawQuadRotBasic(position, size, rotation, color, texture);
+		}
 
-			s_QuadVBOffset[3].x = position.x - halfSize[0];
-			s_QuadVBOffset[3].y = position.y + halfSize[1];
-			s_QuadVBOffset[3].z = 0;
-			s_QuadVBOffset[3].color = { 1.0f, 1.0f, 1.0f, 1.0f };
-			s_QuadVBOffset[3].texCoords = { coords.x, coords.w };
-			s_QuadVBOffset[3].textureSlot = textureSlot;
-
-			s_QuadVBOffset += 4;
-			s_QuadCount++;
+		void drawQuadRotSubTex(const glm::vec2& position, const glm::vec2& size, float rotation,
+			const SharedPtr<SubTexture>& subTexture, const glm::vec4& color)
+		{
+			internal::drawQuadRotBasic(position, size, rotation, color, subTexture->getTexture(), subTexture->getTexCoords());
 		}
 	
 
@@ -419,7 +398,7 @@ namespace Ruby {
 			float x = position.x;
 			float y = position.y;
 
-			for (int i = 0; i < str.size(); i++)
+			for (int i = 0; i < str.size(); ++i)
 			{
 				if (s_TextCount >= MAX_QUADS)
 				{
@@ -464,34 +443,34 @@ namespace Ruby {
 				float w = charMetrics.Size.x * size;
 				float h = charMetrics.Size.y * size;
 
-				const glm::vec4& coords = charMetrics.SubTex->getTexCoords();
+				const TexCoords& coords = charMetrics.SubTex->getTexCoords();
 
 				s_TextVBOffset[0].x = quadPos.x;
 				s_TextVBOffset[0].y = quadPos.y;
 				s_TextVBOffset[0].z = 0;
 				s_TextVBOffset[0].color = color;
-				s_TextVBOffset[0].texCoords = { coords.x, coords.y };
+				s_TextVBOffset[0].texCoords = coords[0];
 				  
 				s_TextVBOffset[1].x = quadPos.x + w;
 				s_TextVBOffset[1].y = quadPos.y;
 				s_TextVBOffset[1].z = 0;
 				s_TextVBOffset[1].color = color;
-				s_TextVBOffset[1].texCoords = { coords.z, coords.y };
+				s_TextVBOffset[1].texCoords = coords[1];
 				  
 				s_TextVBOffset[2].x = quadPos.x + w;
 				s_TextVBOffset[2].y = quadPos.y + h;
 				s_TextVBOffset[2].z = 0;
 				s_TextVBOffset[2].color = color;
-				s_TextVBOffset[2].texCoords = { coords.z, coords.w };
+				s_TextVBOffset[2].texCoords = coords[2];
 				  
 				s_TextVBOffset[3].x = quadPos.x;
 				s_TextVBOffset[3].y = quadPos.y + h;
 				s_TextVBOffset[3].z = 0;
 				s_TextVBOffset[3].color = color;
-				s_TextVBOffset[3].texCoords = { coords.x, coords.w };
+				s_TextVBOffset[3].texCoords = coords[3];
 				  
 				s_TextVBOffset += 4;
-				s_TextCount++;
+				++s_TextCount;
 
 				x += charMetrics.Advance * size;
 			}

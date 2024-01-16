@@ -201,7 +201,7 @@ namespace Ruby {
         
             glDeleteProgram(programID);
         
-            for (int i = 0; i < 3 && shaderIDList[i] != 4294967293; i++)
+            for (int i = 0; i < 3 && shaderIDList[i] != 4294967293; ++i)
                 glDeleteShader(shaderIDList[i]);
         
             RB_ERROR("Program failed to link successfully.");
@@ -209,7 +209,7 @@ namespace Ruby {
             return;
         }
 
-        for (int i = 0; i < 3 && shaderIDList[i] != 4294967293; i++)
+        for (int i = 0; i < 3 && shaderIDList[i] != 4294967293; ++i)
             glDetachShader(programID, shaderIDList[i]);
 
         for (auto& pair : m_CachedUniforms)

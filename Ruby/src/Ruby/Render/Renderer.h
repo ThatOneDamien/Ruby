@@ -37,9 +37,15 @@ namespace Ruby {
 		// BATCH RENDERER
 		void renderBatched();
 		void drawQuad(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color);
-		void drawQuadTexture(const glm::vec2& position, const glm::vec2& size, const SharedPtr<Texture>& texture);
-		void drawQuadSubTexture(const glm::vec2& position, const glm::vec2& size, const SharedPtr<SubTexture>& subTexture);
-		void drawQuadRotated(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color);
+		void drawQuadTex(const glm::vec2& position, const glm::vec2& size,
+						const SharedPtr<Texture>& texture, const glm::vec4& color = glm::vec4{ 1.0f });
+		void drawQuadSubTex(const glm::vec2& position, const glm::vec2& size, 
+							const SharedPtr<SubTexture>& subTexture, const glm::vec4& color = glm::vec4{ 1.0f });
+		void drawQuadRot(const glm::vec2& position, const glm::vec2& size, float rotation, const glm::vec4& color);
+		void drawQuadRotTex(const glm::vec2& position, const glm::vec2& size, float rotation, 
+							const SharedPtr<Texture>& texture, const glm::vec4& color = glm::vec4{1.0f});
+		void drawQuadRotSubTex(const glm::vec2& position, const glm::vec2& size, float rotation,
+							   const SharedPtr<SubTexture>& subTexture, const glm::vec4& color = glm::vec4{ 1.0f });
 		void drawText(const std::string& str, const glm::vec2& position, float size, const glm::vec4& color);
 		//void drawText(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color, const SharedPtr<Font>& font);
 

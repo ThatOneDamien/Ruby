@@ -36,7 +36,7 @@ namespace Ruby {
 		inline void pushLayer(Layer* layer) 
 		{ 
 			m_Stack.emplace(m_Stack.begin() + m_LayerInsert, layer); 
-			m_LayerInsert++;
+			++m_LayerInsert;
 		}
 
 		inline void popLayer(Layer* layer) 
@@ -52,7 +52,7 @@ namespace Ruby {
 		inline void pushOverlay(Layer* overlay) 
 		{
 			m_Stack.emplace_back(overlay); 
-			m_LayerInsert++; 
+			++m_LayerInsert; 
 		}
 		
 		inline void popOverlay(Layer* overlay)

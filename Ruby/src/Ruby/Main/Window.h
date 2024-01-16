@@ -14,6 +14,7 @@ namespace Ruby {
 		virtual inline void* getWinPointer() const = 0;
 		virtual inline uint16_t getHeight() const = 0;
 		virtual inline uint16_t getWidth() const = 0;
+		virtual inline float getAspectRatio() const = 0;
 		virtual inline void windowResized(uint16_t new_width, uint16_t new_height) = 0;
 		virtual inline bool isVSynced() const = 0;
 		virtual void setVSync(bool enabled) = 0;

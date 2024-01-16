@@ -28,13 +28,10 @@ public:
 	virtual void onPush() override 
 	{
 		clip = Ruby::createShared<Ruby::AudioClip>("res/sounds/f.mp3");
-		auto& window = Ruby::App::getInstance().getWindow();
-		aspectRatio = (float)window.getWidth() / (float)window.getHeight();
-		cam.setProjection(aspectRatio);
 		Ruby::Renderer::updateCamera(cam);
+		aspectRatio = Ruby::App::getInstance().getWindow().getAspectRatio();
 
-
-		Ruby::Audio::play(*clip);
+		Ruby::Audio::play3D(*clip, 0.0f, 0.0f);
 	}
 
 	virtual void update(double deltaMillis) override 
@@ -42,6 +39,7 @@ public:
 		updateInputs();
 		Ruby::Renderer::API::clear();
 		Ruby::Renderer::drawText("I want to fuck my girl.", {-1.0, 0.0}, 0.01, {1.0, 1.0, 1.0, 1.0});
+		Ruby::Renderer::drawQuad({0.0f, 0.0f}, {1.0f, 1.0f}, {0.0f, 0.0f, 0.0f, 1.0f});
 		Ruby::Renderer::renderBatched();
 		
 	}
@@ -52,7 +50,7 @@ public:
 	}
 
 private:
-	Ruby::Camera cam{1.0f};
+	Ruby::Camera cam;
 	float aspectRatio = 0.0f;
 	float scale = 1.0f;
 	SP<Ruby::AudioClip> clip;
@@ -77,6 +75,7 @@ private:
 			yDelt = -0.05 * scale;
 		}
 		const glm::vec2& pos = cam.getPosition();
+		Ruby::Audio::updateListener(pos.x, pos.y);
 		cam.setPosition({ pos.x + xDelt, pos.y + yDelt });
 	}
 };

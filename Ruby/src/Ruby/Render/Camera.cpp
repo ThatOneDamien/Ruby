@@ -13,8 +13,15 @@ namespace Ruby {
 	}
 
 	Camera::Camera(float aspectRatio, float scale)
-		: m_View(1.0f), m_Proj(glm::ortho(-aspectRatio * scale, aspectRatio* scale, -scale, scale))
+		: m_View(1.0f)
 	{
+		if (aspectRatio < 0.0f)
+		{
+			aspectRatio = Ruby::App::getInstance().getWindow().getAspectRatio();
+		}
+
+		m_Proj = glm::ortho(-aspectRatio * scale, aspectRatio * scale, -scale, scale);
+
 		m_ViewProj = m_Proj;
 	}
 

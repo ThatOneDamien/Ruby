@@ -2,6 +2,8 @@
 //
 //namespace Ruby {
 //
+//	class Entity;
+//
 //	class Scene
 //	{
 //	public:
@@ -9,9 +11,20 @@
 //		//TODO: Make constructor for scene with filename
 //		~Scene();
 //
+//		Entity createEntity();
+//
 //	private:
+//		/*struct EntityEntry
+//		{
+//			Entity Self;
+//			std::vector<uint32_t> Children;
+//		};*/
+//
 //		std::string m_Name;
-//		std::vector<std::pair<uint32_t, std::vector<size_t>>> m_EntityList;
+//		//std::unordered_map<uint32_t, EntityEntry> m_EntityList;
+//		entt::registry m_Registry;
+//
+//		friend class Entity;
 //	};
 //
 //}

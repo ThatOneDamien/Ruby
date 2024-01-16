@@ -73,19 +73,65 @@ namespace Ruby {
 		static SharedPtr<Texture> createTexture(const void* data, const TextureSpec& spec = TextureSpec());
 	};
 
+
+	struct TexCoords
+	{
+		TexCoords(const glm::vec2& bottomLeftCorner, const glm::vec2& topRightCorner)
+		{
+			m_TexCoords[0] = { bottomLeftCorner.x, bottomLeftCorner.y };
+			m_TexCoords[1] = { topRightCorner.x, bottomLeftCorner.y };
+			m_TexCoords[2] = { topRightCorner.x, topRightCorner.y };
+			m_TexCoords[3] = { bottomLeftCorner.x, topRightCorner.y };
+		}
+		
+		TexCoords()
+		{
+			m_TexCoords[0] = QUAD_TEX_COORDS[0];
+			m_TexCoords[1] = QUAD_TEX_COORDS[1];
+			m_TexCoords[2] = QUAD_TEX_COORDS[2];
+			m_TexCoords[3] = QUAD_TEX_COORDS[3];
+		}
+
+		const glm::vec2& operator[](size_t index) const
+		{
+			RB_ASSERT(index < 4, "Index out of bounds.");
+
+			return m_TexCoords[index];
+		}
+
+		glm::vec2& operator[](size_t index)
+		{
+			RB_ASSERT(index > -1 && index < 4, "Index out of bounds.");
+
+			return m_TexCoords[index];
+		}
+
+	private:
+		glm::vec2 m_TexCoords[4];
+
+		static constexpr glm::vec2 QUAD_TEX_COORDS[] =
+		{
+			{0.0f, 0.0f},
+			{ 1.0f, 0.0f },
+			{ 1.0f, 1.0f },
+			{ 0.0f, 1.0f }
+		};
+
+	};
+
 	class SubTexture
 	{
 	public:
 		SubTexture(const SharedPtr<Texture>& texture, const glm::vec2& bottomLeftCorner, const glm::vec2& topRightCorner);
 
-		inline const glm::vec4& getTexCoords() const { return m_TexCoords; }
+		inline const TexCoords& getTexCoords() const { return m_Coords; }
 		inline const SharedPtr<Texture>& getTexture() const { return m_Texture; }
 		static inline SharedPtr<SubTexture> createSubTexture(const SharedPtr<Texture>& texture, const glm::vec2& bottomLeftCorner, const glm::vec2& topRightCorner)
 		{
 			return createShared<SubTexture>(texture, bottomLeftCorner, topRightCorner);
 		}
 	private:
-		glm::vec4 m_TexCoords;
+		TexCoords m_Coords;
 		SharedPtr<Texture> m_Texture;
 	};
 

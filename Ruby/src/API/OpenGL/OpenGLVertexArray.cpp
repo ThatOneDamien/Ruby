@@ -35,7 +35,7 @@ namespace Ruby {
 		const std::vector<VertexLayoutElement>& e = layout.getElements();
 
 		uint64_t offset = 0;
-		for (GLuint i = 0; i < (GLuint)e.size(); i++)
+		for (GLuint i = 0; i < (GLuint)e.size(); ++i)
 		{
 			glEnableVertexArrayAttrib(m_RendererID, i);
 			switch (e[i].type)

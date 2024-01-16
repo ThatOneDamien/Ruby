@@ -9,6 +9,7 @@ namespace Ruby {
 	namespace Audio {
 
 		static SoLoud::Soloud* s_SoloudContext;
+		static SoLoud::handle hand;
 
 		void init()
 		{
@@ -23,9 +24,20 @@ namespace Ruby {
 			s_SoloudContext = nullptr;
 		}
 
-		void play(const AudioClip& clip)
+		void play(const AudioClip& clip, float pan)
 		{
-			s_SoloudContext->play(*clip.getInternalSample());
+			hand = s_SoloudContext->play(*clip.getInternalSample(), -1.0f, pan);
+		}
+
+		void play3D(const AudioClip& clip, float x, float y)
+		{
+			hand = s_SoloudContext->play3d(*clip.getInternalSample(), x, y, 0.0f);
+		}
+
+		void updateListener(float x, float y) 
+		{
+			s_SoloudContext->set3dListenerPosition(x, y, 0.0f);
+			s_SoloudContext->update3dAudio();
 		}
 
 		void stopAll()

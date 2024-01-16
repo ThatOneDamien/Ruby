@@ -87,11 +87,11 @@ namespace Ruby {
 			
 			if (!m_Minimized)
 			{
-				for (size_t i = 0; i < m_LayerStack.size(); i++)
+				for (size_t i = 0; i < m_LayerStack.size(); ++i)
 					m_LayerStack[i].update(delta_time);
 
 				ImGuiUtil::begin();
-				for (size_t i = 0; i < m_LayerStack.size(); i++)
+				for (size_t i = 0; i < m_LayerStack.size(); ++i)
 					m_LayerStack[i].ImGuiRender();
 				ImGuiUtil::end();
 			}
