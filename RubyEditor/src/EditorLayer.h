@@ -20,7 +20,9 @@ namespace Ruby {
 		Camera m_Cam{1.0f,1.0f};
 		SharedPtr<Texture> m_Tex;
 		SharedPtr<Framebuffer> m_FBO;
+		SharedPtr<Scene> m_Scene;
 		float m_InvAspectRatio = 1.0f;
+		float m_Scale = 1.0f;
 	};
 
 }

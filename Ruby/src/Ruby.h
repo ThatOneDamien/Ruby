@@ -17,7 +17,7 @@
 
 
 
-//Events
+// Events
 #include "Ruby/Event/KeyEvent.h"
 #include "Ruby/Event/MouseEvent.h"
 #include "Ruby/Event/AppEvent.h"
@@ -38,5 +38,11 @@
 
 
 
-//Audio
+// Scene
+#include "Ruby/Scene/Scene.h"
+#include "Ruby/Scene/Entity.h"
+#include "Ruby/Scene/Components.h"
+
+
+// Audio
 #include "Ruby/Audio/Audio.h"

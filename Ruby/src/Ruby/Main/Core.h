@@ -47,11 +47,22 @@ typedef uint32_t RendererID;
 
 #ifdef RB_PLAT_WIND
 	#ifdef RB_DEBUG
-		#define RB_ASSERTIONS
-		#define RB_ASSERT(x, msg, ...) { if(!(x)) { ::Ruby::Logger::getEngineLogger()->critical(msg, __VA_ARGS__); __debugbreak(); } }
+
+		// Assert that condition x is true, if it is false print error msg and debug break.
+		#define RB_ASSERT(x, msg, ...) { if(!(x)) { ::Ruby::Logger::getEngineLogger()->error(msg, __VA_ARGS__); __debugbreak(); } }
+
+		// Assert that condition x is true, if it is false print error msg, debug break, and return ret_val.
+		#define RB_ASSERT_RET(x, ret_val, msg, ...) { if(!(x)) { ::Ruby::Logger::getEngineLogger()->error(msg, __VA_ARGS__); __debugbreak(); return ret_val; } }
+
+		// Assert that condition x is true, if it is false print error msg, debug break, and break from loop.
+		#define RB_ASSERT_BRK(x, msg, ...) { if(!(x)) { ::Ruby::Logger::getEngineLogger()->error(msg, __VA_ARGS__); __debugbreak(); break; } }
 	#else
-		#define RB_ASSERT(x, msg)
+		#define RB_ASSERT(x, msg) x
+		#define RB_ASSERT_RET(x, ret_val, msg, ...) { if(!(x)) { return ret_val; } }
+		#define RB_ASSERT_BRK(x, msg, ...) { if(!(x)) { break; } }
 	#endif
+	// Alias for RB_ASSERT_RET() where ret_val is absent, i.e. return type of function is void.
+	#define RB_ASSERT_RET_VOID(x, msg, ...) RB_ASSERT_RET(x, , msg, __VA_ARGS__)
 #endif
 
 #include <filesystem>

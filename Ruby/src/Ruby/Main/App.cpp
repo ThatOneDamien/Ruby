@@ -80,11 +80,11 @@ namespace Ruby {
 
 	void App::run()
 	{
-		Renderer::API::setClearColor(0.1f, 0.1f, 0.1f, 1.1f);
+		Renderer::API::setClearColor(0.1f, 0.1f, 0.1f);
 		while (m_Running)
 		{
 			double delta_time = m_DT.getMillisAndClock();
-			
+
 			if (!m_Minimized)
 			{
 				for (size_t i = 0; i < m_LayerStack.size(); ++i)

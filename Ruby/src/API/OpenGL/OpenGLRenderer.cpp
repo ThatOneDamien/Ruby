@@ -88,19 +88,19 @@ namespace Ruby {
 				glDrawElements(GL_TRIANGLES, indexCount ? indexCount : vao->getIndexBuffer()->getCount(), GL_UNSIGNED_INT, nullptr);
 			}
 
-			void setClearColor(float r, float g, float b, float a)
+			void setClearColor(float r, float g, float b)
 			{
-				glClearColor(r, g, b, a);
+				glClearColor(r, g, b, 1.0f);
 			}
 
-			void setClearColor(uint8_t r, uint8_t g, uint8_t b, uint8_t a)
+			void setClearColor(uint8_t r, uint8_t g, uint8_t b)
 			{
-				glClearColor(r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f);
+				glClearColor(r / 255.0f, g / 255.0f, b / 255.0f, 1.0f);
 			}
 
-			void setClearColor(const glm::vec4& color)
+			void setClearColor(const glm::vec3& color)
 			{
-				glClearColor(color.r, color.g, color.g, color.a);
+				glClearColor(color.r, color.g, color.b, 1.0f);
 			}
 
 			void setViewport(int x, int y, int width, int height)
@@ -111,6 +111,13 @@ namespace Ruby {
 			void clear()
 			{
 				glClear(GL_COLOR_BUFFER_BIT);
+			}
+
+			int getBindableTextureSlots()
+			{
+				GLint maxTextureUnits;
+				glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &maxTextureUnits);
+				return maxTextureUnits;
 			}
 
 		}

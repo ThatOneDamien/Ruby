@@ -19,11 +19,12 @@ namespace Ruby {
 			void initAPI();
 			void deInitAPI();
 			void drawCall(const SharedPtr<VertexArray>& vao, uint32_t indexCount = 0);
-			void setClearColor(float r, float g, float b, float a);
-			void setClearColor(uint8_t r, uint8_t g, uint8_t b, uint8_t a);
-			void setClearColor(const glm::vec4& color);
+			void setClearColor(float r, float g, float b);
+			void setClearColor(uint8_t r, uint8_t g, uint8_t b);
+			void setClearColor(const glm::vec3& color);
 			void setViewport(int x, int y, int width, int height);
 			void clear();
+			int getBindableTextureSlots();
 
 		}
 
@@ -35,19 +36,26 @@ namespace Ruby {
 
 
 		// BATCH RENDERER
-		void renderBatched();
+		void resetBatch();
+		void renderBatch();
+
 		void drawQuad(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color);
+
 		void drawQuadTex(const glm::vec2& position, const glm::vec2& size,
-						const SharedPtr<Texture>& texture, const glm::vec4& color = glm::vec4{ 1.0f });
+						 const SharedPtr<Texture>& texture, const glm::vec4& color = glm::vec4{ 1.0f });
+
 		void drawQuadSubTex(const glm::vec2& position, const glm::vec2& size, 
 							const SharedPtr<SubTexture>& subTexture, const glm::vec4& color = glm::vec4{ 1.0f });
+
 		void drawQuadRot(const glm::vec2& position, const glm::vec2& size, float rotation, const glm::vec4& color);
+
 		void drawQuadRotTex(const glm::vec2& position, const glm::vec2& size, float rotation, 
 							const SharedPtr<Texture>& texture, const glm::vec4& color = glm::vec4{1.0f});
+
 		void drawQuadRotSubTex(const glm::vec2& position, const glm::vec2& size, float rotation,
 							   const SharedPtr<SubTexture>& subTexture, const glm::vec4& color = glm::vec4{ 1.0f });
-		void drawText(const std::string& str, const glm::vec2& position, float size, const glm::vec4& color);
-		//void drawText(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color, const SharedPtr<Font>& font);
+
+		void drawText(const std::string& str, const glm::vec2& position, float size, float rotation, const glm::vec4& color);
 
 	}
 

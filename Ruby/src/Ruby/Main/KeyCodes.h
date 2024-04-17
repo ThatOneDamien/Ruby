@@ -66,7 +66,7 @@ namespace Ruby {
 			Backslash           = 92,  /* \ */
 			RightBracket        = 93,  /* ] */
 			Grave               = 96,  /* ` */
-			Tilda               = 96,  /* ~ Copy of Grave but with other name(Personal Use) */
+			Tilda               = 96,  /* ~ (Alias of Grave) */
 
 			World1              = 161, /* non-US #1 */
 			World2              = 162, /* non-US #2 */

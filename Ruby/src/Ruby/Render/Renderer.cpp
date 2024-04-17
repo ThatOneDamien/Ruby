@@ -1,15 +1,26 @@
 #include "ruby_pch.h"
 
+#include <glm/gtc/matrix_transform.hpp>
+#undef INFINITE
+#include <msdf-atlas-gen/msdf-atlas-gen.h>
+#include <msdf-atlas-gen/FontGeometry.h>
+#include <msdf-atlas-gen/GlyphGeometry.h>
+
 #include "Ruby/Main/Core.h"
 #include "Ruby/Render/Renderer.h"
 #include "Ruby/Render/Font.h"
 #include "Ruby/Main/App.h"
 
-#include <glm/gtc/matrix_transform.hpp>
 
 #pragma warning(disable: 6385, 6386) // Compiler warning about overflowing buffer which wont happen.
 
 namespace Ruby {
+
+	struct FontData
+	{
+		std::vector<msdf_atlas::GlyphGeometry> Glyphs;
+		msdf_atlas::FontGeometry FontGeometry;
+	};
 
 	namespace Renderer
 	{
@@ -74,10 +85,9 @@ namespace Ruby {
 		static SharedPtr<Shader> s_TextShader{ nullptr };
 		static SharedPtr<Font> s_DefaultFont{ nullptr };
 
-		// TODO : Abstract the size of array into a system that auto detects the max number of texture slots for the card.
-		// for now it is 31, with one of the slots being reserved for basic white 1 pixel texture for colored quads.
-		static SharedPtr<Texture> s_BoundTextures[31] = { nullptr };
+		static SharedPtr<Texture>* s_BoundTextures{ nullptr }; // Size determined below
 		static SharedPtr<Texture> s_BlankColorTexture{ nullptr };
+		static int s_TextureSlotCount = -1;
 		static uint8_t s_TextureInsert = 0;
 
 		static const Camera* s_MainCam;
@@ -93,6 +103,11 @@ namespace Ruby {
 		void init()
 		{
 			API::initAPI();
+
+			// Queries GPU for slot count and creates array to hold that many bound textures
+			s_TextureSlotCount = API::getBindableTextureSlots();
+			s_TextureSlotCount = s_TextureSlotCount > 32 ? 32 : s_TextureSlotCount;
+			s_BoundTextures = new SharedPtr<Texture>[s_TextureSlotCount - 1];
 
 			// QUAD STUFF
 			
@@ -172,21 +187,21 @@ namespace Ruby {
 			uint32_t white = 0xFFFFFFFF;
 			s_BlankColorTexture->setData((const void*)&white, sizeof(uint32_t));
 
-			s_QuadShader = Shader::createShader("res/shaders/quad_shader.glsl");
+			s_QuadShader = Shader::createShader("res/shaders/renderer/quad.glsl");
 
 			s_QuadShader->bind();
 			s_CamUBO = UniformBuffer::createUBO(sizeof(glm::mat4), 0);
 			{
 				int arr[32];
-				for (int i = 0; i < 32; ++i)
+				for (int i = 0; i < s_TextureSlotCount; ++i)
 					arr[i] = i;
 
-				s_QuadShader->setUniformIntArray("u_Textures", 32, arr);
+				s_QuadShader->setUniformIntArray("u_Textures", s_TextureSlotCount, arr);
 			}
 
-			s_DefaultFont = createShared<Font>("res/fonts/Roboto-Regular.ttf", 60);
+			s_DefaultFont = createShared<Font>("res/fonts/Roboto-Regular.ttf");
 
-			s_TextShader = Shader::createShader("res/shaders/text.glsl");
+			s_TextShader = Shader::createShader("res/shaders/renderer/text.glsl");
 
 		}
 
@@ -207,13 +222,23 @@ namespace Ruby {
 		void renderSubmit(const SharedPtr<VertexArray>& vao, const SharedPtr<Shader> shader)
 		{
 			shader->bind();
-			//shader->setUniformMat4("u_ViewProj", scene->cam.viewProj() or something like that);
 
 			API::drawCall(vao);
 		}
 
+		void resetBatch()
+		{
+			s_QuadCount = 0;
+			s_TextCount = 0;
 
-		void renderBatched()
+			s_QuadVBOffset = s_QuadVBData;
+			s_TextVBOffset = s_TextVBData;
+
+
+			s_TextureInsert = 0;
+		}
+
+		void renderBatch()
 		{
 			if (s_MainCam)
 			{
@@ -245,17 +270,7 @@ namespace Ruby {
 				API::drawCall(s_TextVAO);
 			}
 
-
-
-			s_QuadCount = 0;
-			s_TextCount = 0;
-
-			s_QuadVBOffset = s_QuadVBData;
-			s_TextVBOffset = s_TextVBData;
-
-
-			s_TextureInsert = 0;
-
+			resetBatch();
 		}
 
 
@@ -278,8 +293,8 @@ namespace Ruby {
 
 			if (!res)
 			{
-				if (s_TextureInsert >= 30)
-					renderBatched();
+				if (s_TextureInsert >= s_TextureSlotCount - 2)
+					renderBatch();
 
 				res = (float)s_TextureInsert + 1;
 				s_BoundTextures[s_TextureInsert] = tex; // Warning disabled at top of header.
@@ -294,7 +309,7 @@ namespace Ruby {
 		{
 			if (s_QuadCount >= MAX_QUADS)
 			{
-				renderBatched();
+				renderBatch();
 			}
 
 			float texSlot = (tex == nullptr) ? 0.0f : getTextureSlotOrAdd(tex);
@@ -318,7 +333,7 @@ namespace Ruby {
 		{
 			if (s_QuadCount >= MAX_QUADS)
 			{
-				renderBatched();
+				renderBatch();
 			}
 
 			float texSlot = (tex == nullptr) ? 0.0f : getTextureSlotOrAdd(tex);
@@ -390,89 +405,117 @@ namespace Ruby {
 		}
 	
 
-		void drawText(const std::string& str, const glm::vec2& position, float size, const glm::vec4& color)
+		void drawText(const std::string& str, const glm::vec2& position, float size, float rotation, const glm::vec4& color)
 		{
 
-			FontMetrics metrics = s_DefaultFont->getMetrics();
+			const msdf_atlas::FontGeometry& fontGeometry = s_DefaultFont->getAtlasData()->FontGeometry;
+			const msdfgen::FontMetrics& metrics = fontGeometry.getMetrics();
 
-			float x = position.x;
-			float y = position.y;
+			double x = position.x;
+			double y = position.y;
 
-			for (int i = 0; i < str.size(); ++i)
+			const double lineScale = 1.0 / (metrics.ascenderY - metrics.descenderY);
+			const double spaceAdvance = fontGeometry.getGlyph(' ')->getAdvance();
+
+			for (size_t i = 0; i < str.size(); ++i)
 			{
 				if (s_TextCount >= MAX_QUADS)
 				{
-					renderBatched();
+					renderBatch();
 				}
-
-				if (str[i] == '\n')
+				switch (str[i])
 				{
+				case '\n':
 					x = position.x;
-					y -= size * metrics.Height * 1.5;
-					continue;
-				}
-				if (str[i] == ' ')
+					y -= lineScale * metrics.lineHeight * 1.5;
+					break;
+				case ' ':
 				{
-					x += size * metrics.SpaceSize;
-					continue;
+					double advance = spaceAdvance;
+					if (i < str.size() - 1)
+					{
+						fontGeometry.getAdvance(advance, str[i], str[i+1]);
+					}
+					x += lineScale * advance;
+					break;
 				}
-				if (str[i] == '\t')
-				{
-					x += size * metrics.SpaceSize * 4;
-					continue;
+				case '\t':
+					x += lineScale * spaceAdvance * 4;
+					break;
+				case '\r':
+					break;
+				default:
+					const msdf_atlas::GlyphGeometry* glyph = fontGeometry.getGlyph(str[i]);
+
+					if (!glyph)
+						glyph = fontGeometry.getGlyph('?');
+					if (!glyph)
+					{
+						RB_WARN("Unknown symbol. \'?\' is also missing in the font.");
+						return;
+					}
+
+					double leftA, bottomA, rightA, topA;
+					glyph->getQuadAtlasBounds(leftA, bottomA, rightA, topA);
+
+					double leftP, bottomP, rightP, topP;
+					glyph->getQuadPlaneBounds(leftP, bottomP, rightP, topP);
+
+					leftP = leftP * lineScale + x;
+					bottomP = bottomP * lineScale + y;
+					rightP = rightP * lineScale + x;
+					topP = topP * lineScale + y;
+
+					glm::vec2 texSize = s_DefaultFont->getAtlasTexture()->getSize();
+
+					float texelWidth = 1.0f / texSize.x;
+					float texelHeight = 1.0f / texSize.y;
+					leftA *= texelWidth;
+					rightA *= texelWidth;
+					bottomA *= texelHeight;
+					topA *= texelHeight;
+
+					glm::mat4 transform = 
+						glm::scale(
+							glm::rotate(
+								glm::translate(glm::mat4(1.0f), { position.x, position.y, 0.0f }),
+								rotation,
+								{ 0.0f, 0.0f, 1.0f }
+							),
+							{ size, size, 1.0f }
+						);
+
+					glm::vec4 temp = transform * glm::vec4(leftP, bottomP, 0.0f, 1.0f);
+					s_TextVBOffset[0].position = { temp.x, temp.y, 0.0f };
+					s_TextVBOffset[0].color = color;
+					s_TextVBOffset[0].texCoords = { leftA, bottomA };
+
+					temp = transform * glm::vec4(leftP, topP, 0.0f, 1.0f);
+					s_TextVBOffset[1].position = { temp.x, temp.y, 0.0f };
+					s_TextVBOffset[1].color = color;
+					s_TextVBOffset[1].texCoords = { leftA, topA };
+
+					temp = transform * glm::vec4(rightP, topP, 0.0f, 1.0f);
+					s_TextVBOffset[2].position = { temp.x, temp.y, 0.0f };
+					s_TextVBOffset[2].color = color;
+					s_TextVBOffset[2].texCoords = { rightA, topA };
+
+					temp = transform * glm::vec4(rightP, bottomP, 0.0f, 1.0f);
+					s_TextVBOffset[3].position = { temp.x, temp.y, 0.0f };
+					s_TextVBOffset[3].color = color;
+					s_TextVBOffset[3].texCoords = { rightA, bottomA };
+
+					s_TextVBOffset += 4;
+					++s_TextCount;
+					
+					if (i < str.size() - 1)
+					{
+						double advance = glyph->getAdvance();
+						fontGeometry.getAdvance(advance, str[i], str[i + 1]);
+
+						x += lineScale * advance;
+					}
 				}
-
-				CharMetrics charMetrics = s_DefaultFont->getCharMetrics(str[i]);
-
-				if (!charMetrics.SubTex)
-				{
-					charMetrics = s_DefaultFont->getCharMetrics('?');
-				}
-				if (!charMetrics.SubTex)
-				{
-					RB_ERROR("Unknown symbol. \'?\' is also missing in the font.");
-					return;
-				}
-
-				glm::vec2 quadPos 
-				{
-					x + charMetrics.Bearing.x * size, 
-					y - (charMetrics.Size.y - charMetrics.Bearing.y) * size 
-				};
-
-				float w = charMetrics.Size.x * size;
-				float h = charMetrics.Size.y * size;
-
-				const TexCoords& coords = charMetrics.SubTex->getTexCoords();
-
-				s_TextVBOffset[0].x = quadPos.x;
-				s_TextVBOffset[0].y = quadPos.y;
-				s_TextVBOffset[0].z = 0;
-				s_TextVBOffset[0].color = color;
-				s_TextVBOffset[0].texCoords = coords[0];
-				  
-				s_TextVBOffset[1].x = quadPos.x + w;
-				s_TextVBOffset[1].y = quadPos.y;
-				s_TextVBOffset[1].z = 0;
-				s_TextVBOffset[1].color = color;
-				s_TextVBOffset[1].texCoords = coords[1];
-				  
-				s_TextVBOffset[2].x = quadPos.x + w;
-				s_TextVBOffset[2].y = quadPos.y + h;
-				s_TextVBOffset[2].z = 0;
-				s_TextVBOffset[2].color = color;
-				s_TextVBOffset[2].texCoords = coords[2];
-				  
-				s_TextVBOffset[3].x = quadPos.x;
-				s_TextVBOffset[3].y = quadPos.y + h;
-				s_TextVBOffset[3].z = 0;
-				s_TextVBOffset[3].color = color;
-				s_TextVBOffset[3].texCoords = coords[3];
-				  
-				s_TextVBOffset += 4;
-				++s_TextCount;
-
-				x += charMetrics.Advance * size;
 			}
 		}
 

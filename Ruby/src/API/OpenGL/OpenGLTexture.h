@@ -23,10 +23,10 @@ namespace Ruby {
 
 	private: 
 
-		RendererID m_RendererID;
+		RendererID m_RendererID = 0;
 		mutable int8_t m_BoundSlot; // If set to -1, texture is currently not bound
 		uint32_t m_FormatIntern, m_FormatBase;
-		int m_Width, m_Height, m_BPP;
+		uint32_t m_Width, m_Height, m_BPP;
 	};
 
 }

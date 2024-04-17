@@ -15,31 +15,16 @@ namespace Ruby {
 	void EditorLayer::update(double deltaSeconds)
 	{
 		glm::vec2 pos = m_Cam.getPosition();
-		if (Input::isKeyDown(Key::A))
-		{
-			pos.x -= 0.05f;
-		}
-		else if (Input::isKeyDown(Key::D))
-		{
-			pos.x += 0.05f;
-		}
-
-		if (Input::isKeyDown(Key::W))
-		{
-			pos.y += 0.05f;
-		}
-		else if (Input::isKeyDown(Key::S))
-		{
-			pos.y -= 0.05f;
-		}
+		pos.x += 0.05f * (Input::isKeyDown(Key::D) - Input::isKeyDown(Key::A));
+		pos.y += 0.05f * (Input::isKeyDown(Key::W) - Input::isKeyDown(Key::S));
 
 		m_Cam.setPosition(pos);
 		m_FBO->bind();
 		Renderer::API::clear();
 		Renderer::updateCamera(m_Cam);
 		Renderer::resetBatch();
-		Renderer::drawQuadTexture({0.0f, 0.0f}, m_Tex->getSize()* 0.001f, m_Tex);
-		Renderer::renderBatched();
+		Renderer::drawQuad({ 0.0f, 0.0f }, { 1.0f, 1.0f }, { 1.0f, 1.0f, 1.0f, 1.0f });
+		Renderer::renderBatch();
 		m_FBO->unbind();
 	}
 
@@ -95,24 +80,7 @@ namespace Ruby {
 		{
 			if (ImGui::BeginMenu("File"))
 			{
-				if (ImGui::MenuItem("Open Project...", "Ctrl+O"));
-					//OpenProject();
-
-				ImGui::Separator();
-
-				if (ImGui::MenuItem("New Scene", "Ctrl+N"));
-					//NewScene();
-
-				if (ImGui::MenuItem("Save Scene", "Ctrl+S"));
-					//SaveScene();
-
-				if (ImGui::MenuItem("Save Scene As...", "Ctrl+Shift+S"));
-					//SaveSceneAs();
-
-				ImGui::Separator();
-
-				if (ImGui::MenuItem("Exit"));
-					//Application::Get().Close();
+				
 
 				ImGui::EndMenu();
 			}
@@ -120,15 +88,18 @@ namespace Ruby {
 			ImGui::EndMenuBar();
 		}
 
-		ImGui::Begin("Settings");
-
+		ImGui::Begin("Inspector");
+		if (ImGui::TreeNode("Balls"))
+		{
+			ImGui::TreePop();
+		}
 		ImGui::End();
 
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });
-		ImGui::Begin("Viewport");
+		ImGui::Begin("Scene");
 		ImVec2 viewportMaxRegion = ImGui::GetWindowContentRegionMax();
 
-		ImGui::Image((void*)m_FBO->getTextureID(), ImVec2{ viewportMaxRegion.x, viewportMaxRegion.x * m_InvAspectRatio}, {0, 1}, {1, 0});
+		ImGui::Image((ImTextureID)m_FBO->getTextureID(), ImVec2{ viewportMaxRegion.x, viewportMaxRegion.x * m_InvAspectRatio}, {0, 1}, {1, 0});
 
 		ImGui::End();
 		ImGui::PopStyleVar();
@@ -152,6 +123,8 @@ namespace Ruby {
 			case EventType::MouseScroll:
 			{
 				MouseScrollEvent& msEvent = static_cast<MouseScrollEvent&>(e);
+				m_Scale -= 0.05f * m_Scale * msEvent.getYOffset();
+				m_Cam.setProjection(1 / m_InvAspectRatio, m_Scale);
 				break;
 			}
 		}
@@ -160,6 +133,7 @@ namespace Ruby {
 	void EditorLayer::onPush()
 	{
 		m_Tex = Texture::createTexture("res/images/poop.jpg");
+		m_Scene = createShared<Scene>("Unnamed");
 
 		auto& wind = App::getInstance().getWindow();
 		uint32_t width = wind.getWidth(), height = wind.getHeight();

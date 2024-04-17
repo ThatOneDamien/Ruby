@@ -14,6 +14,7 @@ group "Dependencies"
 	include "third_party/glad"
 	include "third_party/imgui"
     include "third_party/FreeType"
+    include "third_party/msdf-atlas-gen"
     include "third_party/soloud"
 group ""
 

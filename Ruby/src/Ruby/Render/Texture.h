@@ -40,19 +40,21 @@ namespace Ruby {
 
 	struct TextureSpec
 	{
-		int Width;
-		int Height;
+		uint32_t Width;
+		uint32_t Height;
 		PixelFormat Format;
 		TextureFilter MinFilter; // Minimizing function for when the texture needs to be rendered at a smaller size.
 		TextureFilter MagFilter; // Magnifying function for when the texture needs to be rendered at a larger size.
 		TextureWrap WrapS;
 		TextureWrap WrapT;
+		bool MipMapping;
 		
 		TextureSpec()
 			: Width(1), Height(1), Format(PixelFormat::RGBA8),
 			MinFilter(TextureFilter::Linear), MagFilter(TextureFilter::Linear),
 			WrapS(TextureWrap::ClampToEdge),
-			WrapT(TextureWrap::ClampToEdge)
+			WrapT(TextureWrap::ClampToEdge),
+			MipMapping(false)
 		{}
 	};
 

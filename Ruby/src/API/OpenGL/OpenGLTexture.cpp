@@ -31,7 +31,7 @@ namespace Ruby {
 			return 0;
 		}
 
-		inline int bppFromPixelFormat(PixelFormat format)
+		inline uint32_t bppFromPixelFormat(PixelFormat format)
 		{
 			return (uint32_t)format & 7;
 		}
@@ -47,13 +47,9 @@ namespace Ruby {
 		uint8_t* data = nullptr;
 
 		glCreateTextures(GL_TEXTURE_2D, 1, &m_RendererID);
-		data = stbi_load(filepath.c_str(), &m_Width, &m_Height, &m_BPP, 0);
+		data = stbi_load(filepath.c_str(), (int*)(&m_Width), (int*)(&m_Height), (int*)(&m_BPP), 0);
 
-		if (!data)
-		{
-			RB_ERROR("Unable to load texture at path %s", filepath.c_str());
-			return;
-		}
+		RB_ASSERT(data, "Unable to load texture at path %s", filepath.c_str());
 
 		switch(m_BPP)
 		{
@@ -92,10 +88,9 @@ namespace Ruby {
 	OpenGLTexture::OpenGLTexture(const TextureSpec& spec)
 		: m_Width(spec.Width), m_Height(spec.Height), m_BoundSlot(-1)
 	{
-		// No negative values. Parameters are ints because that is what stb_image
-		// takes as params for load func. Could use unsigned int but it works like
-		// this too as I would still have to check the size of the texture anyway.
-		RB_ASSERT(~(m_Width >> 31 | m_Height >> 31), "Negative width/height not allowed.");
+		constexpr size_t MAX_TEX_SIZE = 4096UL * 4096UL;
+		RB_ASSERT(((size_t)m_Width * (size_t)m_Height) <= MAX_TEX_SIZE, "Size of desired texture exceeds maximum allowed size.");
+		RB_ASSERT(m_Width && m_Height, "Values of 0 are not allowed for width and height.");
 
 		m_FormatIntern = Internal::pixelFormatToOpenGLInternal(spec.Format);
 		m_FormatBase = Internal::pixelFormatToOpenGLBase(spec.Format);
@@ -115,18 +110,16 @@ namespace Ruby {
 	OpenGLTexture::OpenGLTexture(const void* data, const TextureSpec& spec)
 		: m_Width(spec.Width), m_Height(spec.Height), m_BoundSlot(-1)
 	{
-		// No negative values. Parameters are ints because that is what stb_image
-		// takes as params for load func. Could use unsigned int but it works like
-		// this too as I would still have to check the size of the texture anyway.
-		RB_ASSERT(~(m_Width >> 31 | m_Height >> 31), "Negative width/height not allowed.");
-		RB_ASSERT(m_Width && m_Height, "Values of 0 are not allowed.");
+		constexpr size_t MAX_TEX_SIZE = 4096UL * 4096UL;
+		RB_ASSERT(((size_t)m_Width * (size_t)m_Height) <= MAX_TEX_SIZE, "Size of desired texture exceeds maximum allowed size.");
+		RB_ASSERT(m_Width && m_Height, "Values of 0 are not allowed for width and height.");
 
 		m_FormatIntern = Internal::pixelFormatToOpenGLInternal(spec.Format);
 		m_FormatBase = Internal::pixelFormatToOpenGLBase(spec.Format);
 		m_BPP = Internal::bppFromPixelFormat(spec.Format);
 
 		glCreateTextures(GL_TEXTURE_2D, 1, &m_RendererID);
-		glTextureStorage2D(m_RendererID, 1, GL_R8, m_Width, m_Height);
+		glTextureStorage2D(m_RendererID, 1, m_FormatIntern, m_Width, m_Height);
 
 		glTextureParameteri(m_RendererID, GL_TEXTURE_MIN_FILTER, (GLint)spec.MinFilter);
 		glTextureParameteri(m_RendererID, GL_TEXTURE_MAG_FILTER, (GLint)spec.MagFilter);

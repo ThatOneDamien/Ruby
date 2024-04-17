@@ -17,7 +17,8 @@ project "RubyEditor"
 	{
 		"%{wks.location}/third_party",
 		"%{wks.location}/Ruby/src",
-		"%{wks.location}/Ruby/Dependencies/glm"
+		"%{wks.location}/Ruby/Dependencies/glm",
+        "%{wks.location}/Ruby/Dependencies/entt/include"
 	}
 
 	links "Ruby"

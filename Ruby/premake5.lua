@@ -28,10 +28,11 @@ project "Ruby"
 		"%{wks.location}/third_party/FreeType/include",
 		"%{wks.location}/third_party/imgui",
 		"%{wks.location}/third_party/soloud/include",
-        "%{wks.location}/third_party/entt/include",
+		"%{wks.location}/third_party/msdf-atlas-gen",
+		"%{wks.location}/third_party/msdf-atlas-gen/msdfgen",
 		"Dependencies/glm",
-		"Dependencies/stb_image"
-
+		"Dependencies/stb_image",
+		"Dependencies/entt/include",
 	}
 
 	links
@@ -39,7 +40,7 @@ project "Ruby"
 		"GLFW",
 		"glad",
 		"ImGui",
-		"FreeType",
+		"msdf-atlas-gen",
 		"SoloudStatic",
 		"opengl32.lib"
 	}

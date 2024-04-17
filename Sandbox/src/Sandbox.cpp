@@ -27,20 +27,24 @@ public:
 
 	virtual void onPush() override 
 	{
-		clip = Ruby::createShared<Ruby::AudioClip>("res/sounds/f.mp3");
 		Ruby::Renderer::updateCamera(cam);
 		aspectRatio = Ruby::App::getInstance().getWindow().getAspectRatio();
 
-		Ruby::Audio::play3D(*clip, 0.0f, 0.0f);
+		scene = Ruby::createShared<Ruby::Scene>("blank");
+		Ruby::Entity entity = scene->createEntity();
+		entity.addComponent<Ruby::Components::Transform>();
+		entity.addComponent<Ruby::Components::Sprite>(glm::vec4{1.0f, 1.0f, 0.0f, 1.0f});
 	}
 
 	virtual void update(double deltaMillis) override 
 	{
 		updateInputs();
 		Ruby::Renderer::API::clear();
-		Ruby::Renderer::drawText("I want to fuck my girl.", {-1.0, 0.0}, 0.01, {1.0, 1.0, 1.0, 1.0});
-		Ruby::Renderer::drawQuad({0.0f, 0.0f}, {1.0f, 1.0f}, {0.0f, 0.0f, 0.0f, 1.0f});
-		Ruby::Renderer::renderBatched();
+		Ruby::Renderer::resetBatch();
+		Ruby::Renderer::drawText("Balls", { -0.5f, -0.5f }, 1.0f, 1.570795f, {1.0f, 1.0f, 1.0f, 1.0f});
+		Ruby::Renderer::drawText("Balls", { -0.5f, 0.5f }, 1.0f, 1.570795f, {1.0f, 1.0f, 1.0f, 1.0f});
+		scene->updateScene(deltaMillis);
+		Ruby::Renderer::renderBatch();
 		
 	}
 
@@ -51,32 +55,16 @@ public:
 
 private:
 	Ruby::Camera cam;
+	SP<Ruby::Scene> scene;
 	float aspectRatio = 0.0f;
 	float scale = 1.0f;
-	SP<Ruby::AudioClip> clip;
 
 	void updateInputs()
 	{
-		float xDelt = 0, yDelt = 0;
-		if (Ruby::Input::isKeyDown(Ruby::Key::A)) 
-		{
-			xDelt = -0.05 * scale;
-		}
-		else if(Ruby::Input::isKeyDown(Ruby::Key::D)) 
-		{
-			xDelt = 0.05 * scale;
-		}
-		if (Ruby::Input::isKeyDown(Ruby::Key::W)) 
-		{
-			yDelt = 0.05 * scale;
-		}
-		else if (Ruby::Input::isKeyDown(Ruby::Key::S)) 
-		{
-			yDelt = -0.05 * scale;
-		}
-		const glm::vec2& pos = cam.getPosition();
-		Ruby::Audio::updateListener(pos.x, pos.y);
-		cam.setPosition({ pos.x + xDelt, pos.y + yDelt });
+		glm::vec2 pos = cam.getPosition();
+		pos.x += 0.03f * scale * (Ruby::Input::isKeyDown(Ruby::Key::D) - Ruby::Input::isKeyDown(Ruby::Key::A));
+		pos.y += 0.03f * scale * (Ruby::Input::isKeyDown(Ruby::Key::W) - Ruby::Input::isKeyDown(Ruby::Key::S));
+		cam.setPosition(pos);
 	}
 };
 
