@@ -24,9 +24,4 @@ namespace Ruby {
 		return createShared<TEXTURE>(data, spec);
 	}
 
-	SubTexture::SubTexture(const SharedPtr<Texture>& texture, const glm::vec2& bottomLeftCorner, const glm::vec2& topRightCorner)
-		: m_Texture(texture), m_Coords(bottomLeftCorner, topRightCorner)
-	{
-	}
-
 }

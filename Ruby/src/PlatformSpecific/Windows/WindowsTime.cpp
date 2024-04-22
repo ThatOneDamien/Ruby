@@ -2,8 +2,6 @@
 
 #include "Ruby/Main/Core.h"
 
-#ifdef RB_PLAT_WIND
-
 #include "Ruby/Main/Time.h"
 
 namespace Ruby {
@@ -96,4 +94,3 @@ namespace Ruby {
 	}
 
 }
-#endif

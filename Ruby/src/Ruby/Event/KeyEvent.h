@@ -13,7 +13,6 @@ namespace Ruby {
 		inline bool isRepeat() { return m_Repeat; }
 		inline KeyCode getKeyCode() const { return m_KeyCode; }
 		
-		virtual inline uint16_t getCategory() const override { return RB_EVENT_INPUT | RB_EVENT_KEYBOARD; }
 		virtual inline EventType getType() const override { return EventType::KeyPressed; }
 		virtual inline std::string toStr() const override
 		{
@@ -35,7 +34,6 @@ namespace Ruby {
 
 		inline KeyCode getKeyCode() const { return m_KeyCode; }
 		
-		virtual inline uint16_t getCategory() const override { return RB_EVENT_INPUT | RB_EVENT_KEYBOARD; }
 		virtual inline EventType getType() const override { return EventType::KeyReleased; }
 		virtual inline std::string toStr() const override
 		{

@@ -41,8 +41,8 @@ public:
 		updateInputs();
 		Ruby::Renderer::API::clear();
 		Ruby::Renderer::resetBatch();
-		Ruby::Renderer::drawText("Balls", { -0.5f, -0.5f }, 1.0f, 1.570795f, {1.0f, 1.0f, 1.0f, 1.0f});
-		Ruby::Renderer::drawText("Balls", { -0.5f, 0.5f }, 1.0f, 1.570795f, {1.0f, 1.0f, 1.0f, 1.0f});
+		Ruby::Renderer::drawText("Balls", { -0.5f, -0.5f }, 1.0f, 0.0f, { 1.0f, 1.0f, 1.0f, 1.0f });
+		Ruby::Renderer::drawText("Balls", { -0.5f, 0.5f }, 1.0f, 0.0f, {1.0f, 1.0f, 1.0f, 1.0f});
 		scene->updateScene(deltaMillis);
 		Ruby::Renderer::renderBatch();
 		

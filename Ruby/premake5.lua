@@ -12,8 +12,10 @@ project "Ruby"
 
 	files
 	{
-		"src/**.h",
-		"src/**.cpp",
+		"src/API/**.h",
+		"src/API/**.cpp",
+        "src/Ruby/**.h",
+		"src/Ruby/**.cpp",
 		"Dependencies/glm/**.hpp",
 		"Dependencies/glm/**.inl",
 		"Dependencies/stb_image/**.h",
@@ -53,6 +55,11 @@ project "Ruby"
 
 	filter "system:windows"
 		systemversion "latest"
+        files
+        {
+            "src/PlatformSpecific/Windows/**.h",
+            "src/PlatformSpecific/Windows/**.cpp"
+        }
 
 	filter "configurations:Debug"
 		defines "RB_DEBUG"

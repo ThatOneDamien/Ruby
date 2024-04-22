@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Layer.h"
 #include "Window.h"
 
 #include "Ruby/Event/Event.h"
@@ -13,12 +12,31 @@ namespace Ruby {
 		App(int argc, char** argv, const std::string& mainDir, const char* name, int width, int height);
 		virtual ~App();
 
-		void onEvent(Event& e);
+		// Unmodifiable methods from base class App
+
+		// Handles event e generated from the window based on user input.
+		// This function handles basic window events by forwarding information
+		// to the graphics API, and then sends this event to the user defined
+		// onEvent() function.
+		void handleEvent(Event& e);
+
+		// Begins game loop, runs updates, and clocks frame time.
+		// Calls user defined update() function every frame.
 		void run();
-		inline void pushLayer(Layer* layer) { m_LayerStack.pushLayer(layer); layer->onPush(); }
-		inline void popLayer(Layer* layer) { m_LayerStack.popLayer(layer); layer->onPop(); }
-		inline void pushOverlay(Layer* overlay) { m_LayerStack.pushOverlay(overlay); overlay->onPush(); }
-		inline void popOverlay(Layer* overlay) { m_LayerStack.popOverlay(overlay); overlay->onPop(); }
+
+
+		// Methods to be defined by users app.
+		
+		// User defined event handling function.
+		virtual void onEvent(Event& e) = 0;
+		// User defined update handling function.
+		virtual void update(double deltaMillis) = 0;
+		// User defined ImGui rendering function.
+		virtual void ImGuiRender(double deltaMillis) = 0;
+		// User defined function that is called upon the app being started.
+		virtual void onStart() = 0;
+		// User defined function that is called upon the app being closed.
+		virtual void onExit() = 0;
 
 		inline Window& getWindow() { return *m_Window; }
 		inline const Window& getWindow() const { return *m_Window; }
@@ -33,7 +51,6 @@ namespace Ruby {
 
 		static App* s_Instance;
 		UniPtr<Window> m_Window;
-		LayerStack m_LayerStack;
 		DeltaTime m_DT;
 
 

@@ -8,14 +8,14 @@ namespace Ruby {
 
 	enum class LayoutType : uint8_t
 	{
-		Byte      = 0b000001,
-		UByte     = 0b010001,
-		Short     = 0b000010,
-		UShort    = 0b010010,
-		Int       = 0b000100,
-		UInt      = 0b010100,
-		Float     = 0b100100,
-		Double    = 0b001000
+		Byte      = 0b00000001,
+		UByte     = 0b00010001,
+		Short     = 0b00100010,
+		UShort    = 0b00110010,
+		Int       = 0b01000100,
+		UInt      = 0b01010100,
+		Float     = 0b01100100,
+		Double    = 0b10101000
 	};
 
 	inline uint8_t sizeOfLayoutType(LayoutType type) { return (uint8_t)type & 0xF; }

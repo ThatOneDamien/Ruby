@@ -79,7 +79,7 @@ namespace Ruby {
     void Font::init()
     {
         s_Lib = msdfgen::initializeFreetype();
-        RB_ASSERT(s_Lib, "MSDFGen Error: Freetype failed to initialize.");
+        RB_ASSERT_CRITICAL(s_Lib, "MSDFGen Error: Freetype failed to initialize.");
     }
 
     void Font::deInit()

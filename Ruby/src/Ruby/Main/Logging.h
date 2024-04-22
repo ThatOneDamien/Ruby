@@ -89,7 +89,7 @@ namespace Ruby {
 			if (getLogLevel() > LogLevel::Info)
 				return;
 
-			internalSetLogColor(LogColor::Yellow, LogColor::Black);
+			internalSetLogColor(LogColor::Purple, LogColor::Black);
 			TimeStruct time = Time::getLocalTime();
 			printf("[%.2d:%.2d:%.2d] %s: ", time.hour, time.minute, time.second, m_Name);
 			printf(message, args...);
@@ -102,7 +102,7 @@ namespace Ruby {
 			if (getLogLevel() > LogLevel::Warn)
 				return;
 
-			internalSetLogColor(LogColor::Purple, LogColor::Black);
+			internalSetLogColor(LogColor::Yellow, LogColor::Black);
 			TimeStruct time = Time::getLocalTime();
 			printf("[%.2d:%.2d:%.2d] %s: ", time.hour, time.minute, time.second, m_Name);
 			printf(message, std::forward<Args>(args)...);

@@ -27,7 +27,7 @@ namespace Ruby {
 			case PixelFormat::RGBA8:
 				return GL_RGBA;
 			}
-			RB_ASSERT(false, "Shouldn't be here.");
+			RB_ERROR_DEBUG("Shouldn't be here.");
 			return 0;
 		}
 
@@ -70,7 +70,7 @@ namespace Ruby {
 			m_FormatBase = GL_RED;
 			break;
 		default:
-			RB_ASSERT(false, "Unknown or unsupported amount bytes per pixel.");
+			RB_ERROR_DEBUG("Unknown or unsupported amount bytes per pixel.");
 		}
 
 		glTextureStorage2D(m_RendererID, 1, m_FormatIntern, m_Width, m_Height);

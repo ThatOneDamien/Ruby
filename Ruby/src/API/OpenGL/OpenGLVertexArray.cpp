@@ -38,35 +38,10 @@ namespace Ruby {
 		for (GLuint i = 0; i < (GLuint)e.size(); ++i)
 		{
 			glEnableVertexArrayAttrib(m_RendererID, i);
-			switch (e[i].type)
-			{
-			case LayoutType::Byte:
-				glVertexAttribPointer(i, e[i].count, GL_BYTE, e[i].normalize, layout.getStride(), (const void*)offset);
-				break;
-			case LayoutType::UByte:
-				glVertexAttribPointer(i, e[i].count, GL_UNSIGNED_BYTE, e[i].normalize, layout.getStride(), (const void*)offset);
-				break;
-			case LayoutType::Short:
-				glVertexAttribPointer(i, e[i].count, GL_SHORT, e[i].normalize, layout.getStride(), (const void*)offset);
-				break;
-			case LayoutType::UShort:
-				glVertexAttribPointer(i, e[i].count, GL_UNSIGNED_SHORT, e[i].normalize, layout.getStride(), (const void*)offset);
-				break;
-			case LayoutType::Int:
-				glVertexAttribPointer(i, e[i].count, GL_INT, e[i].normalize, layout.getStride(), (const void*)offset);
-				break;
-			case LayoutType::UInt:
-				glVertexAttribPointer(i, e[i].count, GL_UNSIGNED_INT, e[i].normalize, layout.getStride(), (const void*)offset);
-				break;
-			case LayoutType::Float:
-				glVertexAttribPointer(i, e[i].count, GL_FLOAT, (GLboolean)e[i].normalize, layout.getStride(), (const void*)offset);
-				break;
-			case LayoutType::Double:
-				glVertexAttribPointer(i, e[i].count, GL_DOUBLE, e[i].normalize, layout.getStride(), (const void*)offset);
-				break;
-			default:
-				RB_ASSERT(false, "Unsupported data type!");
-			}
+
+			// A little bit of magic using the encoding of the enums.
+			GLenum glType = 0x1400u + ((uint32_t)e[i].type >> 4);
+			glVertexAttribPointer(i, e[i].count, glType, e[i].normalize, layout.getStride(), (const void*)offset);
 			offset += (uint64_t)e[i].count * (uint64_t)sizeOfLayoutType(e[i].type);
 		}
 

@@ -50,14 +50,14 @@ namespace Ruby {
 		glfwSetWindowCloseCallback(m_Window, [](GLFWwindow* window) 
 			{
 				WindowCloseEvent e;
-				App::getInstance().onEvent(e);
+				App::getInstance().handleEvent(e);
 
 			});
 
 		glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* window, int width, int height) 
 			{
 				WindowResizeEvent e(width, height);
-				App::getInstance().onEvent(e);
+				App::getInstance().handleEvent(e);
 			});
 
 		glfwSetKeyCallback(m_Window, [](GLFWwindow* window, int key, int scancode, int action, int mods) 
@@ -67,19 +67,19 @@ namespace Ruby {
 				case GLFW_PRESS:
 				{
 					KeyPressedEvent e((KeyCode)key, false);
-					App::getInstance().onEvent(e);
+					App::getInstance().handleEvent(e);
 					break;
 				}
 				case GLFW_RELEASE:
 				{
 					KeyReleasedEvent e((KeyCode)key);
-					App::getInstance().onEvent(e);
+					App::getInstance().handleEvent(e);
 					break;
 				}
 				case GLFW_REPEAT:
 				{
 					KeyPressedEvent e((KeyCode)key, true);
-					App::getInstance().onEvent(e);
+					App::getInstance().handleEvent(e);
 					break;
 				}
 					
@@ -94,13 +94,13 @@ namespace Ruby {
 			case GLFW_PRESS:
 			{
 				MousePressedEvent e((MouseCode)button);
-				App::getInstance().onEvent(e);
+				App::getInstance().handleEvent(e);
 				break;
 			}
 			case GLFW_RELEASE:
 			{
 				MouseReleasedEvent e((MouseCode)button);
-				App::getInstance().onEvent(e);
+				App::getInstance().handleEvent(e);
 				break;
 			}
 			}
@@ -109,14 +109,14 @@ namespace Ruby {
 		glfwSetCursorPosCallback(m_Window, [](GLFWwindow* window, double xpos, double ypos) {
 				
 				MouseMoveEvent e((uint16_t)xpos, (uint16_t)ypos);
-				App::getInstance().onEvent(e);
+				App::getInstance().handleEvent(e);
 				
 			});
 
 		glfwSetScrollCallback(m_Window, [](GLFWwindow* window, double xoffset, double yoffset) {
 				
 				MouseScrollEvent e((float)xoffset, (float)yoffset);
-				App::getInstance().onEvent(e);
+				App::getInstance().handleEvent(e);
 
 			});
 

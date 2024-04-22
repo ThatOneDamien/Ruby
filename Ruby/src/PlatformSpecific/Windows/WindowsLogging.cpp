@@ -2,7 +2,6 @@
 
 #include "Ruby/Main/Core.h"
 
-#ifdef RB_PLAT_WIND
 // NOTE: DO NOT INCLUDE ANYWHERE ELSE IN THE PROGRAM EXCEPT IN
 // Logging.cpp, AS THIS FILE CONTAINS SOURCE CODE THAT WOULD RESULT
 // IN A MULTIPLE DECLARATIONS ERROR IF DUPLICATED.
@@ -88,4 +87,3 @@ namespace Ruby {
 		m_CurrentColor = s_DefaultColor;
 	}
 }
-#endif

@@ -44,11 +44,7 @@ namespace Ruby {
 
 	void OpenGLVB::setVertexData(const void* vertices, uint32_t size, uint32_t offset)
 	{
-		if (size + offset > m_Size)
-		{
-			RB_ERROR("Size of given data and/or offset would overflow the size of VBO.");
-			return;
-		}
+		RB_ASSERT_RET_VOID(size + offset <= m_Size, "Size of given data and/or offset would overflow the size of VBO.");
 		glNamedBufferSubData(m_RendererID, (GLintptr)offset, (GLsizeiptr)size, vertices);
 	}
 

@@ -1,5 +1,5 @@
 project "RubyEditor"
-	kind "ConsoleApp"
+	kind "WindowedApp"
 	language "C++"
 	cppdialect "C++17"
 	staticruntime "on"
@@ -25,6 +25,7 @@ project "RubyEditor"
 
 	filter "system:windows"
 		systemversion "latest"
+        entrypoint "WinMainCRTStartup"
 
 	filter "configurations:Debug"
 		defines "RB_DEBUG"

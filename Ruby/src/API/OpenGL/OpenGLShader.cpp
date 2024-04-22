@@ -10,46 +10,64 @@
 
 namespace Ruby {
 
+
+
     namespace Internal {
 
-        ShaderCollection parseShaders(const std::string& fileSourceCode)
+        void parseShaders(const std::string& fileSource, std::string outShaders[6])
         {
-            ShaderCollection shaders;
-
-            size_t header = fileSourceCode.find("#shader");
+            size_t header = fileSource.find("#shader");
+               
+            // Tells whether the shader type corresponding with the index has appeared
+            // in the file yet or not.
+            bool used[6] = { false, false, false, false, false, false };
 
             while (header != std::string::npos)
             {
-                size_t firstLineEnd = fileSourceCode.find_first_of("\r\n", header);
+                size_t firstLineEnd = fileSource.find_first_of("\r\n", header);
                 RB_ASSERT(firstLineEnd != std::string::npos, "Syntax error no line end found.");
 
-                size_t end = fileSourceCode.find_last_not_of(" \t\r\n", firstLineEnd - 1);
+                size_t end = fileSource.find_last_not_of(" \t\r\n", firstLineEnd - 1);
                 RB_ASSERT(end != std::string::npos && end > header + 7, "Shader syntax error, incomplete shader type");
 
-                size_t beg = fileSourceCode.find_last_of(" \t", end - 1) + 1;
+                size_t beg = fileSource.find_last_of(" \t", end - 1) + 1;
                 RB_ASSERT(beg != std::string::npos && beg > header + 7, "Syntax error.");
-                std::string type = fileSourceCode.substr(beg, end - beg + 1);
+                std::string type = fileSource.substr(beg, end - beg + 1);
 
-                size_t nextLine = fileSourceCode.find_first_not_of("\r\n\t ", firstLineEnd + 1);
+                size_t nextLine = fileSource.find_first_not_of("\r\n\t ", firstLineEnd + 1);
                 RB_ASSERT(nextLine != std::string::npos, "Syntax error");
-                header = fileSourceCode.find("#shader", nextLine);
+                header = fileSource.find("#shader", nextLine);
 
-                GLenum typeEnum = GL_NONE;
+                std::string shaderSource = fileSource.substr(nextLine, (header == std::string::npos) ? 
+                                                                        fileSource.size() - nextLine : 
+                                                                        header - nextLine);
+                size_t index;
 
-                if (type == "vertex")
-                    typeEnum = GL_VERTEX_SHADER;
-                else if (type == "fragment")
-                    typeEnum = GL_FRAGMENT_SHADER;
+                if (type == "vertex" || type == "vert")
+                    index = 0;
+                else if (type == "fragment" || type == "frag")
+                    index = 1;
                 else if (type == "geometry" || type == "geo")
-                    typeEnum = GL_GEOMETRY_SHADER;
+                    index = 2;
+                else if (type == "compute" || type == "comp")
+                    index = 3;
+                else if (type == "tesscontrol" || type == "tessc")
+                    index = 4;
+                else if (type == "tesseval" || type == "tesse")
+                    index = 5;
                 else
-                    RB_ASSERT(false, "Unknown/unsupported shader type.");
+                {
+                    RB_ERROR("Unknown/unsupported shader type.");
+                    continue;
+                }
 
-                shaders[typeEnum] = header == std::string::npos ? fileSourceCode.substr(nextLine, fileSourceCode.size() - nextLine)
-                    : fileSourceCode.substr(nextLine, header - nextLine);
+                if (used[index])
+                    RB_WARN("Shader type '%s' was defined twice, overwriting first definition. You should remove one of the definitions.", type.c_str());
+
+                used[index] = true;
+                outShaders[index] = shaderSource;
+
             }
-
-            return shaders;
         }
 
         std::string loadShaderFromFile(const std::string& filepath)
@@ -80,12 +98,8 @@ namespace Ruby {
     }
 
     OpenGLShader::OpenGLShader(const std::string& filepath)
-        : m_Filepath(filepath)
+        : OpenGLShader::OpenGLShader("", filepath)
     {
-        std::string fileSourceCode = Internal::loadShaderFromFile(filepath);
-        ShaderCollection shaderCollection = Internal::parseShaders(fileSourceCode);
-        compileShader(shaderCollection);
-
         size_t lastSlash = 0, extension = 0;
         for (size_t i = filepath.size(); i-- > 0; )
         {
@@ -104,21 +118,12 @@ namespace Ruby {
     }
 
     OpenGLShader::OpenGLShader(const std::string& name, const std::string& filepath)
-        : m_Filepath(filepath), m_Name(name)
+        : m_Name(name), m_Filepath(filepath)
     {
-        std::string fileSourceCode = Internal::loadShaderFromFile(filepath);
-        ShaderCollection shaderCollection = Internal::parseShaders(fileSourceCode);
-        compileShader(shaderCollection);
-    }
-
-    OpenGLShader::OpenGLShader(const std::string& name, const std::string& vertSrc, const std::string& fragSrc)
-        : m_Name(name)
-    {
-        ShaderCollection shaderCollection;
-        shaderCollection[GL_VERTEX_SHADER] = vertSrc;
-        shaderCollection[GL_FRAGMENT_SHADER] = fragSrc;
-        compileShader(shaderCollection);
-
+        std::string fileSource = Internal::loadShaderFromFile(filepath);
+        std::string shaderSources[6];
+        Internal::parseShaders(fileSource, shaderSources);
+        compileShader(shaderSources);
     }
 
     OpenGLShader::~OpenGLShader()
@@ -126,22 +131,42 @@ namespace Ruby {
         glDeleteProgram(m_ProgramID);
     }
 
-    void OpenGLShader::compileShader(const ShaderCollection& collection)
+    void OpenGLShader::compileShader(const std::string collection[6])
     {
         GLuint programID = glCreateProgram();
 
-        RB_ASSERT(collection.size() < 4, "Number of shaders exceeds 3, which is the max number supported.");
-
-        // The number 4294967293 is used to identify unused shader indexes, as no ID should
-        // be 4294967293. 
-        GLenum shaderIDList[3] = { 4294967293, 4294967293, 4294967293 };
-        int listInsert = 0;
-
-        for (const auto& [type, source] : collection)
+        // 
+        constexpr GLenum INVALID_ID = 0xFFFFFFFD;
+        constexpr GLenum INDEX_TO_GL_SHADER_TYPE[6] = 
         {
-            GLuint shaderID = glCreateShader(type);
+            GL_VERTEX_SHADER, 
+            GL_FRAGMENT_SHADER,
+            GL_GEOMETRY_SHADER,
+            GL_COMPUTE_SHADER,
+            GL_TESS_CONTROL_SHADER,
+            GL_TESS_EVALUATION_SHADER
+        };
+        constexpr const char* INDEX_TO_GL_SHADER_STR[6] =
+        {
+            "Vertex",
+            "Fragment",
+            "Geometry",
+            "Compute",
+            "Tesselation Control",
+            "Tesselation Evaluation"
+        };
 
-            const GLchar* sourceCStr = source.c_str();
+        GLenum shaderIDList[6] = { INVALID_ID, INVALID_ID, INVALID_ID, INVALID_ID, INVALID_ID, INVALID_ID };
+        size_t listInsert = 0;
+
+        for (size_t i = 0; i < 6; ++i)
+        {
+            if (collection[i] == "")
+                continue;
+
+            GLuint shaderID = glCreateShader(INDEX_TO_GL_SHADER_TYPE[i]);
+
+            const GLchar* const sourceCStr = collection[i].c_str();
             glShaderSource(shaderID, 1, &sourceCStr, 0);
 
             glCompileShader(shaderID);
@@ -158,31 +183,24 @@ namespace Ruby {
 
                 glDeleteShader(shaderID);
 
-                const char* shaderTypeString = "Vertex Shader";
-                if (type == GL_FRAGMENT_SHADER)
-                    shaderTypeString = "Fragment Shader";
-                else if (type == GL_GEOMETRY_SHADER)
-                    shaderTypeString = "Geometry Shader";
-
-                RB_ERROR("%s failed to compile!", shaderTypeString);
-                RB_ASSERT(false, "%s", message);
+                RB_ERROR_DEBUG("%s shader failed to compile!: %s", INDEX_TO_GL_SHADER_STR[i], message);
                 break;
             }
             
             glAttachShader(programID, shaderID);
 
-            size_t lineLocation = source.find("uniform");
-            while (lineLocation != std::string::npos)
+            size_t lineLocation;
+            size_t endUniformName = 0;
+            while ((lineLocation = collection[i].find("uniform", endUniformName)) != std::string::npos)
             {
                 // This should be guaranteed to be found because the shader has already been successfully compiled,
                 // and the syntax requires the uniforms be layed out as such when not put into blocks.
 
-                size_t dataType = source.find_first_not_of(" \t", lineLocation + 7);
-                size_t uniformName = source.find_first_not_of(" \t", source.find_first_of(" \t", dataType + 1) + 1);
-                size_t endUniformName = source.find_first_of(" =([;{\r\n\t", uniformName + 1);
+                size_t dataType = collection[i].find_first_not_of(" \t", lineLocation + 7);
+                size_t uniformName = collection[i].find_first_not_of(" \t", collection[i].find_first_of(" \t", dataType + 1) + 1);
+                endUniformName = collection[i].find_first_of(" =([;{\r\n\t", uniformName + 1);
                
-                m_CachedUniforms[source.substr(uniformName, endUniformName - uniformName)] = -1;
-                lineLocation = source.find("uniform", endUniformName);
+                m_CachedUniforms[collection[i].substr(uniformName, endUniformName - uniformName)] = -1;
             }
 
             shaderIDList[listInsert++] = shaderID;
@@ -201,19 +219,18 @@ namespace Ruby {
         
             glDeleteProgram(programID);
         
-            for (int i = 0; i < 3 && shaderIDList[i] != 4294967293; ++i)
+            for (int i = 0; i < 6 && shaderIDList[i] != INVALID_ID; ++i)
                 glDeleteShader(shaderIDList[i]);
         
-            RB_ERROR("Program failed to link successfully.");
-            RB_ASSERT(false, "%s", message);
+            RB_ERROR_DEBUG("Program failed to link successfully: %s", message);
             return;
         }
 
-        for (int i = 0; i < 3 && shaderIDList[i] != 4294967293; ++i)
+        for (int i = 0; i < 6 && shaderIDList[i] != INVALID_ID; ++i)
             glDetachShader(programID, shaderIDList[i]);
 
-        for (auto& pair : m_CachedUniforms)
-            pair.second = glGetUniformLocation(programID, pair.first.c_str());
+        for (auto& [name, location] : m_CachedUniforms)
+            location = glGetUniformLocation(programID, name.c_str());
 
         m_ProgramID = programID;
     }

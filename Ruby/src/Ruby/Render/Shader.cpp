@@ -22,11 +22,6 @@ namespace Ruby {
 		return createShared<SHADER>(name, filepath);
 	}
 
-	SharedPtr<Shader> Shader::createShader(const std::string& name, const std::string& vertSrc, const std::string& fragSrc)
-	{
-		return createShared<SHADER>(name, vertSrc, fragSrc);
-	}
-
 	SharedPtr<Shader> Shader::createAndAddShaderToLibrary(const std::string& filepath)
 	{
 		auto shader = createShared<SHADER>(filepath);
@@ -37,13 +32,6 @@ namespace Ruby {
 	SharedPtr<Shader> Shader::createAndAddShaderToLibrary(const std::string& name, const std::string& filepath)
 	{
 		auto shader = createShared<SHADER>(name, filepath);
-		s_ShaderLibrary[name] = shader;
-		return shader;
-	}
-
-	SharedPtr<Shader> Shader::createAndAddShaderToLibrary(const std::string& name, const std::string& vertSrc, const std::string& fragSrc)
-	{
-		auto shader = createShared<SHADER>(name, vertSrc, fragSrc);
 		s_ShaderLibrary[name] = shader;
 		return shader;
 	}

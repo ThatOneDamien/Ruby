@@ -55,10 +55,10 @@ namespace Ruby {
 
 			void initAPI()
 			{
-				RB_ASSERT(!s_GladInitialized, "Glad initialized more than once.");
+				RB_ASSERT(!s_GladInitialized, "Attemped to initialize glad more than once.");
 				RB_ASSERT(s_LoadProc, "Load proc is nullptr, maybe you forgot to call setGladLoadProc()?");
 				int success = gladLoadGLLoader(s_LoadProc);
-				RB_ASSERT(success, "Glad failed to initialize!");
+				RB_ASSERT_CRITICAL(success, "Glad failed to initialize!");
 				RB_ASSERT((GLVersion.major == 4 && GLVersion.minor > 5) || GLVersion.major > 4, "OpenGL version 4.6 or higher is required to run Ruby.");
 
 				RB_INFO("OpenGL Version %s Initialized", glGetString(GL_VERSION));
@@ -79,7 +79,7 @@ namespace Ruby {
 
 			void deInitAPI()
 			{
-
+				// Empty implementation for OpenGL because it doesn't require shutdown.
 			}
 
 			void drawCall(const SharedPtr<VertexArray>& vao, uint32_t indexCount)
@@ -95,7 +95,7 @@ namespace Ruby {
 
 			void setClearColor(uint8_t r, uint8_t g, uint8_t b)
 			{
-				glClearColor(r / 255.0f, g / 255.0f, b / 255.0f, 1.0f);
+				glClearColor((float)r / 255.0f, (float)g / 255.0f, (float)b / 255.0f, 1.0f);
 			}
 
 			void setClearColor(const glm::vec3& color)

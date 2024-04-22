@@ -20,9 +20,9 @@ namespace Ruby {
 		virtual inline const SharedPtr<IndexBuffer>& getIndexBuffer() const override { return m_IndexBuffer; }
 
 	private:
-		RendererID m_RendererID;
-		SharedPtr<VertexBuffer> m_VertexBuffer;
-		SharedPtr<IndexBuffer> m_IndexBuffer;
+		RendererID m_RendererID = 0;
+		SharedPtr<VertexBuffer> m_VertexBuffer{nullptr};
+		SharedPtr<IndexBuffer> m_IndexBuffer{nullptr};
 	};
 
 }

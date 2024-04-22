@@ -14,7 +14,6 @@ namespace Ruby {
 		inline uint16_t getY() const { return m_Y; }
 		inline std::pair<uint16_t, uint16_t> getCoords() const { return {m_X, m_Y}; }
 		
-		virtual inline uint16_t getCategory() const override { return RB_EVENT_INPUT | RB_EVENT_MOUSE; }
 		virtual inline EventType getType() const override { return EventType::MouseMove; }
 		virtual inline std::string toStr() const override
 		{
@@ -34,7 +33,6 @@ namespace Ruby {
 
 		inline MouseCode getButtonCode() const { return m_ButtonCode; }
 		
-		virtual inline uint16_t getCategory() const override { return RB_EVENT_INPUT | RB_EVENT_MOUSEBUTTON; }
 		virtual inline EventType getType() const override { return EventType::MousePressed; }
 		virtual inline std::string toStr() const override 
 		{
@@ -53,7 +51,6 @@ namespace Ruby {
 		MouseReleasedEvent(MouseCode buttonCode) : m_ButtonCode(buttonCode) {}
 		inline MouseCode getKeyCode() const { return m_ButtonCode; }
 		
-		virtual inline uint16_t getCategory() const override { return RB_EVENT_INPUT | RB_EVENT_MOUSEBUTTON; }
 		virtual inline EventType getType() const override { return EventType::MouseReleased; }
 		virtual inline std::string toStr() const override
 		{
@@ -74,7 +71,6 @@ namespace Ruby {
 		inline float getXOffset() const { return m_XOff; }
 		inline float getYOffset() const { return m_YOff; }
 		
-		virtual inline uint16_t getCategory() const override { return RB_EVENT_INPUT | RB_EVENT_MOUSE; }
 		virtual inline EventType getType() const override { return EventType::MouseScroll; }
 		virtual inline std::string toStr() const override
 		{

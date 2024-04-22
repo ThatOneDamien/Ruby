@@ -12,9 +12,4 @@ namespace Ruby {
 
 		m_EntityID = m_Scene->m_Registry.create();
 	}
-
-	Entity::~Entity() 
-	{
-
-	}
 }

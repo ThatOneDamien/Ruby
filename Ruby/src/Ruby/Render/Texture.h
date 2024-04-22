@@ -124,7 +124,8 @@ namespace Ruby {
 	class SubTexture
 	{
 	public:
-		SubTexture(const SharedPtr<Texture>& texture, const glm::vec2& bottomLeftCorner, const glm::vec2& topRightCorner);
+		inline SubTexture(const SharedPtr<Texture>& texture, const glm::vec2& bottomLeftCorner, const glm::vec2& topRightCorner)
+			: m_Texture(texture), m_Coords(bottomLeftCorner, topRightCorner) {}
 
 		inline const TexCoords& getTexCoords() const { return m_Coords; }
 		inline const SharedPtr<Texture>& getTexture() const { return m_Texture; }

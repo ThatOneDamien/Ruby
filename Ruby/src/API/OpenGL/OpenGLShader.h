@@ -3,8 +3,7 @@
 #include "Ruby/Render/Shader.h"
 
 typedef unsigned int GLenum;
-typedef int GLint;
-typedef std::unordered_map<GLenum, std::string> ShaderCollection;
+//typedef std::unordered_map<GLenum, std::string> ShaderCollection;
 
 namespace Ruby {
 
@@ -13,7 +12,6 @@ namespace Ruby {
     public:
         OpenGLShader(const std::string& filepath);
         OpenGLShader(const std::string& name, const std::string& filepath);
-        OpenGLShader(const std::string& name, const std::string& vertSrc, const std::string& fragSrc);
         virtual ~OpenGLShader();
 
         virtual void bind() const override;
@@ -31,19 +29,15 @@ namespace Ruby {
         virtual void setUniformMat4(const char* name, const glm::mat4& mat) const override;
 
     private:
-        void compileShader(const ShaderCollection& collection);
-        inline GLint getUniformLocation(const std::string& name) const
+        void compileShader(const std::string collection[6]);
+        inline int getUniformLocation(const std::string& name) const
         {
-            if (!m_CachedUniforms.count(name))
-            {
-                RB_ERROR("Unrecognized uniform name '%s'", name.c_str());
-                return -1;
-            }
+            RB_ASSERT_RET(m_CachedUniforms.count(name), -1, "Unrecognized uniform name '%s'", name.c_str());
             return m_CachedUniforms[name];
         }
 
         RendererID m_ProgramID;
         std::string m_Name, m_Filepath;
-        mutable std::unordered_map<std::string, GLint> m_CachedUniforms;
+        mutable std::unordered_map<std::string, int> m_CachedUniforms;
     };
 }

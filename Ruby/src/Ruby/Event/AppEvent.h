@@ -12,7 +12,6 @@ namespace Ruby {
 
 		inline uint32_t getHeight() const { return m_Height; }
 		inline uint32_t getWidth() const { return m_Width; }
-		virtual inline uint16_t getCategory() const override{ return RB_EVENT_APP; }
 		virtual inline EventType getType() const override { return EventType::WindowResized; }
 		virtual inline std::string toStr() const override
 		{
@@ -31,7 +30,6 @@ namespace Ruby {
 	public:
 		WindowCloseEvent() {}
 
-		virtual inline uint16_t getCategory() const override { return RB_EVENT_APP; }
 		virtual inline EventType getType() const override { return EventType::WindowClose; }
 		virtual inline std::string toStr() const override
 		{
@@ -51,7 +49,6 @@ namespace Ruby {
 		inline uint16_t getY() const { return m_Y; }
 		inline std::pair<uint16_t, uint16_t> getCoords() const { return {m_X, m_Y}; }
 		
-		virtual inline uint16_t getCategory() const override { return RB_EVENT_APP; }
 		virtual inline EventType getType() const override { return EventType::WindowMoved; }
 		virtual inline std::string toStr() const override
 		{

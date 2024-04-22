@@ -8,8 +8,10 @@ namespace Ruby {
 	{
 		static constexpr uint32_t nullID = (uint32_t)entt::tombstone;
 	public:
-		uint32_t getID() const { return (uint32_t)m_EntityID; }
-		~Entity();
+		Entity(Scene* scene);
+		~Entity() = default;
+
+		inline uint32_t getID() const { return (uint32_t)m_EntityID; }
 
 		template<typename comp_t, typename... Args>
 		comp_t& addComponent(Args&&... args)
@@ -26,11 +28,7 @@ namespace Ruby {
 		}
 
 	private:
-		Entity(Scene* scene);
-
-	private:
 		friend class Scene;
-
 
 		entt::entity m_EntityID;
 		Scene* m_Scene;

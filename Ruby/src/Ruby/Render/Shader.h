@@ -33,13 +33,11 @@ namespace Ruby {
         */
         static SharedPtr<Shader> createShader(const std::string& filepath);
         static SharedPtr<Shader> createShader(const std::string& name, const std::string& filepath);
-        static SharedPtr<Shader> createShader(const std::string& name, const std::string& vertSrc, const std::string& fragSrc);
 
         static inline void addShaderToLibrary(const SharedPtr<Shader>& shader) { s_ShaderLibrary[shader->getName()] = shader; }
         static inline void addShaderToLibrary(const std::string& name, const SharedPtr<Shader>& shader) { s_ShaderLibrary[name] = shader; }
         static SharedPtr<Shader> createAndAddShaderToLibrary(const std::string& filepath);
         static SharedPtr<Shader> createAndAddShaderToLibrary(const std::string& name, const std::string& filepath);
-        static SharedPtr<Shader> createAndAddShaderToLibrary(const std::string& name, const std::string& vertSrc, const std::string& fragSrc);
 
         static inline const SharedPtr<Shader>& getShaderFromLibrary(const std::string& name)
         {
