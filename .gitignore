@@ -40,3 +40,4 @@ mono_crash.*
 *.pidb
 *.svclog
 *.scc
+**/Makefile

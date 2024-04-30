@@ -83,7 +83,6 @@ project "FreeType"
 
 	filter "system:macosx"
 		pic "on"
-		files "src/base/ftsystem.c"
 
 	filter "system:windows"
 		systemversion "latest"
