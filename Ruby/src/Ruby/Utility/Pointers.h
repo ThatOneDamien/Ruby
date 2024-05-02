@@ -72,22 +72,18 @@ namespace Ruby {
 
 		~PTR_BASE() noexcept override {}
 
+		union
+		{
+			Wrapper<T> Storage;
+		};
 
 	private:
-
-		template<typename T2 = T, typename... Args>
-		friend SharedPtr<T2> createShared(Args&&... args);
 
 		void Destroy() noexcept override
 		{
 			Storage.Value.~T();
 			delete this;
 		}
-
-		union
-		{
-			Wrapper<T> Storage;
-		};
 
 	};
 

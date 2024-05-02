@@ -12,7 +12,8 @@
 #include "Ruby/Main/App.h"
 
 
-#pragma warning(disable: 6385, 6386) // Compiler warning about overflowing buffer which wont happen.
+#pragma warning(disable: 6385) // Compiler warning about overflowing buffer which wont happen.
+#pragma warning(disable: 6386)
 
 namespace Ruby {
 
@@ -279,14 +280,14 @@ namespace Ruby {
 
 	namespace internal 
 	{
-		int getTextureSlotOrAdd(const SharedPtr<Texture>& tex)
+		float getTextureSlotOrAdd(const SharedPtr<Texture>& tex)
 		{
-			int res = 0;
+			float res = 0;
 			for (int i = 0; i < s_TextureInsert; ++i)
 			{
 				if (s_BoundTextures[i] == tex)
 				{
-					res = i + 1;
+					res = (float)i + 1.0f;
 					break;
 				}
 			}
@@ -296,7 +297,7 @@ namespace Ruby {
 				if (s_TextureInsert >= s_TextureSlotCount - 2)
 					renderBatch();
 
-				res = (float)s_TextureInsert + 1;
+				res = (float)s_TextureInsert + 1.0f;
 				s_BoundTextures[s_TextureInsert] = tex; // Warning disabled at top of header.
 				++s_TextureInsert;
 			}

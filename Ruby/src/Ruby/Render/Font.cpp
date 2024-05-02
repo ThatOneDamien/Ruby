@@ -76,6 +76,11 @@ namespace Ruby {
         msdfgen::destroyFont(font);
 	}
 
+    Font::~Font()
+    {
+        delete m_Data;
+    }
+
     void Font::init()
     {
         s_Lib = msdfgen::initializeFreetype();

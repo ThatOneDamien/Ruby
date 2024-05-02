@@ -26,15 +26,15 @@ namespace Ruby {
 
 
 		// Methods to be defined by users app.
-		
-		// User defined event handling function.
-		virtual void onEvent(Event& e) = 0;
+
+		// User defined function that is called upon the app being started.
+		virtual void onStart() = 0;
 		// User defined update handling function.
 		virtual void update(double deltaMillis) = 0;
 		// User defined ImGui rendering function.
 		virtual void ImGuiRender(double deltaMillis) = 0;
-		// User defined function that is called upon the app being started.
-		virtual void onStart() = 0;
+		// User defined event handling function.
+		virtual void onEvent(Event& e) = 0;
 		// User defined function that is called upon the app being closed.
 		virtual void onExit() = 0;
 

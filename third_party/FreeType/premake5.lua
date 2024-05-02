@@ -1,10 +1,10 @@
 project "FreeType"
 	kind "StaticLib"
 	language "C"
-    staticruntime "off"
+    staticruntime "on"
 
-	targetdir ("bin/" .. outdir .. "/%{prj.name}")
-	objdir ("bin/int/" .. outdir .. "/%{prj.name}")
+	targetdir ("%{wks.location}/bin/" .. outdir .. "/%{prj.name}")
+	objdir ("%{wks.location}/bin/int/" .. outdir .. "/%{prj.name}")
 
 	files
 	{
@@ -99,9 +99,3 @@ project "FreeType"
 			"src/base/ftwinfnt.c",
             "builds/windows/ftdebug.c"
 		}
-
-	filter { "system:windows", "configurations:Release" }
-		buildoptions "/MT"
-
-	filter { "system:windows", "configurations:Debug" }
-		buildoptions "/MTd"

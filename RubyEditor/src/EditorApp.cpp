@@ -113,7 +113,7 @@ namespace Ruby {
 		ImGui::Begin("Scene");
 		ImVec2 viewportMaxRegion = ImGui::GetWindowContentRegionMax();
 
-		ImGui::Image((ImTextureID)m_FBO->getTextureID(), ImVec2{ viewportMaxRegion.x, viewportMaxRegion.x * m_InvAspectRatio }, { 0, 1 }, { 1, 0 });
+		ImGui::Image((ImTextureID)(uint64_t)m_FBO->getTextureID(), ImVec2{ viewportMaxRegion.x, viewportMaxRegion.x * m_InvAspectRatio }, { 0, 1 }, { 1, 0 });
 
 		ImGui::End();
 		ImGui::PopStyleVar();

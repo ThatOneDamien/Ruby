@@ -60,6 +60,7 @@ project "Ruby"
             "src/PlatformSpecific/Windows/**.h",
             "src/PlatformSpecific/Windows/**.cpp"
         }
+        buildoptions "/Yc\"ruby_pch.h\""
 
 	filter "configurations:Debug"
 		defines "RB_DEBUG"

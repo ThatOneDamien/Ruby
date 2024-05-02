@@ -13,7 +13,7 @@ namespace Ruby {
 	{
 	public:
 		Font(const std::string& filepath);
-		inline ~Font() { delete m_Data; };
+		~Font();
 
 		inline const SharedPtr<Texture>& getAtlasTexture() const { return m_AtlasTexture; }
 		inline const FontData* getAtlasData() const { return m_Data; }
