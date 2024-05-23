@@ -1,6 +1,7 @@
 #include "ruby_pch.h"
-#include "Ruby/Render/Renderer.h"
+
 #include "Ruby/Main/Core.h"
+#include "Ruby/Render/Renderer.h"
 
 #ifdef RB_USE_OPENGL
 #include <glad/glad.h>
@@ -66,7 +67,6 @@ namespace Ruby {
 				RB_INFO("OpenGL Renderer %s", glGetString(GL_RENDERER));
 				s_GladInitialized = true;
 
-
 				glEnable(GL_DEBUG_OUTPUT);
 				glDebugMessageCallback(debugCallbackFunc, nullptr);
 
@@ -84,7 +84,7 @@ namespace Ruby {
 			void drawCall(const SharedPtr<VertexArray>& vao, uint32_t indexCount)
 			{
 				vao->bind();
-				glDrawElements(GL_TRIANGLES, indexCount ? indexCount : vao->getIndexBuffer()->getCount(), GL_UNSIGNED_INT, nullptr);
+				glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, nullptr);
 			}
 
 			void setClearColor(float r, float g, float b)

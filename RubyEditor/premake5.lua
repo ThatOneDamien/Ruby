@@ -1,5 +1,4 @@
 project "RubyEditor"
-	kind "WindowedApp"
 	language "C++"
 	cppdialect "C++17"
 	staticruntime "on"
@@ -21,11 +20,27 @@ project "RubyEditor"
         "%{wks.location}/Ruby/Dependencies/entt/include"
 	}
 
-	links "Ruby"
-
 	filter "system:windows"
+		kind "WindowedApp"
 		systemversion "latest"
         entrypoint "WinMainCRTStartup"
+		links "Ruby"
+
+	filter "system:linux"
+	    kind "ConsoleApp"
+		links 
+		{
+			"Ruby", 
+			"glad", 
+			"GLFW", 
+			"ImGui", 
+			"msdf-atlas-gen", 
+			"msdfgen", 
+			"FreeType", 
+			"SoloudStatic"
+		}
+		disablewarnings "format-security"
+	    
 
 	filter "configurations:Debug"
 		defines "RB_DEBUG"

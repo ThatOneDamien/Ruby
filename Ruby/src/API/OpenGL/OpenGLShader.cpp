@@ -1,8 +1,8 @@
 #include "ruby_pch.h"
 
-#include "API/OpenGL/OpenGLShader.h"
-
 #include "Ruby/Main/Core.h"
+#include "Ruby/Main/App.h"
+#include "API/OpenGL/OpenGLShader.h"
 
 #include <glad/glad.h>
 #include <fstream>
@@ -128,7 +128,8 @@ namespace Ruby {
 
     OpenGLShader::~OpenGLShader()
     {
-        glDeleteProgram(m_ProgramID);
+        if(App::instanceExists())
+            glDeleteProgram(m_ProgramID);
     }
 
     void OpenGLShader::compileShader(const std::string collection[6])
@@ -176,14 +177,9 @@ namespace Ruby {
 
             if (!compileStatus)
             {
-                GLint length;
-                glGetShaderiv(shaderID, GL_INFO_LOG_LENGTH, &length);
-                GLchar message[1000];
-                glGetShaderInfoLog(shaderID, 1000, &length, message);
-
                 glDeleteShader(shaderID);
 
-                RB_ERROR_DEBUG("%s shader failed to compile!: %s", INDEX_TO_GL_SHADER_STR[i], message);
+                RB_ERROR_DEBUG("%s shader failed to compile!", INDEX_TO_GL_SHADER_STR[i]);
                 break;
             }
             
@@ -212,17 +208,12 @@ namespace Ruby {
         glGetProgramiv(programID, GL_LINK_STATUS, &linkStatus);
         if (!linkStatus)
         {
-            GLint length;
-            glGetProgramiv(programID, GL_INFO_LOG_LENGTH, &length);
-            GLchar message[1000];
-            glGetProgramInfoLog(programID, 1000, &length, message);
-        
             glDeleteProgram(programID);
         
             for (int i = 0; i < 6 && shaderIDList[i] != INVALID_ID; ++i)
                 glDeleteShader(shaderIDList[i]);
         
-            RB_ERROR_DEBUG("Program failed to link successfully: %s", message);
+            RB_ERROR_DEBUG("Program failed to link successfully.");
             return;
         }
 

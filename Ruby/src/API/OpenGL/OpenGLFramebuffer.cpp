@@ -1,5 +1,7 @@
 #include "ruby_pch.h"
 
+#include "Ruby/Main/Core.h"
+#include "Ruby/Main/App.h"
 #include "OpenGLFramebuffer.h"
 
 #include <glad/glad.h>
@@ -27,8 +29,11 @@ namespace Ruby {
 
 	OpenGLFramebuffer::~OpenGLFramebuffer()
 	{
-		glDeleteTextures(1, &m_ColorTextureID);
-		glDeleteFramebuffers(1, &m_RendererID);
+		if(App::instanceExists())
+		{
+			glDeleteTextures(1, &m_ColorTextureID);
+			glDeleteFramebuffers(1, &m_RendererID);
+		}
 	}
 
 	void OpenGLFramebuffer::bind() const

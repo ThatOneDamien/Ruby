@@ -26,6 +26,21 @@ project "Sandbox"
 	filter "system:windows"
 		systemversion "latest"
         entrypoint "WinMainCRTStartup"
+	
+	filter "system:linux"
+	    kind "ConsoleApp"
+		links 
+		{
+			"Ruby", 
+			"glad", 
+			"GLFW", 
+			"ImGui", 
+			"msdf-atlas-gen", 
+			"msdfgen", 
+			"FreeType", 
+			"SoloudStatic"
+		}
+		disablewarnings "format-security"
 
 	filter "configurations:Debug"
 		defines "RB_DEBUG"

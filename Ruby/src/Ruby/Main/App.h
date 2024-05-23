@@ -47,6 +47,7 @@ namespace Ruby {
 		inline Window& getWindow() { return *m_Window; }
 		inline const Window& getWindow() const { return *m_Window; }
 		static inline App& getInstance() { return *s_Instance; }
+		static inline bool instanceExists() { return s_Instance; }
 
 	private:
 

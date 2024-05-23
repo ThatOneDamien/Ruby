@@ -232,7 +232,7 @@ namespace Ruby {
 		{
 			shader->bind();
 
-			API::drawCall(vao);
+			API::drawCall(vao, vao->getIndexBuffer()->getCount());
 		}
 
 		void resetBatch()
@@ -267,7 +267,7 @@ namespace Ruby {
 				for (int i = 0; i < s_TextureInsert; ++i)
 					s_BoundTextures[i]->bind(i + 1);
 
-				API::drawCall(s_QuadVAO);
+				API::drawCall(s_QuadVAO, s_QuadCount * 6);
 			}
 
 			if (s_TextCount && s_CurrentFont)
@@ -278,7 +278,7 @@ namespace Ruby {
 
 				s_CurrentFont->getAtlasTexture()->bind(0);
 
-				API::drawCall(s_TextVAO);
+				API::drawCall(s_TextVAO, s_TextCount * 6);
 			}
 
 			resetBatch();

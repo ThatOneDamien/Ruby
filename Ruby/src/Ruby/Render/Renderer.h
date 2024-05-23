@@ -16,7 +16,6 @@ namespace Ruby
 
 	namespace Renderer 
 	{
-
 		// *** API INTRINSIC ***
 		namespace API 
 		{

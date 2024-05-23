@@ -219,7 +219,7 @@ namespace Ruby {
 Ruby::App* createApp(int argc, char** argv)
 {
 	Ruby::AppSpec spec;
-	spec.MainDirectory = ".";
+	spec.MainDirectory = "../../../../RubyEditor";
 	spec.WindowSpec.Name = "Ruby Editor";
 	spec.WindowSpec.Width = 1280;
 	spec.WindowSpec.Height = 720;

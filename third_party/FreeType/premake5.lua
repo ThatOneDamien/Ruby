@@ -80,6 +80,11 @@ project "FreeType"
 		pic "on"
 		systemversion "latest"
 		files "builds/unix/ftsystem.c"
+		defines
+		{
+			"HAVE_FCNTL_H=1",
+			"HAVE_UNISTD_H=1"
+		}
 
 	filter "system:macosx"
 		pic "on"
