@@ -18,7 +18,7 @@ namespace Ruby {
 
 			void initAPI();
 			void deInitAPI();
-			void drawCall(const SharedPtr<VertexArray>& vao, uint32_t indexCount = 0);
+			void drawCall(const SharedPtr<VertexArray>& vao, uint32_t indexCount);
 			void setClearColor(float r, float g, float b);
 			void setClearColor(uint8_t r, uint8_t g, uint8_t b);
 			void setClearColor(const glm::vec3& color);

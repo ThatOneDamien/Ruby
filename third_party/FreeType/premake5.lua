@@ -1,10 +1,10 @@
 project "FreeType"
 	kind "StaticLib"
 	language "C"
-    staticruntime "off"
+    staticruntime "on"
 
-	targetdir ("bin/" .. outdir .. "/%{prj.name}")
-	objdir ("bin/int/" .. outdir .. "/%{prj.name}")
+	targetdir ("%{wks.location}/bin/" .. outdir .. "/%{prj.name}")
+	objdir ("%{wks.location}/bin/int/" .. outdir .. "/%{prj.name}")
 
 	files
 	{
@@ -80,6 +80,11 @@ project "FreeType"
 		pic "on"
 		systemversion "latest"
 		files "builds/unix/ftsystem.c"
+		defines
+		{
+			"HAVE_FCNTL_H=1",
+			"HAVE_UNISTD_H=1"
+		}
 
 	filter "system:macosx"
 		pic "on"
@@ -98,9 +103,3 @@ project "FreeType"
 			"src/base/ftwinfnt.c",
             "builds/windows/ftdebug.c"
 		}
-
-	filter { "system:windows", "configurations:Release" }
-		buildoptions "/MT"
-
-	filter { "system:windows", "configurations:Debug" }
-		buildoptions "/MTd"

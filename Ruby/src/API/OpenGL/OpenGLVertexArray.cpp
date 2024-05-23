@@ -1,5 +1,7 @@
 #include "ruby_pch.h"
 
+#include "Ruby/Main/Core.h"
+#include "Ruby/Main/App.h"
 #include "OpenGLVertexArray.h"
 
 #include <glad/glad.h>
@@ -13,7 +15,8 @@ namespace Ruby {
 
 	OpenGLVA::~OpenGLVA()
 	{
-		glDeleteVertexArrays(1, &m_RendererID);
+		if(App::instanceExists())
+			glDeleteVertexArrays(1, &m_RendererID);
 	}
 
 	void OpenGLVA::bind() const

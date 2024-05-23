@@ -45,6 +45,7 @@ int main(int argc, char** argv)
 	Ruby::App* app = createApp(argc, argv);
 	app->run();
 	delete app;
+	return 0;
 }
 
 #endif

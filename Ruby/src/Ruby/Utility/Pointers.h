@@ -1,9 +1,14 @@
 #pragma once
 
+#include <stdint.h>
+#include <iostream>
+
 #ifdef _WIN32
 #define RB_NOVTABLE __declspec(novtable)
+#define RB_NO_DISCARD [[nodiscard]]
 #else
 #define RB_NOVTABLE
+#define RB_NO_DISCARD
 #endif
 
 #include <type_traits>
@@ -12,15 +17,10 @@
 // a lot taken from SharedPtr, but slightly modified to better suit my needs.
 namespace Ruby {
 
-	typedef decltype(nullptr) nullptr_t;
-
 	template<typename T>
 	class SharedPtr;
 
-	template<typename T>
-	struct Wrapper { T Value; };
-
-	class RB_NOVTABLE COUNTER_BASE
+	class RB_NOVTABLE RefCounter
 	{
 	private:
 		template<typename T>
@@ -28,66 +28,41 @@ namespace Ruby {
 
 		virtual void Destroy() noexcept = 0;
 
-		uint32_t Uses = 1;
+		uint64_t refs = 1;
 
 	protected:
-		constexpr COUNTER_BASE() noexcept = default;
+		constexpr RefCounter() noexcept = default;
 
 	public:
-		COUNTER_BASE(const COUNTER_BASE&) = delete;
-		COUNTER_BASE& operator=(const COUNTER_BASE&) = delete;
+		RefCounter(const RefCounter&) = delete;
+		RefCounter& operator=(const RefCounter&) = delete;
 
-		virtual ~COUNTER_BASE() noexcept {}
-
-		void IncRef() noexcept
-		{
-			++Uses;
-		}
-
-		void DecRef() noexcept
-		{
-			if (--Uses == 0)
-			{
-				Destroy();
-			}
-		}
-
-		uint32_t _Use_count() const noexcept
-		{
-			return Uses;
-		}
+		virtual ~RefCounter() noexcept {}
 
 	};
 
 	template<typename T>
-	class PTR_BASE : public COUNTER_BASE
+	class PtrBase : public RefCounter
 	{
 	public:
 		template<typename... Args>
-		explicit PTR_BASE(Args&&... args)
-			: COUNTER_BASE()
+		explicit PtrBase(Args&&... args)
+			: RefCounter()
 		{
-			new (&(Storage.Value)) T(std::forward<Args>(args)...);
+			new (&storage) T(std::forward<Args>(args)...);
 		}
 
-		~PTR_BASE() noexcept override {}
+		~PtrBase() noexcept override {}
 
+		union { T storage; };
 
 	private:
 
-		template<typename T2 = T, typename... Args>
-		friend SharedPtr<T2> createShared(Args&&... args);
-
 		void Destroy() noexcept override
 		{
-			Storage.Value.~T();
+			storage.~T();
 			delete this;
 		}
-
-		union
-		{
-			Wrapper<T> Storage;
-		};
 
 	};
 
@@ -95,206 +70,137 @@ namespace Ruby {
 	class SharedPtr
 	{
 	public:
+
 		constexpr SharedPtr() noexcept = default;
-		constexpr SharedPtr(nullptr_t) noexcept {}
-
-		explicit SharedPtr(T* ptr) noexcept
-		{
-			ref = ptr;
-			refCount = new uint32_t(1);
-		}
-
-		template <typename T2, std::enable_if_t<std::_SP_pointer_compatible<T2, T>::value, int> = 0>
-		explicit SharedPtr(T2* ptr) noexcept
-		{
-			ref = ptr;
-			refCount = new uint32_t(1);
-		}
+		constexpr SharedPtr(std::nullptr_t) noexcept {}
 
 		SharedPtr(const SharedPtr& other) noexcept
 		{ 
-			ref = other.ref;
-			refCount = other.refCount;
-			base = other.base;
-			if (base)
-				base->IncRef();
-			else
-				++(*refCount);
+			m_Data = other.m_Data;
+			if(m_Data)
+				++m_Data->refs;
 		}
 
-		template <typename T2, std::enable_if_t<std::_SP_pointer_compatible<T2, T>::value, int> = 0>
+		template <typename T2, std::enable_if_t<std::is_assignable_v<T, T2>, int> = 0>
 		SharedPtr(const SharedPtr<T2>& other) noexcept
 		{
-			ref = other.ref;
-			refCount = other.refCount;
-			base = other.base;
-			if (base)
-				base->IncRef();
-			else
-				++(*refCount);
+			m_Data = other.m_Data;
+			if(m_Data)
+				++m_Data->refs;
 		}
 
 		SharedPtr(SharedPtr&& other) noexcept
 		{
-			ref = other.ref;
-			refCount = other.refCount;
-			base = other.base;
-			other.ref = nullptr;
-			other.refCount = nullptr;
-			other.base = nullptr;
+			m_Data = other.m_Data;
+			other.m_Data = nullptr;
+			
 		}
 
-		template <typename T2, std::enable_if_t<std::_SP_pointer_compatible<T2, T>::value, int> = 0>
+		template <typename T2, std::enable_if_t<std::is_assignable_v<T&, T2>, int> = 0>
 		SharedPtr(SharedPtr<T2>&& other) noexcept
 		{
-			ref = other.ref;
-			refCount = other.refCount;
-			base = other.base;
-			other.ref = nullptr;
-			other.refCount = nullptr;
-			other.base = nullptr;
+			m_Data = other.m_Data;
+			other.m_Data = nullptr;
 		}
 
 		~SharedPtr() noexcept
 		{
-			if (base) base->DecRef();
-			else if (refCount && --(*refCount) == 0)
-			{
-				delete refCount;
-				delete ref;
-			}
+			if(m_Data && --m_Data->refs == 0)
+				m_Data->Destroy();
 		}
 
-		inline T* get() const noexcept { return ref; }
-		inline uint32_t getRefCount() const noexcept { return *refCount; }
+		inline T* get() const noexcept { return m_Data ? (T*)(&m_Data->refs + 1) : nullptr; }
+		inline uint64_t getRefCount() const noexcept { return m_Data->refs; }
+
 		inline void reset()
 		{
-			if (base) base->DecRef();
-			else if (refCount && --(*refCount) == 0)
-			{
-				delete refCount;
-				delete ref;
-			}
-			base = nullptr;
-			ref = nullptr;
-			refCount = nullptr;
+			if(m_Data && --m_Data->refs == 0)
+				m_Data->Destroy();
+			m_Data = nullptr;
 		}
 
 		SharedPtr& operator=(const SharedPtr& right) noexcept 
 		{
-			if (base) base->DecRef();
-			else if (refCount && --(*refCount) == 0)
-			{
-				delete refCount;
-				delete ref;
-			}
-			ref = right.ref;
-			refCount = right.refCount;
-			base = right.base;
-			if (base)
-				base->IncRef();
-			else
-				++(*refCount);
+			if(m_Data && --m_Data->refs == 0)
+				m_Data->Destroy();
+			
+			m_Data = right.m_Data;
+
+			if (m_Data)
+				++m_Data->refs;
+
 			return *this;
 		}
 
-		template <typename T2, std::enable_if_t<std::_SP_pointer_compatible<T2, T>::value, int> = 0>
+		template <typename T2, std::enable_if_t<std::is_assignable_v<T&, T2>, int> = 0>
 		SharedPtr& operator=(const SharedPtr<T2>& right) noexcept 
 		{
-			if (base) base->DecRef();
-			else if (refCount && --(*refCount) == 0)
-			{
-				delete refCount;
-				delete ref;
-			}
-			ref = right.ref;
-			refCount = right.refCount;
-			base = right.base;
-			if (base)
-				base->IncRef();
-			else
-				++(*refCount);
+			if(m_Data && --m_Data->refs == 0)
+				m_Data->Destroy();
+			
+			m_Data = right.m_Data;
+
+			if (m_Data)
+				++m_Data->refs;
+
 			return *this;
 		}
 
 		SharedPtr& operator=(SharedPtr&& right) noexcept 
 		{
-			if (base) base->DecRef();
-			else if (refCount && --(*refCount) == 0)
-			{
-				delete refCount;
-				delete ref;
-			}
-			ref = right.ref;
-			refCount = right.refCount;
-			base = right.base;
-			right.ref = nullptr;
-			right.refCount = nullptr;
-			right.base = nullptr;
+			if(m_Data && --m_Data->refs == 0)
+				m_Data->Destroy();
+			
+			m_Data = right.m_Data;
+			right.m_Data = nullptr;
+
 			return *this;
 		}
 
-		template <typename T2, std::enable_if_t<std::_SP_pointer_compatible<T2, T>::value, int> = 0>
-		SharedPtr& operator=(SharedPtr<T2>&& right) noexcept 
+		template <typename T2, std::enable_if_t<std::is_assignable_v<T&, T2>, int> = 0>
+		SharedPtr<T>& operator=(SharedPtr<T2>&& right) noexcept 
 		{
-			if (base) base->DecRef();
-			else if (refCount && --(*refCount) == 0)
-			{
-				delete refCount;
-				delete ref;
-			}
-			ref = right.ref;
-			refCount = right.refCount;
-			base = right.base;
-			right.ref = nullptr;
-			right.refCount = nullptr;
-			right.base = nullptr;
+			if(m_Data && --m_Data->refs == 0)
+				m_Data->Destroy();
+			
+			m_Data = right.m_Data;
+			right.m_Data = nullptr;
+
 			return *this;
 		}
 
-		template <typename T2 = T, std::enable_if_t<!std::disjunction_v<std::is_array<T2>, std::is_void<T2>>, int> = 0>
-		T2& operator*() const noexcept 
+		template <std::enable_if_t<!std::disjunction_v<std::is_array<T>, std::is_void<T>>, int> = 0>
+		T& operator*() const noexcept 
 		{
-			return *ref;
+			return *get();
 		}
 
-		template <typename T2 = T, std::enable_if_t<!std::is_array_v<T2>, int> = 0>
-		T2* operator->() const noexcept 
+		template <std::enable_if_t<!std::is_array_v<T>, int> = 0>
+		T* operator->() const noexcept 
 		{
-			return ref;
+			return get();
 		}
 
 		explicit operator bool() const noexcept {
-			return ref != nullptr;
+			return m_Data != nullptr;
 		}
 
 	private:
-		inline void setData(T* const _ref)
-		{
-			if (!base) return;
-			ref = _ref;
-			refCount = &(base->Uses);
-		}
-
 		template<typename T2>
 		friend class SharedPtr;
 
 		template<typename T2, typename... Args>
-		friend SharedPtr<T2> createShared(Args&&... args);
+		friend SharedPtr<T2> createShared(Args&&...);
 
-		T* ref{ nullptr };
-		uint32_t* refCount{ nullptr };
-		COUNTER_BASE* base{ nullptr };
+	private:
+		RefCounter* m_Data{nullptr};
 	};
 
 	template<typename T, typename... Args>
-	inline [[nodiscard]]
-		SharedPtr<T> createShared(Args&&... args)
+	inline RB_NO_DISCARD SharedPtr<T> createShared(Args&&... args)
 	{
 		SharedPtr<T> temp;
-		const auto base = new PTR_BASE<T>(std::forward<Args>(args)...);
-		temp.base = base;
-		temp.setData(&(base->Storage.Value));
+		temp.m_Data = new PtrBase<T>(std::forward<Args>(args)...);
 		return temp;
 	}
 
@@ -307,13 +213,13 @@ namespace Ruby {
 	template <typename T, typename = void>
 	bool operator==(const SharedPtr<T>& left, nullptr_t) noexcept
 	{
-		return left.get() == nullptr;
+		return !(bool)left;
 	}
 
 	template <typename T, typename = void>
 	bool operator==(nullptr_t, const SharedPtr<T>& right) noexcept
 	{
-		return right.get() == nullptr;
+		return !(bool)right;
 	}
 
 	template <typename T, typename T2>
@@ -325,13 +231,13 @@ namespace Ruby {
 	template <typename T, typename = void>
 	bool operator!=(const SharedPtr<T>& left, nullptr_t) noexcept
 	{
-		return left.get() != nullptr;
+		return (bool)left;
 	}
 
 	template <typename T, typename = void>
 	bool operator!=(nullptr_t, const SharedPtr<T>& right) noexcept
 	{
-		return right.get() != nullptr;
+		return (bool)right;
 	}
 
 	template <typename Elem, typename Traits, typename T>
@@ -352,7 +258,7 @@ namespace Ruby {
 			ref = ptr;
 		}
 
-		template <typename T2, std::enable_if_t<std::_SP_pointer_compatible<T2, T>::value, int> = 0>
+		template <typename T2, std::enable_if_t<std::is_assignable_v<T&, T2>>>
 		explicit UniPtr(T2* ptr) noexcept
 		{
 			ref = ptr;
@@ -362,14 +268,14 @@ namespace Ruby {
 		UniPtr(const UniPtr& other) noexcept
 		{
 			if(other.ref)
-				ref = new T(*other.ref); // Requires copy constructor
+				ref = new T(*other.ref);
 		}
 
-		template <typename T2, std::enable_if_t<std::_SP_pointer_compatible<T2, T>::value, int> = 0>
+		template <typename T2, std::enable_if_t<std::is_assignable_v<T&, T2>, int> = 0>
 		UniPtr(const UniPtr<T2>& other) noexcept
 		{
 			if (other.ref)
-				ref = new T2(*other.ref); // Requires copy constructor
+				ref = new T2(*other.ref);
 		}
 
 		UniPtr(UniPtr&& other) noexcept
@@ -378,7 +284,7 @@ namespace Ruby {
 			other.ref = nullptr;
 		}
 
-		template <typename T2, std::enable_if_t<std::_SP_pointer_compatible<T2, T>::value, int> = 0>
+		template <typename T2, std::enable_if_t<std::is_assignable_v<T&, T2>, int> = 0>
 		UniPtr(UniPtr<T2>&& other) noexcept
 		{
 			ref = other.ref;
@@ -402,12 +308,12 @@ namespace Ruby {
 		{
 			delete ref;
 			ref = nullptr;
-			if (other.ref)
+			if (right.ref)
 				ref = new T(*right.ref);
 			return *this;
 		}
 
-		template <typename T2, std::enable_if_t<std::_SP_pointer_compatible<T2, T>::value, int> = 0>
+		template <typename T2, std::enable_if_t<std::is_assignable_v<T&, T2>, int> = 0>
 		UniPtr& operator=(const UniPtr<T2>& right) noexcept
 		{
 			delete ref;
@@ -425,7 +331,7 @@ namespace Ruby {
 			return *this;
 		}
 
-		template <typename T2, std::enable_if_t<std::_SP_pointer_compatible<T2, T>::value, int> = 0>
+		template <typename T2, std::enable_if_t<std::is_assignable_v<T&, T2>, int> = 0>
 		UniPtr& operator=(UniPtr<T2>&& right) noexcept
 		{
 			delete ref;
@@ -452,12 +358,6 @@ namespace Ruby {
 		}
 
 	private:
-		inline void setData(T* const _ref)
-		{
-			if (!base) return;
-			ref = _ref;
-			refCount = &(base->Uses);
-		}
 
 		template<typename T2>
 		friend class UniPtr;
@@ -469,8 +369,7 @@ namespace Ruby {
 	};
 
 	template<typename T, typename... Args>
-	inline [[nodiscard]]
-		UniPtr<T> createUniPtr(Args&&... args)
+	inline RB_NO_DISCARD UniPtr<T> createUniPtr(Args&&... args)
 	{
 		UniPtr<T> temp;
 		temp.ref = new T(std::forward<Args>(args)...);
@@ -486,13 +385,13 @@ namespace Ruby {
 	template <typename T, typename T2>
 	bool operator==(const UniPtr<T>& left, nullptr_t) noexcept
 	{
-		return left.get() == nullptr;
+		return !left.get();
 	}
 
 	template <typename T, typename T2>
 	bool operator==(nullptr_t, const UniPtr<T>& right) noexcept
 	{
-		return right.get() == nullptr;
+		return !right.get();
 	}
 
 	template <typename T, typename T2>
@@ -504,13 +403,13 @@ namespace Ruby {
 	template <typename T, typename T2>
 	bool operator!=(const UniPtr<T>& left, nullptr_t) noexcept
 	{
-		return left.get() != nullptr;
+		return left.get();
 	}
 
 	template <typename T, typename T2>
 	bool operator!=(nullptr_t, const UniPtr<T>& right) noexcept
 	{
-		return right.get() != nullptr;
+		return right.get();
 	}
 
 	template <typename Elem, typename Traits, typename T>

@@ -21,8 +21,15 @@ namespace Ruby {
 		s_Instance = this;
 		m_Running = true;
 
+		// Set working directory relative to the binary location.
+		RB_ASSERT(argc > 0, "Argc is 0???");
+		std::filesystem::path binaryParentDir = std::filesystem::path(argv[0]).parent_path();
+		std::filesystem::current_path(binaryParentDir);
+
 		if (!m_MainDir.empty())
 			std::filesystem::current_path(mainDir);
+		
+		RB_INFO("Working directory set at: \'%s\'", std::filesystem::current_path().c_str());
 
 		// Create window and initialize windowing library.
 		m_Window = Window::createWindow(name, width, height);
@@ -37,8 +44,11 @@ namespace Ruby {
 
 	App::~App()
 	{
-		ImGuiUtil::deInit();
-		Renderer::deInit();
+		if(s_Instance == this)
+			s_Instance = nullptr;
+			
+		Ruby::ImGuiUtil::deInit();
+		Ruby::Renderer::deInit();
 		Ruby::Audio::deInit();
 		Ruby::Font::deInit();
 	}

@@ -71,8 +71,8 @@ namespace Ruby {
 		virtual inline glm::vec2 getSize() const = 0;
 
 		static SharedPtr<Texture> createTexture(const std::string& filepath);
-		static SharedPtr<Texture> createTexture(const TextureSpec& spec = TextureSpec());
-		static SharedPtr<Texture> createTexture(const void* data, const TextureSpec& spec = TextureSpec());
+		static SharedPtr<Texture> createTexture(const TextureSpec& spec);
+		static SharedPtr<Texture> createTexture(const void* data, const TextureSpec& spec);
 	};
 
 

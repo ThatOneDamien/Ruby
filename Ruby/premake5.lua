@@ -3,6 +3,7 @@ project "Ruby"
 	language "C++"
 	cppdialect "C++17"
 	staticruntime "on"
+	libdirs { ("%{wks.location}/bin/" .. outdir .. "/**") }
 
 	targetdir ("%{wks.location}/bin/" .. outdir .. "/%{prj.name}")
 	objdir ("%{wks.location}/bin/int/" .. outdir .. "/%{prj.name}")
@@ -28,7 +29,7 @@ project "Ruby"
 		"%{wks.location}/third_party/GLFW/include",
 		"%{wks.location}/third_party/glad/include",
 		"%{wks.location}/third_party/FreeType/include",
-		"%{wks.location}/third_party/imgui",
+		"%{wks.location}/third_party/ImGui",
 		"%{wks.location}/third_party/soloud/include",
 		"%{wks.location}/third_party/msdf-atlas-gen",
 		"%{wks.location}/third_party/msdf-atlas-gen/msdfgen",
@@ -43,8 +44,7 @@ project "Ruby"
 		"glad",
 		"ImGui",
 		"msdf-atlas-gen",
-		"SoloudStatic",
-		"opengl32.lib"
+		"SoloudStatic"
 	}
 
 	defines
@@ -55,11 +55,22 @@ project "Ruby"
 
 	filter "system:windows"
 		systemversion "latest"
-        files
+		links "opengl32.lib"
+		files
         {
             "src/PlatformSpecific/Windows/**.h",
             "src/PlatformSpecific/Windows/**.cpp"
         }
+        buildoptions "/Yc\"ruby_pch.h\""
+
+	filter "system:linux"
+		files
+		{
+			"src/PlatformSpecific/Linux/**.h",
+			"src/PlatformSpecific/Linux/**.cpp"
+		}
+		links {"GL", "dl"}
+		disablewarnings "format-security"
 
 	filter "configurations:Debug"
 		defines "RB_DEBUG"

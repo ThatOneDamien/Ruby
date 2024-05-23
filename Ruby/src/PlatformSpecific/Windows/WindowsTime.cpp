@@ -11,18 +11,11 @@ namespace Ruby {
 
 	namespace Time {
 
-		TimeStruct getSystemTime()
-		{
-			SYSTEMTIME systime;
-			GetSystemTime(&systime);
-			return *(TimeStruct*)&systime;
-		}
-
 		TimeStruct getLocalTime()
 		{
-			SYSTEMTIME systime;
-			GetLocalTime(&systime);
-			return *(TimeStruct*)&systime;
+			SYSTEMTIME localtime;
+			GetLocalTime(&localtime);
+			return *(TimeStruct*)&localtime;
 		}
 
 		void init()

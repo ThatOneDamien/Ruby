@@ -12,7 +12,8 @@
 #include "Ruby/Main/App.h"
 
 
-#pragma warning(disable: 6385, 6386) // Compiler warning about overflowing buffer which wont happen.
+#pragma warning(disable: 6385) // Compiler warning about overflowing buffer which wont happen.
+#pragma warning(disable: 6386)
 
 namespace Ruby {
 
@@ -180,7 +181,7 @@ namespace Ruby {
 			// reuse the same index buffer object to draw both text and quads
 			s_TextVAO->setIndexBuffer(s_QuadTextIBO);
 
-			s_BlankColorTexture = Texture::createTexture();
+			s_BlankColorTexture = Texture::createTexture(TextureSpec());
 
 			// This sets the data of the white texture to 1 pixel of white, which allows simple
 			// colored quads with no separate texture all within the batch.
@@ -223,7 +224,7 @@ namespace Ruby {
 		{
 			shader->bind();
 
-			API::drawCall(vao);
+			API::drawCall(vao, vao->getIndexBuffer()->getCount());
 		}
 
 		void resetBatch()
@@ -256,7 +257,7 @@ namespace Ruby {
 				for (int i = 0; i < s_TextureInsert; ++i)
 					s_BoundTextures[i]->bind(i + 1);
 
-				API::drawCall(s_QuadVAO);
+				API::drawCall(s_QuadVAO, s_QuadCount * 6);
 			}
 
 			if (s_TextCount)
@@ -267,7 +268,7 @@ namespace Ruby {
 
 				s_DefaultFont->getAtlasTexture()->bind(0);
 
-				API::drawCall(s_TextVAO);
+				API::drawCall(s_TextVAO, s_TextCount * 6);
 			}
 
 			resetBatch();
@@ -279,14 +280,14 @@ namespace Ruby {
 
 	namespace internal 
 	{
-		int getTextureSlotOrAdd(const SharedPtr<Texture>& tex)
+		float getTextureSlotOrAdd(const SharedPtr<Texture>& tex)
 		{
-			int res = 0;
+			float res = 0;
 			for (int i = 0; i < s_TextureInsert; ++i)
 			{
 				if (s_BoundTextures[i] == tex)
 				{
-					res = i + 1;
+					res = (float)i + 1.0f;
 					break;
 				}
 			}
@@ -296,7 +297,7 @@ namespace Ruby {
 				if (s_TextureInsert >= s_TextureSlotCount - 2)
 					renderBatch();
 
-				res = (float)s_TextureInsert + 1;
+				res = (float)s_TextureInsert + 1.0f;
 				s_BoundTextures[s_TextureInsert] = tex; // Warning disabled at top of header.
 				++s_TextureInsert;
 			}

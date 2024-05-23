@@ -1,9 +1,10 @@
 project "glad"
 	kind "StaticLib"
 	language "C"
+    staticruntime "on"
 
-	targetdir ("bin/" .. outdir .. "/%{prj.name}")
-	objdir ("bin/int/" .. outdir .. "/%{prj.name}")
+	targetdir ("%{wks.location}/bin/" .. outdir .. "/%{prj.name}")
+	objdir ("%{wks.location}/bin/int/" .. outdir .. "/%{prj.name}")
 
 	files
 	{
@@ -23,10 +24,6 @@ project "glad"
 
 	filter "system:windows"
 		systemversion "latest"
-		staticruntime "on"
-
-	filter { "system:windows", "configurations:Release" }
-		buildoptions "/MT"
 
 	filter "configurations:Debug"
 		runtime "Debug"

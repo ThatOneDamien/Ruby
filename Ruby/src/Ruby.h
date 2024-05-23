@@ -37,11 +37,14 @@
 #include "Ruby/Render/Font.h"
 
 
-
 // Scene
 #include "Ruby/Scene/Scene.h"
 #include "Ruby/Scene/Entity.h"
 #include "Ruby/Scene/Components.h"
+
+
+// IMGUI
+#include "Ruby/GUI/ImGuiUtil.h"
 
 
 // Audio
