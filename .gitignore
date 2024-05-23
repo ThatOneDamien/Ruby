@@ -1,6 +1,5 @@
 bin
 TestGame
-Sandbox/imgui.ini
 
 *.ini
 **/Makefile
