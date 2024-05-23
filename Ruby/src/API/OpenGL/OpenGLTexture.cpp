@@ -72,7 +72,7 @@ namespace Ruby {
 		default:
 			RB_ERROR_DEBUG("Unknown or unsupported amount bytes per pixel.");
 		}
-
+		glPixelStorei(GL_UNPACK_ALIGNMENT, (m_BPP & 1) ? 1 : m_BPP);
 		glTextureStorage2D(m_RendererID, 1, m_FormatIntern, m_Width, m_Height);
 
 		glTextureParameteri(m_RendererID, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -96,6 +96,8 @@ namespace Ruby {
 		m_FormatBase = Internal::pixelFormatToOpenGLBase(spec.Format);
 		m_BPP = Internal::bppFromPixelFormat(spec.Format);
 
+		glPixelStorei(GL_UNPACK_ALIGNMENT, (m_BPP & 1) ? 1 : m_BPP);
+
 		glCreateTextures(GL_TEXTURE_2D, 1, &m_RendererID);
 		glTextureStorage2D(m_RendererID, 1, m_FormatIntern, m_Width, m_Height);
 
@@ -117,6 +119,8 @@ namespace Ruby {
 		m_FormatIntern = Internal::pixelFormatToOpenGLInternal(spec.Format);
 		m_FormatBase = Internal::pixelFormatToOpenGLBase(spec.Format);
 		m_BPP = Internal::bppFromPixelFormat(spec.Format);
+
+		glPixelStorei(GL_UNPACK_ALIGNMENT, (m_BPP & 1) ? 1 : m_BPP);
 
 		glCreateTextures(GL_TEXTURE_2D, 1, &m_RendererID);
 		glTextureStorage2D(m_RendererID, 1, m_FormatIntern, m_Width, m_Height);

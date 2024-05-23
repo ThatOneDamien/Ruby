@@ -7,6 +7,17 @@
 
 namespace Ruby {
 
+	struct WindowSpec
+	{
+		const char* Name;
+		int Width;
+		int Height;
+		int MinWidth;
+		int MinHeight;
+		bool VSync;
+		bool HasTitleBar;
+	};
+
 	class RB_NOVTABLE Window
 	{
 	public:
@@ -23,7 +34,7 @@ namespace Ruby {
 		virtual bool isKeyDown(KeyCode code) const = 0;
 		virtual bool isMouseButtonDown(MouseCode code) const = 0;
 
-		static UniPtr<Window> createWindow(const char* name, uint16_t width, uint16_t height, bool vSync = true);
+		static UniPtr<Window> createWindow(const WindowSpec& spec);
 
 	};
 

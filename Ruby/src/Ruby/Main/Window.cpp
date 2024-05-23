@@ -7,9 +7,9 @@
 
 namespace Ruby {
 
-	UniPtr<Window> Window::createWindow(const char* name, uint16_t width, uint16_t height, bool vSync)
+	UniPtr<Window> Window::createWindow(const WindowSpec& spec)
 	{
-		return createUniPtr<WINDOW>(name, width, height, vSync);
+		return createUniPtr<WINDOW>(spec);
 	}
 
 }

@@ -28,8 +28,9 @@ namespace Ruby {
 
 	static bool s_GLFWinitialized = false;
 
-	WindowsWindow::WindowsWindow(const char* name, uint16_t width, uint16_t height, bool vSync)
-		: m_Name(name), m_Width(width), m_Height(height), m_VSync(vSync)
+	WindowsWindow::WindowsWindow(const WindowSpec& spec)
+		: m_Name(spec.Name), m_Width(spec.Width), 
+		  m_Height(spec.Height), m_VSync(spec.VSync)
 	{
 		if (!s_GLFWinitialized)
 		{
@@ -41,12 +42,15 @@ namespace Ruby {
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-		m_Window = glfwCreateWindow(width, height, name, nullptr, nullptr);
+		m_Window = glfwCreateWindow(m_Width, m_Height, m_Name, nullptr, nullptr);
+		
+		glfwSetWindowSizeLimits(m_Window, spec.MinWidth, spec.MinHeight, GLFW_DONT_CARE, GLFW_DONT_CARE);
+		glfwSetWindowAttrib(m_Window, GLFW_DECORATED, (int)spec.HasTitleBar);
+
 		RB_ASSERT(m_Window, "GLFW window failed to be created.");
 		glfwMakeContextCurrent(m_Window);
 
 		glfwSetErrorCallback(glfwErrorCallbackFunc);
-
 		glfwSetWindowCloseCallback(m_Window, [](GLFWwindow* window) 
 			{
 				WindowCloseEvent e;
@@ -120,7 +124,7 @@ namespace Ruby {
 
 			});
 
-		glfwSwapInterval((int)vSync);
+		glfwSwapInterval((int)m_VSync);
 
 	#ifdef RB_USE_OPENGL
 		Renderer::API::setGladLoadProc((GLADloadproc)glfwGetProcAddress);

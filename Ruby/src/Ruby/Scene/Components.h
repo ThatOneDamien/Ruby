@@ -2,11 +2,14 @@
 
 #include <glm/glm.hpp>
 
+#include "Ruby/Render/Texture.h"
+#include "Ruby/Render/Camera.h"
+
 namespace Ruby {
 
 	namespace Components {
 
-		struct Transform 
+		struct Transform
 		{
 			glm::vec2 Position{0.0f, 0.0f};
 			float     Rotation{0.0f};
@@ -20,12 +23,25 @@ namespace Ruby {
 
 		struct Sprite
 		{
+			SharedPtr<Texture> Tex{ nullptr };
 			glm::vec4 Color;
 
 			Sprite() = default;
 			Sprite(const Sprite&) = default;
-			Sprite(const glm::vec4& color)
-				: Color(color) {}
+			Sprite(const SharedPtr<Texture>& tex, const glm::vec4& color)
+				: Tex{ tex }, Color{ color } {}
+		};
+
+		struct Camera
+		{
+			Ruby::Camera Cam;
+			// This will create a camera object with the aspect ratio of
+			// the current window and scale of 1.0, and set it to not be
+			// the main scene camera.
+			Camera() = default;
+			Camera(const Ruby::Camera& cam)
+				: Cam(cam) {}
+
 		};
 
 	}

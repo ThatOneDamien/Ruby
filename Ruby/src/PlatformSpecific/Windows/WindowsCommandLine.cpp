@@ -5,35 +5,30 @@
 
 namespace Ruby {
     namespace CL {
-        PCHAR*
-            CommandLineToArgvA(
-                PCHAR CmdLine,
-                int* _argc
-            )
+        PCHAR* CommandLineToArgvA(PCHAR CmdLine, int* _argc)
         {
             PCHAR* argv;
             PCHAR  _argv;
-            ULONG   len;
-            ULONG   argc;
+            ULONG  len;
+            ULONG  argc;
             CHAR   a;
-            ULONG   i, j;
+            ULONG  i, j;
 
             BOOLEAN  in_QM;
             BOOLEAN  in_TEXT;
             BOOLEAN  in_SPACE;
 
             len = (ULONG)strlen(CmdLine);
-            i = ((len + 2) / 2) * sizeof(PVOID) + sizeof(PVOID);
+            i = ((uint64_t)(len + 2) << 2) + sizeof(PVOID);
 
-            argv = (PCHAR*)GlobalAlloc(GMEM_FIXED,
-                i + (len + 2) * sizeof(CHAR));
+            argv = (PCHAR*)GlobalAlloc(GMEM_FIXED, (uint64_t)i + ((uint64_t)len + 2));
+
+            if (!argv)
+                return nullptr;
 
             _argv = (PCHAR)(((PUCHAR)argv) + i);
 
             argc = 0;
-
-            if (!argv)
-                return nullptr;
 
             argv[argc] = _argv;
             in_QM = FALSE;
@@ -89,7 +84,7 @@ namespace Ruby {
                 i++;
             }
             _argv[j] = '\0';
-            argv[argc] = NULL;
+            argv[argc] = nullptr;
 
             (*_argc) = argc;
             return argv;

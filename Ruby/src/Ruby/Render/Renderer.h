@@ -5,39 +5,46 @@
 #include "Shader.h"
 #include "Texture.h"
 #include "Camera.h"
+#include "Ruby/Scene/Scene.h"
+#include "Font.h"
 
 
 #include <glm/glm.hpp>
 
-namespace Ruby {
+namespace Ruby 
+{
 
-	namespace Renderer {
+	namespace Renderer 
+	{
 
-		// API INTRINSIC
-		namespace API {
-
-			void initAPI();
-			void deInitAPI();
+		// *** API INTRINSIC ***
+		namespace API 
+		{
 			void drawCall(const SharedPtr<VertexArray>& vao, uint32_t indexCount = 0);
 			void setClearColor(float r, float g, float b);
 			void setClearColor(uint8_t r, uint8_t g, uint8_t b);
 			void setClearColor(const glm::vec3& color);
 			void setViewport(int x, int y, int width, int height);
 			void clear();
-			int getBindableTextureSlots();
-
 		}
 
 		void init();
 		void deInit();
-		
-		void updateCamera(const Camera& cam);
+
+		void useCamera(const Camera& cam);
+		void useFont(const SharedPtr<Font>& font);
 		void renderSubmit(const SharedPtr<VertexArray>& vao, const SharedPtr<Shader> shader);
 
 
-		// BATCH RENDERER
+		// *** BATCH RENDERER ***
+		
+
 		void resetBatch();
-		void renderBatch();
+		// Render the current batched geometry. Optional parameter cam
+		// can be used to render based on a user defined camera rather
+		// than the main camera of the currently bound scene. This functionality
+		// is around to support applications that do not wish to use scenes.
+		void renderBatch(const Camera* cam = nullptr);
 
 		void drawQuad(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color);
 

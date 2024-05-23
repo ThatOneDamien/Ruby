@@ -13,18 +13,25 @@ namespace Ruby {
 
 		inline uint32_t getID() const { return (uint32_t)m_EntityID; }
 
+
+		template<typename... comp_t>
+		bool hasComponents()
+		{
+			return m_Scene->m_Registry.all_of<comp_t...>(m_EntityID);
+		}
+
 		template<typename comp_t, typename... Args>
 		comp_t& addComponent(Args&&... args)
 		{
-			RB_ASSERT(!hasComponent<comp_t>(), "Attempted to add duplicate component to entity.");
+			RB_ASSERT(!hasComponents<comp_t>(), "Attempted to add duplicate component to entity.");
 			return m_Scene->m_Registry.emplace<comp_t>(m_EntityID, std::forward<Args>(args)...);
 		}
 
-
-		template<typename... comp_t>
-		bool hasComponent()
+		template<typename comp_t>
+		comp_t& getComponent()
 		{
-			return m_Scene->m_Registry.all_of<comp_t...>(m_EntityID);
+			RB_ASSERT(hasComponents<comp_t>(), "Attempted to get non-existent component.");
+			return m_Scene->m_Registry.get<comp_t>(m_EntityID);
 		}
 
 	private:

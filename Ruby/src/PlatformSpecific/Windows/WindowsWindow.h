@@ -9,7 +9,7 @@ namespace Ruby {
 	class WindowsWindow : public Window
 	{
 	public:
-		WindowsWindow(const char* name, uint16_t width, uint16_t height, bool vSync);
+		WindowsWindow(const WindowSpec& spec);
 		virtual ~WindowsWindow();
 		
 		virtual inline void* getWinPointer() const override { return m_Window; }

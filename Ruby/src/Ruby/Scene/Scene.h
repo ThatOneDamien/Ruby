@@ -12,8 +12,10 @@ namespace Ruby {
 	public:
 		Scene(const std::string& name);
 		//TODO: Make constructor for scene with filename
+		//Scene(const std::string& filepath);
 		~Scene();
 
+		// Call this function within Renderer::resetBatch() and Renderer::renderBatched()
 		void updateScene(double deltaMillis);
 
 		Entity createEntity();
@@ -21,9 +23,9 @@ namespace Ruby {
 	private:
 		friend class Entity;
 
-
 		std::string m_Name;
 		entt::registry m_Registry;
+		Entity* m_MainCamera{nullptr};
 	};
 
 }

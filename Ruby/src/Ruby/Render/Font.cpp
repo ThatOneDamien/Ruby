@@ -44,7 +44,7 @@ namespace Ruby {
         packer.setPixelRange(2.0);
         packer.setMiterLimit(1.0);
 
-        int failure = packer.pack(m_Data->Glyphs.data(), m_Data->Glyphs.size());
+        int failure = packer.pack(m_Data->Glyphs.data(), (int)m_Data->Glyphs.size());
         RB_ASSERT(!failure, "Failed to pack glyphs into atlas texture.");
 
         

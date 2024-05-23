@@ -25,6 +25,12 @@ namespace Ruby {
 
 	namespace Renderer
 	{
+		namespace API
+		{
+			void initAPI();
+			void deInitAPI();
+			int getBindableTextureSlots();
+		}
 
 		//
 		//
@@ -84,14 +90,14 @@ namespace Ruby {
 		static SharedPtr<VertexArray> s_TextVAO{ nullptr };
 		static SharedPtr<VertexBuffer> s_TextVBO{ nullptr };
 		static SharedPtr<Shader> s_TextShader{ nullptr };
-		static SharedPtr<Font> s_DefaultFont{ nullptr };
+		static SharedPtr<Font> s_CurrentFont{ nullptr };
 
 		static SharedPtr<Texture>* s_BoundTextures{ nullptr }; // Size determined below
 		static SharedPtr<Texture> s_BlankColorTexture{ nullptr };
 		static int s_TextureSlotCount = -1;
 		static uint8_t s_TextureInsert = 0;
 
-		static const Camera* s_MainCam;
+		static const Camera* s_CameraInUse{nullptr};
 		static SharedPtr<UniformBuffer> s_CamUBO{ nullptr };
 
 		static TextVertex* s_TextVBData{ nullptr };
@@ -181,7 +187,7 @@ namespace Ruby {
 			// reuse the same index buffer object to draw both text and quads
 			s_TextVAO->setIndexBuffer(s_QuadTextIBO);
 
-			s_BlankColorTexture = Texture::createTexture();
+			s_BlankColorTexture = Texture::createTexture(TextureSpec());
 
 			// This sets the data of the white texture to 1 pixel of white, which allows simple
 			// colored quads with no separate texture all within the batch.
@@ -200,8 +206,6 @@ namespace Ruby {
 				s_QuadShader->setUniformIntArray("u_Textures", s_TextureSlotCount, arr);
 			}
 
-			s_DefaultFont = createShared<Font>("res/fonts/Roboto-Regular.ttf");
-
 			s_TextShader = Shader::createShader("res/shaders/renderer/text.glsl");
 
 		}
@@ -214,10 +218,14 @@ namespace Ruby {
 			API::deInitAPI();
 		}
 
-		// Sets main camera of the scene
-		void updateCamera(const Camera& cam)
+		void useCamera(const Camera& cam)
 		{
-			s_MainCam = &cam;
+			s_CameraInUse = &cam;
+		}
+
+		void useFont(const SharedPtr<Font>& font)
+		{
+			s_CurrentFont = font;
 		}
 
 		void renderSubmit(const SharedPtr<VertexArray>& vao, const SharedPtr<Shader> shader)
@@ -239,12 +247,14 @@ namespace Ruby {
 			s_TextureInsert = 0;
 		}
 
-		void renderBatch()
+		void renderBatch(const Camera* cam)
 		{
-			if (s_MainCam)
+			cam = cam ? cam : s_CameraInUse;
+			if (cam)
+				s_CamUBO->setData(&cam->getViewProjectionMatrix()[0][0], sizeof(glm::mat4), 0);
+			else
 			{
-				const glm::mat4& viewProj = s_MainCam->getViewProjectionMatrix();
-				s_CamUBO->setData(&viewProj[0][0], sizeof(glm::mat4), 0);
+				RB_WARN("Renderer was not provided a camera.");
 			}
 
 			if (s_QuadCount)
@@ -260,22 +270,19 @@ namespace Ruby {
 				API::drawCall(s_QuadVAO);
 			}
 
-			if (s_TextCount)
+			if (s_TextCount && s_CurrentFont)
 			{
 				s_TextVAO->bind();
-				s_TextVBO->setVertexData(s_TextVBData, (uint32_t)((uint8_t*)s_TextVBOffset - (uint8_t*)s_TextVBData), 0);
+				s_TextVBO->setVertexData(s_TextVBData, (uint32_t)((uint64_t)s_TextVBOffset - (uint64_t)s_TextVBData), 0);
 				s_TextShader->bind();
 
-				s_DefaultFont->getAtlasTexture()->bind(0);
+				s_CurrentFont->getAtlasTexture()->bind(0);
 
 				API::drawCall(s_TextVAO);
 			}
 
 			resetBatch();
 		}
-
-
-
 
 
 	namespace internal 
@@ -298,7 +305,7 @@ namespace Ruby {
 					renderBatch();
 
 				res = (float)s_TextureInsert + 1.0f;
-				s_BoundTextures[s_TextureInsert] = tex; // Warning disabled at top of header.
+				s_BoundTextures[s_TextureInsert] = tex;
 				++s_TextureInsert;
 			}
 
@@ -319,7 +326,7 @@ namespace Ruby {
 			{
 				s_QuadVBOffset[i].x = position.x + VERTEX_POSITIONS[i].x * size.x;
 				s_QuadVBOffset[i].y = position.y + VERTEX_POSITIONS[i].y * size.y;
-				s_QuadVBOffset[i].z = 0.0f;
+				s_QuadVBOffset[i].z = (float)s_QuadCount / (float)MAX_QUADS;
 				s_QuadVBOffset[i].color = color;
 				s_QuadVBOffset[i].texCoords = texCoords[i];
 				s_QuadVBOffset[i].textureSlot = texSlot;
@@ -355,7 +362,7 @@ namespace Ruby {
 
 				s_QuadVBOffset[i].x = pos.x;
 				s_QuadVBOffset[i].y = pos.y;
-				s_QuadVBOffset[i].z = 0.0f;
+				s_QuadVBOffset[i].z = (float)s_QuadCount / (float)MAX_QUADS;
 				s_QuadVBOffset[i].color = color;
 				s_QuadVBOffset[i].texCoords = texCoords[i];
 				s_QuadVBOffset[i].textureSlot = texSlot;
@@ -364,7 +371,7 @@ namespace Ruby {
 			s_QuadVBOffset += 4;
 			++s_QuadCount;
 		}
-	}
+	} // End namespace internal
 
 
 		void drawQuad(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color)
@@ -408,8 +415,13 @@ namespace Ruby {
 
 		void drawText(const std::string& str, const glm::vec2& position, float size, float rotation, const glm::vec4& color)
 		{
-
-			const msdf_atlas::FontGeometry& fontGeometry = s_DefaultFont->getAtlasData()->FontGeometry;
+			if (!s_CurrentFont)
+			{
+				RB_WARN("Attempted to draw a string of text without loading a font first. "
+						"Call loadFont() to load a font for the renderer to use.");
+				return;
+			}
+			const msdf_atlas::FontGeometry& fontGeometry = s_CurrentFont->getAtlasData()->FontGeometry;
 			const msdfgen::FontMetrics& metrics = fontGeometry.getMetrics();
 
 			double x = position.x;
@@ -453,7 +465,7 @@ namespace Ruby {
 					if (!glyph)
 					{
 						RB_WARN("Unknown symbol. \'?\' is also missing in the font.");
-						return;
+						continue;
 					}
 
 					double leftA, bottomA, rightA, topA;
@@ -467,7 +479,7 @@ namespace Ruby {
 					rightP = rightP * lineScale + x;
 					topP = topP * lineScale + y;
 
-					glm::vec2 texSize = s_DefaultFont->getAtlasTexture()->getSize();
+					glm::vec2 texSize = s_CurrentFont->getAtlasTexture()->getSize();
 
 					float texelWidth = 1.0f / texSize.x;
 					float texelHeight = 1.0f / texSize.y;
@@ -520,6 +532,6 @@ namespace Ruby {
 			}
 		}
 
-	}
+	} // End namespace Renderer
 
-}
+} // End namespace Ruby

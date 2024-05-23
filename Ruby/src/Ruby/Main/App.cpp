@@ -14,18 +14,18 @@ namespace Ruby {
 
 	App* App::s_Instance = nullptr;
 
-	App::App(int argc, char** argv, const std::string& mainDir, const char* name, int width, int height)
-		: m_Argc(argc), m_Argv(argv), m_MainDir(mainDir), m_DT()
+	App::App(int argc, char** argv, const AppSpec& spec)
+		: m_Argc(argc), m_Argv(argv), m_MainDir(spec.MainDirectory)
 	{
 		RB_ASSERT(!s_Instance, "An instance of App already exists in the program.");
 		s_Instance = this;
 		m_Running = true;
-
 		if (!m_MainDir.empty())
-			std::filesystem::current_path(mainDir);
+			std::filesystem::current_path(m_MainDir);
 
 		// Create window and initialize windowing library.
-		m_Window = Window::createWindow(name, width, height);
+
+		m_Window = Window::createWindow(spec.WindowSpec);
 		
 		Font::init();
 		Audio::init();

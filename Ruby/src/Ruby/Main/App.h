@@ -6,10 +6,16 @@
 
 namespace Ruby {
 
+	struct AppSpec
+	{
+		std::string MainDirectory;
+		WindowSpec WindowSpec;
+	};
+
 	class App
 	{
 	public:
-		App(int argc, char** argv, const std::string& mainDir, const char* name, int width, int height);
+		App(int argc, char** argv, const AppSpec& spec);
 		virtual ~App();
 
 		// Unmodifiable methods from base class App
@@ -51,7 +57,7 @@ namespace Ruby {
 
 		static App* s_Instance;
 		UniPtr<Window> m_Window;
-		DeltaTime m_DT;
+		DeltaTime m_DT{};
 
 
 	};
