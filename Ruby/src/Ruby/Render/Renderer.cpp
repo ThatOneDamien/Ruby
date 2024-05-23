@@ -181,7 +181,7 @@ namespace Ruby {
 			// reuse the same index buffer object to draw both text and quads
 			s_TextVAO->setIndexBuffer(s_QuadTextIBO);
 
-			s_BlankColorTexture = Texture::createTexture();
+			s_BlankColorTexture = Texture::createTexture(TextureSpec());
 
 			// This sets the data of the white texture to 1 pixel of white, which allows simple
 			// colored quads with no separate texture all within the batch.
@@ -224,7 +224,7 @@ namespace Ruby {
 		{
 			shader->bind();
 
-			API::drawCall(vao);
+			API::drawCall(vao, vao->getIndexBuffer()->getCount());
 		}
 
 		void resetBatch()
@@ -257,7 +257,7 @@ namespace Ruby {
 				for (int i = 0; i < s_TextureInsert; ++i)
 					s_BoundTextures[i]->bind(i + 1);
 
-				API::drawCall(s_QuadVAO);
+				API::drawCall(s_QuadVAO, s_QuadCount * 6);
 			}
 
 			if (s_TextCount)
@@ -268,7 +268,7 @@ namespace Ruby {
 
 				s_DefaultFont->getAtlasTexture()->bind(0);
 
-				API::drawCall(s_TextVAO);
+				API::drawCall(s_TextVAO, s_TextCount * 6);
 			}
 
 			resetBatch();

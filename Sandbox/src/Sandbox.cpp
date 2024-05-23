@@ -20,11 +20,11 @@ public:
 	{
 		Ruby::Renderer::updateCamera(cam);
 		aspectRatio = Ruby::App::getInstance().getWindow().getAspectRatio();
-
-		scene = Ruby::createShared<Ruby::Scene>("blank");
-		Ruby::Entity entity = scene->createEntity();
-		entity.addComponent<Ruby::Components::Transform>();
-		entity.addComponent<Ruby::Components::Sprite>(glm::vec4{1.0f, 1.0f, 0.0f, 1.0f});
+		Ruby::Renderer::API::setClearColor({1.0f, 1.0f, 1.0f});
+		// scene = Ruby::createShared<Ruby::Scene>("blank");
+		// Ruby::Entity entity = scene->createEntity();
+		// entity.addComponent<Ruby::Components::Transform>(glm::vec2{0.0f, 0.0f}, 0.0f, glm::vec2{1.0f, 1.0f});
+		// entity.addComponent<Ruby::Components::Sprite>(glm::vec4{1.0f, 1.0f, 0.0f, 1.0f});
 	}
 
 	virtual void update(double deltaMillis) override 
@@ -32,9 +32,11 @@ public:
 		updateInputs();
 		Ruby::Renderer::API::clear();
 		Ruby::Renderer::resetBatch();
-		Ruby::Renderer::drawText("Balls", { -0.5f, -0.5f }, 1.0f, 0.0f, { 1.0f, 1.0f, 1.0f, 1.0f });
-		Ruby::Renderer::drawText("Balls", { -0.5f, 0.5f }, 1.0f, 0.0f, {1.0f, 1.0f, 1.0f, 1.0f});
-		scene->updateScene(deltaMillis);
+		Ruby::Renderer::drawQuad({0.0f, 0.0f}, {1.0f, 1.0f}, {1.0f, 1.0f, 1.0f, 1.0f});
+		
+		//Ruby::Renderer::drawText("Balls", { -0.5f, -0.5f }, 1.0f, 0.0f, { 1.0f, 1.0f, 1.0f, 1.0f });
+		//Ruby::Renderer::drawText("Balls", { -0.5f, 0.5f }, 1.0f, 0.0f, {1.0f, 1.0f, 1.0f, 1.0f});
+		//scene->updateScene(deltaMillis);
 		Ruby::Renderer::renderBatch();
 		
 	}
@@ -62,8 +64,8 @@ public:
 
 
 private:
-	Ruby::Camera cam;
-	SP<Ruby::Scene> scene;
+	Ruby::Camera cam{-1.0f, 1.0f, -1.0f, 1.0f};
+	//SP<Ruby::Scene> scene;
 	float aspectRatio = 0.0f;
 	float scale = 1.0f;
 
@@ -78,5 +80,5 @@ private:
 
 Ruby::App* createApp(int argc, char** argv)
 {
-	return new Sandbox(argc, argv, ".", "Sandbox App", 1280, 720);
+	return new Sandbox(argc, argv, "../../../../Sandbox", "Sandbox App", 1280, 720);
 }

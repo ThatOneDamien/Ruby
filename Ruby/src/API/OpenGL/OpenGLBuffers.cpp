@@ -1,7 +1,8 @@
 #include "ruby_pch.h"
 
-#include "OpenGLBuffers.h"
 #include "Ruby/Main/Core.h"
+#include "Ruby/Main/App.h"
+#include "OpenGLBuffers.h"
 
 #include <glad/glad.h>
 
@@ -29,7 +30,8 @@ namespace Ruby {
 
 	OpenGLVB::~OpenGLVB()
 	{
-		glDeleteBuffers(1, &m_RendererID);
+		if(App::instanceExists())
+			glDeleteBuffers(1, &m_RendererID);
 	}
 
 	void OpenGLVB::bind() const
@@ -68,7 +70,8 @@ namespace Ruby {
 
 	OpenGLIB::~OpenGLIB()
 	{
-		glDeleteBuffers(1, &m_RendererID);
+		if(App::instanceExists())
+			glDeleteBuffers(1, &m_RendererID);
 	}
 
 	void OpenGLIB::bind() const
@@ -111,7 +114,8 @@ namespace Ruby {
 
 	OpenGLUB::~OpenGLUB()
 	{
-		glDeleteBuffers(1, &m_RendererID);
+		if(App::instanceExists())
+			glDeleteBuffers(1, &m_RendererID);
 	}
 
 	void OpenGLUB::bind() const

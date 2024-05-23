@@ -143,5 +143,5 @@ namespace Ruby {
 
 Ruby::App* createApp(int argc, char** argv)
 {
-	return new Ruby::EditorApp(argc, argv, ".", "Ruby Editor", 1280, 720);
+	return new Ruby::EditorApp(argc, argv, "../../../../RubyEditor", "Ruby Editor", 1280, 720);
 }

@@ -17,12 +17,12 @@ namespace Ruby {
 
 	void Scene::updateScene(double deltaMillis)
 	{
-		auto group = m_Registry.group<Components::Transform>(entt::get<Components::Sprite>);
-		for (auto entity : group) 
-		{
-			auto&[transform, sprite] = group.get<Components::Transform, Components::Sprite>(entity);
-			Renderer::drawQuadRot(transform.Position, transform.Scale, transform.Rotation, sprite.Color);
-		}
+	// 	auto group = m_Registry.group<Components::Transform>(entt::get<Components::Sprite>);
+	// 	for (auto entity : group) 
+	// 	{
+	// 		auto&[transform, sprite] = group.get<Components::Transform, Components::Sprite>(entity);
+	// 		Renderer::drawQuadRot(transform.Position, transform.Scale, transform.Rotation, sprite.Color);
+	// 	}
 	}
 
 	Entity Scene::createEntity()

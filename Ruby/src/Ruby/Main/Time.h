@@ -14,14 +14,10 @@ namespace Ruby {
 		uint16_t  minute;
 		uint16_t  second;
 		uint16_t  milliseconds;
-
 	};
 
 	namespace Time {
 
-		// Similar but not equivalent to Windows API SYSTEMTIME struct.
-
-		TimeStruct getSystemTime();
 		TimeStruct getLocalTime();
 
 		void init();

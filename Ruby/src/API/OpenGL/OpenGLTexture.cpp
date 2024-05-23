@@ -1,5 +1,7 @@
 #include "ruby_pch.h"
 
+#include "Ruby/Main/Core.h"
+#include "Ruby/Main/App.h"
 #include "OpenGLTexture.h"
 
 #include <glad/glad.h>
@@ -132,7 +134,8 @@ namespace Ruby {
 
 	OpenGLTexture::~OpenGLTexture()
 	{
-		glDeleteTextures(1, &m_RendererID);
+		if(App::instanceExists())
+			glDeleteTextures(1, &m_RendererID);
 	}
 
 	void OpenGLTexture::bind(uint8_t slot) const

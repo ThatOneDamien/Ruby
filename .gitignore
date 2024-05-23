@@ -2,6 +2,9 @@ bin
 TestGame
 Sandbox/imgui.ini
 
+*.ini
+**/Makefile
+.vscode
 *.rsuser
 *.suo
 *.user
