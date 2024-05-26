@@ -3,8 +3,8 @@
 #include "Ruby/Main/Core.h"
 #include "Ruby/Render/Buffers.h"
 
-namespace Ruby {
-
+namespace Ruby 
+{
 	// OpenGL Vertex Buffer
 	class OpenGLVB : public VertexBuffer
 	{

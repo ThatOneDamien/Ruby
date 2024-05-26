@@ -6,8 +6,8 @@
 
 #include <glad/glad.h>
 
-namespace Ruby {
-
+namespace Ruby 
+{
 	OpenGLFramebuffer::OpenGLFramebuffer(int width, int height)
 		: m_Width(width), m_Height(height)
 	{

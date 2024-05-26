@@ -5,10 +5,10 @@
 #include "Ruby/Render/Texture.h"
 #include "Ruby/Render/Camera.h"
 
-namespace Ruby {
-
-	namespace Components {
-
+namespace Ruby 
+{
+	namespace Components 
+	{
 		struct Transform
 		{
 			glm::vec2 Position{0.0f, 0.0f};

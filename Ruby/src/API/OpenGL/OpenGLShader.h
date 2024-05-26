@@ -5,8 +5,8 @@
 typedef unsigned int GLenum;
 //typedef std::unordered_map<GLenum, std::string> ShaderCollection;
 
-namespace Ruby {
-
+namespace Ruby 
+{
     class OpenGLShader : public Shader
     {
     public:

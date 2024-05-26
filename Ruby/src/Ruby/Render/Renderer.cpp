@@ -15,8 +15,8 @@
 #pragma warning(disable: 6385) // Compiler warning about overflowing buffer which wont happen.
 #pragma warning(disable: 6386)
 
-namespace Ruby {
-
+namespace Ruby 
+{
 	struct FontData
 	{
 		std::vector<msdf_atlas::GlyphGeometry> Glyphs;
@@ -413,7 +413,7 @@ namespace Ruby {
 		}
 	
 
-		void drawText(const std::string& str, const glm::vec2& position, float size, float rotation, const glm::vec4& color)
+		void drawText(const std::string& str, const glm::vec2& position, float scale, float rotation, const glm::vec4& color)
 		{
 			if (!s_CurrentFont)
 			{
@@ -495,7 +495,7 @@ namespace Ruby {
 								rotation,
 								{ 0.0f, 0.0f, 1.0f }
 							),
-							{ size, size, 1.0f }
+							{ scale, scale, 1.0f }
 						);
 
 					glm::vec4 temp = transform * glm::vec4(leftP, bottomP, 0.0f, 1.0f);

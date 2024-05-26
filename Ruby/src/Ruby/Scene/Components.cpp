@@ -3,9 +3,11 @@
 #include "Components.h"
 #include "Scene.h"
 
-namespace Ruby {
+namespace Ruby 
+{
 
-	namespace Components {
+	namespace Components 
+	{
 
 	}
 

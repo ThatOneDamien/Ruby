@@ -3,8 +3,8 @@
 #include "Event.h"
 #include "Ruby/Main/MouseCodes.h"
 
-namespace Ruby {
-
+namespace Ruby 
+{
 	class MouseMoveEvent : public Event
 	{
 	public:
@@ -37,7 +37,7 @@ namespace Ruby {
 		virtual inline std::string toStr() const override 
 		{
 			std::stringstream ss;
-			ss << "Mouse Button Pressed " << m_ButtonCode;
+			ss << "Mouse Button Pressed " << (uint16_t)m_ButtonCode;
 			return ss.str();
 		}
 
@@ -55,7 +55,7 @@ namespace Ruby {
 		virtual inline std::string toStr() const override
 		{
 			std::stringstream ss;
-			ss << "Mouse Button Released " << m_ButtonCode;
+			ss << "Mouse Button Released " << (uint16_t)m_ButtonCode;
 			return ss.str();
 		}
 

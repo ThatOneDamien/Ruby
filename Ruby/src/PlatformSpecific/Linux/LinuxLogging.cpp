@@ -4,8 +4,8 @@
 
 #include "Ruby/Main/Logging.h"
 
-namespace Ruby {
-
+namespace Ruby 
+{
 	static uint16_t s_DefaultColor;
 	SharedPtr<Logger> Logger::s_EngineLogger;
 	SharedPtr<Logger> Logger::s_ClientLogger;

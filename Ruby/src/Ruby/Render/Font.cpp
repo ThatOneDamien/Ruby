@@ -8,8 +8,8 @@
 #include "Font.h"
 #include "Ruby/Main/App.h"
 
-namespace Ruby {
-
+namespace Ruby 
+{
 	static msdfgen::FreetypeHandle* s_Lib{ nullptr };
 
     struct FontData

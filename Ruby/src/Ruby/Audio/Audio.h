@@ -2,12 +2,11 @@
 
 #include "AudioClip.h"
 
-namespace Ruby {
+namespace Ruby 
+{
 
-	namespace Audio {
-
-		void init();
-		void deInit();
+	namespace Audio 
+	{
 		void play(const AudioClip& clip, float pan = 0.0f);
 		void play3D(const AudioClip& clip, float x, float y);
 		void updateListener(float x, float y);

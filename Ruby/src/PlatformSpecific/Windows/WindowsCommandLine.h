@@ -1,7 +1,9 @@
 #pragma once
 
-namespace Ruby {
-    namespace CL {
+namespace Ruby 
+{
+    namespace CL 
+    {
         PCHAR* CommandLineToArgvA(PCHAR CmdLine, int* _argc);
 #ifdef RB_DEBUG
         bool RedirectConsoleIO();

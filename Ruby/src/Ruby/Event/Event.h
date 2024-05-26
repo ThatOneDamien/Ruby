@@ -3,8 +3,8 @@
 #include "Ruby/Main/Core.h"
 #include <sstream>
 
-namespace Ruby {
-
+namespace Ruby 
+{
 	enum class EventType
 	{
 		NONE = 0,

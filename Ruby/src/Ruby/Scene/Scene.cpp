@@ -4,8 +4,8 @@
 #include "Entity.h"
 #include "Ruby/Render/Renderer.h"
 
-namespace Ruby {
-
+namespace Ruby 
+{
 	Scene::Scene(const std::string& name)
 		: m_Name(name)
 	{

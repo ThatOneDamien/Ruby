@@ -9,8 +9,8 @@
 #define UBUFFER OpenGLUB
 #endif
 
-namespace Ruby {
-
+namespace Ruby 
+{
 	SharedPtr<VertexBuffer> VertexBuffer::createVBO(const void* vertices, uint32_t size)
 	{
 		return createShared<VBUFFER>(vertices, size);

@@ -3,8 +3,8 @@
 #include "EditorApp.h"
 #include <ImGui/imgui.h>
 
-namespace Ruby {
-
+namespace Ruby 
+{
 	void EditorApp::onStart()
 	{
 		m_Tex = Texture::createTexture("res/images/poop.jpg");
@@ -20,11 +20,6 @@ namespace Ruby {
 		ImGuiIO& io = ImGui::GetIO();
 		io.Fonts->AddFontFromFileTTF("res/fonts/Nunito-Regular.ttf", 20);
 		Renderer::useCamera(m_Cam);
-		m_EntityList.push_back({ m_LoadedScene->createEntity(), "Bruh1" });
-		m_EntityList[0].entity.addComponent<Components::Transform>();
-		m_EntityList.push_back({ m_LoadedScene->createEntity(), "Bruh2" });
-		m_EntityList.push_back({ m_LoadedScene->createEntity(), "Bruh3" });
-		m_EntityList.push_back({ m_LoadedScene->createEntity(), "Bruh4" });
 		
 	}
 
@@ -33,8 +28,8 @@ namespace Ruby {
 		if (m_SceneSelected)
 		{
 			glm::vec2 pos = m_Cam.getPosition();
-			pos.x += m_Scale * 0.02f * (Input::isKeyDown(Key::D) - Input::isKeyDown(Key::A));
-			pos.y += m_Scale * 0.02f * (Input::isKeyDown(Key::W) - Input::isKeyDown(Key::S));
+			pos.x += m_Scale * 0.02f * (Input::isKeyDown(KeyCode::D) - Input::isKeyDown(KeyCode::A));
+			pos.y += m_Scale * 0.02f * (Input::isKeyDown(KeyCode::W) - Input::isKeyDown(KeyCode::S));
 			m_Cam.setPosition(pos);
 		}
 		Renderer::API::clear();

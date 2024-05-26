@@ -7,8 +7,8 @@
 #include <glad/glad.h>
 #include <stb_image.h>
 
-namespace Ruby {
-
+namespace Ruby 
+{
 	namespace Internal 
 	{
 		inline GLuint pixelFormatToOpenGLInternal(PixelFormat format)

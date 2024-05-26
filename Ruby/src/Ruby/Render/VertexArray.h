@@ -2,8 +2,8 @@
 
 #include "Buffers.h"
 
-namespace Ruby {
-
+namespace Ruby 
+{
 	class RB_NOVTABLE VertexArray
 	{
 	public:

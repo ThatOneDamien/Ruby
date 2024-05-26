@@ -4,7 +4,8 @@
 
 #include <vector>
 
-namespace Ruby {
+namespace Ruby 
+{
 
 	enum class LayoutType : uint8_t
 	{

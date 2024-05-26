@@ -6,8 +6,8 @@
 #include <unordered_map>
 #include <string>
 
-namespace Ruby {
-
+namespace Ruby 
+{
     class RB_NOVTABLE Shader
     {
     public:

@@ -10,10 +10,10 @@
 #endif
 #pragma warning(pop)
 
-namespace Ruby {
-
-	namespace ImGuiUtil {
-
+namespace Ruby 
+{
+	namespace ImGuiUtil 
+	{
 		void init()
 		{
 			IMGUI_CHECKVERSION();
@@ -31,11 +31,8 @@ namespace Ruby {
 			ImGui::StyleColorsDark();
 
 			ImGuiStyle& style = ImGui::GetStyle();
-			if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-			{
-				style.WindowRounding = 0.0f;
-				style.Colors[ImGuiCol_WindowBg].w = 1.0f;
-			}
+			style.WindowRounding = 0.0f;
+			style.Colors[ImGuiCol_WindowBg].w = 1.0f;
 
 			const Window& win = App::getInstance().getWindow();
 #ifdef RB_USE_OPENGL

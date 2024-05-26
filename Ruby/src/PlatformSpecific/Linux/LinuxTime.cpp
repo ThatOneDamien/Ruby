@@ -6,13 +6,12 @@
 
 #include <time.h>
 
-namespace Ruby {
-
-
+namespace Ruby 
+{
 	static double s_Freq = 0.0;
 
-	namespace Time {
-
+	namespace Time 
+	{
 		TimeStruct getLocalTime()
 		{
 			TimeStruct res;
@@ -35,10 +34,7 @@ namespace Ruby {
 			return res;
 		}
 
-		void init()
-		{
-		}
-
+		void init() {}
 	}
 
 	DeltaTime::DeltaTime()

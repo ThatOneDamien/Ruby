@@ -6,8 +6,8 @@
 
 #include <glad/glad.h>
 
-namespace Ruby {
-
+namespace Ruby 
+{
 	OpenGLVA::OpenGLVA()
 	{
 		glCreateVertexArrays(1, &m_RendererID);

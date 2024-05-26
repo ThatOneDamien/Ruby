@@ -3,8 +3,8 @@
 #include <entt/entt.hpp>
 #include "Components.h"
 
-namespace Ruby {
-
+namespace Ruby 
+{
 	class Entity;
 
 	class Scene

@@ -8,8 +8,8 @@
 #define VARRAY OpenGLVA
 #endif
 
-namespace Ruby {
-
+namespace Ruby 
+{
 	SharedPtr<VertexArray> VertexArray::createVAO()
 	{
 		return createShared<VARRAY>();

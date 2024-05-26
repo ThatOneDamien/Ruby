@@ -2,8 +2,8 @@
 
 typedef void(*ScopedTimerFunc) (double);
 
-namespace Ruby {
-
+namespace Ruby 
+{
 	struct TimeStruct 
 	{
 		uint16_t  year;
@@ -16,12 +16,10 @@ namespace Ruby {
 		uint16_t  milliseconds;
 	};
 
-	namespace Time {
-
+	namespace Time 
+	{
 		TimeStruct getLocalTime();
-
 		void init();
-
 	}
 
 	class DeltaTime

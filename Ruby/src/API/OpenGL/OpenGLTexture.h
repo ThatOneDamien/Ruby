@@ -3,8 +3,8 @@
 #include "Ruby/Render/Texture.h"
 
 
-namespace Ruby {
-
+namespace Ruby 
+{
 	class OpenGLTexture : public Texture
 	{
 	public:

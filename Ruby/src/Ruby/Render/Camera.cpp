@@ -4,8 +4,8 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
-namespace Ruby {
-
+namespace Ruby 
+{
 	Camera::Camera(float left, float right, float bottom, float top)
 		: m_View(1.0f), m_Proj(glm::ortho(left, right, bottom, top))
 	{

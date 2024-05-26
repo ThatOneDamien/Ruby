@@ -6,12 +6,12 @@
 #ifdef RB_USE_OPENGL
 #include <glad/glad.h>
 
-namespace Ruby {
-
+namespace Ruby 
+{
 	namespace Renderer
 	{
-		namespace API {
-
+		namespace API 
+		{
 			static void debugCallbackFunc(
 				GLenum source,
 				GLenum type,

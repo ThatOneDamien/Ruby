@@ -2,8 +2,8 @@
 
 #include "Ruby/Utility/Pointers.h"
 
-namespace Ruby {
-
+namespace Ruby 
+{
 	class RB_NOVTABLE Framebuffer
 	{
 	public:

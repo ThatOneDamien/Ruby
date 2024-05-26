@@ -3,8 +3,8 @@
 #include <soloud.h>
 #include <soloud_wav.h>
 
-namespace Ruby {
-
+namespace Ruby 
+{
 	namespace Audio
 	{
 		bool isInitialized();

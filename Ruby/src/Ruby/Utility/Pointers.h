@@ -15,8 +15,8 @@
 #include <iostream>
 
 // a lot taken from SharedPtr, but slightly modified to better suit my needs.
-namespace Ruby {
-
+namespace Ruby 
+{
 	template<typename T>
 	class SharedPtr;
 

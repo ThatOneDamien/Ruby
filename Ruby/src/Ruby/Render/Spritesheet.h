@@ -2,8 +2,8 @@
 
 #include "Texture.h"
 
-namespace Ruby {
-
+namespace Ruby 
+{
 	class Spritesheet
 	{
 	public:

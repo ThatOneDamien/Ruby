@@ -7,8 +7,8 @@
 #include "API/OpenGL/OpenGLTexture.h"
 #define TEXTURE OpenGLTexture
 #endif
-namespace Ruby {
-
+namespace Ruby 
+{
 	SharedPtr<Texture> Texture::createTexture(const std::string& filepath)
 	{
 		return createShared<TEXTURE>(filepath);

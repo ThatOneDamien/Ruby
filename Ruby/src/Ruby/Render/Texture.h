@@ -2,8 +2,8 @@
 
 #include <glm/glm.hpp>
 
-namespace Ruby {
-
+namespace Ruby 
+{
 	// The way the numbers are set up are for the purpose of what follows:
 	// 
 	// By bit shifting these numbers to the right 3 times, the number will

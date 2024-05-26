@@ -7,8 +7,8 @@ class Sandbox : public Ruby::App
 	template<typename T>
 	using SP = Ruby::SharedPtr<T>;
 public:
-	Sandbox(int argc, char** argv, const std::string& mainDir, const char* name, int width, int height)
-		: App(argc, argv, mainDir, name, width, height)
+	Sandbox(int argc, char** argv, const Ruby::AppSpec& spec)
+		: Ruby::App(argc, argv, spec)
 	{
 	}
 
@@ -18,13 +18,9 @@ public:
 
 	virtual void onStart() override 
 	{
-		Ruby::Renderer::updateCamera(cam);
+		Ruby::Renderer::useCamera(cam);
 		aspectRatio = Ruby::App::getInstance().getWindow().getAspectRatio();
-		Ruby::Renderer::API::setClearColor({1.0f, 1.0f, 1.0f});
-		// scene = Ruby::createShared<Ruby::Scene>("blank");
-		// Ruby::Entity entity = scene->createEntity();
-		// entity.addComponent<Ruby::Components::Transform>(glm::vec2{0.0f, 0.0f}, 0.0f, glm::vec2{1.0f, 1.0f});
-		// entity.addComponent<Ruby::Components::Sprite>(glm::vec4{1.0f, 1.0f, 0.0f, 1.0f});
+		Ruby::Renderer::API::setClearColor({0.2f, 0.2f, 0.2f});
 	}
 
 	virtual void update(double deltaMillis) override 
@@ -32,11 +28,7 @@ public:
 		updateInputs();
 		Ruby::Renderer::API::clear();
 		Ruby::Renderer::resetBatch();
-		Ruby::Renderer::drawQuad({0.0f, 0.0f}, {1.0f, 1.0f}, {1.0f, 1.0f, 1.0f, 1.0f});
-		
-		//Ruby::Renderer::drawText("Balls", { -0.5f, -0.5f }, 1.0f, 0.0f, { 1.0f, 1.0f, 1.0f, 1.0f });
-		//Ruby::Renderer::drawText("Balls", { -0.5f, 0.5f }, 1.0f, 0.0f, {1.0f, 1.0f, 1.0f, 1.0f});
-		//scene->updateScene(deltaMillis);
+		Ruby::Renderer::drawQuad({0.0f, 0.0f}, {1.0f, 1.0f}, {0.0f, 0.0f, 0.0f, 1.0f});
 		Ruby::Renderer::renderBatch();
 		
 	}
@@ -64,21 +56,29 @@ public:
 
 
 private:
-	Ruby::Camera cam{-1.0f, 1.0f, -1.0f, 1.0f};
-	//SP<Ruby::Scene> scene;
+	Ruby::Camera cam;
 	float aspectRatio = 0.0f;
 	float scale = 1.0f;
 
 	void updateInputs()
 	{
 		glm::vec2 pos = cam.getPosition();
-		pos.x += 0.03f * scale * (Ruby::Input::isKeyDown(Ruby::Key::D) - Ruby::Input::isKeyDown(Ruby::Key::A));
-		pos.y += 0.03f * scale * (Ruby::Input::isKeyDown(Ruby::Key::W) - Ruby::Input::isKeyDown(Ruby::Key::S));
+		pos.x += 0.03f * scale * (Ruby::Input::isKeyDown(Ruby::KeyCode::D) - Ruby::Input::isKeyDown(Ruby::KeyCode::A));
+		pos.y += 0.03f * scale * (Ruby::Input::isKeyDown(Ruby::KeyCode::W) - Ruby::Input::isKeyDown(Ruby::KeyCode::S));
 		cam.setPosition(pos);
 	}
 };
 
 Ruby::App* createApp(int argc, char** argv)
 {
-	return new Sandbox(argc, argv, "../../../../Sandbox", "Sandbox App", 1280, 720);
+	Ruby::AppSpec spec;
+	spec.MainDirectory = "../../../../Sandbox";
+	spec.WindowSpec.Name = "Sandbox App";
+	spec.WindowSpec.Width = 1280;
+	spec.WindowSpec.Height = 720;
+	spec.WindowSpec.MinWidth = 640;
+	spec.WindowSpec.MinHeight = 360;
+	spec.WindowSpec.VSync = true;
+	spec.WindowSpec.HasTitleBar = true;
+	return new Sandbox(argc, argv, spec);
 }

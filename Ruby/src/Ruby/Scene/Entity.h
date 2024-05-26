@@ -2,8 +2,8 @@
 
 #include "Scene.h"
 
-namespace Ruby {
-
+namespace Ruby 
+{
 	class Entity 
 	{
 		static constexpr uint32_t nullID = (uint32_t)entt::tombstone;

@@ -4,8 +4,8 @@
 
 #include <glm/glm.hpp>
 
-namespace Ruby {
-
+namespace Ruby 
+{
 	// Orthographic Camera simply named Camera because it is default. Might add perspective cam later, though this is a 2D engine.
 	class Camera
 	{

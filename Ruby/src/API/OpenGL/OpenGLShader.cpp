@@ -8,12 +8,10 @@
 #include <fstream>
 
 
-namespace Ruby {
-
-
-
-    namespace Internal {
-
+namespace Ruby 
+{
+    namespace Internal 
+    {
         void parseShaders(const std::string& fileSource, std::string outShaders[6])
         {
             size_t header = fileSource.find("#shader");

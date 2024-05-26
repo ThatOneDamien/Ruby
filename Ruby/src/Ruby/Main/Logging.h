@@ -4,8 +4,8 @@
 #include "Ruby/Utility/Pointers.h"
 #include "Ruby/Main/Time.h"
 
-namespace Ruby {
-
+namespace Ruby 
+{
 	enum class LogLevel { Trace = 0, Info, Warn, Error, Critical };
 
 	// Currently from Windows console colors. TODO abstract this enum so it is not dependent on Windows.

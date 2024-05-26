@@ -4,8 +4,8 @@
 
 #include "Ruby/Event/Event.h"
 
-namespace Ruby {
-
+namespace Ruby 
+{
 	struct AppSpec
 	{
 		std::string MainDirectory;
@@ -44,9 +44,13 @@ namespace Ruby {
 		// User defined function that is called upon the app being closed.
 		virtual void onExit() = 0;
 
+		// Get reference to window attached to this application
 		inline Window& getWindow() { return *m_Window; }
+		// Get const reference to window attached to this application
 		inline const Window& getWindow() const { return *m_Window; }
+		// Get reference to the current instance of this application
 		static inline App& getInstance() { return *s_Instance; }
+		// Returns true if there is an instance of the application running.
 		static inline bool instanceExists() { return s_Instance; }
 
 	private:
@@ -57,7 +61,7 @@ namespace Ruby {
 		std::string m_MainDir;
 
 		static App* s_Instance;
-		UniPtr<Window> m_Window;
+		Window* m_Window;
 		DeltaTime m_DT{};
 
 

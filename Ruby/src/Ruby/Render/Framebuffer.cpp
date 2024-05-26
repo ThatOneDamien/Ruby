@@ -7,8 +7,8 @@
 #define FRAMEBUFFER OpenGLFramebuffer
 #endif
 
-namespace Ruby {
-
+namespace Ruby 
+{
 	SharedPtr<Framebuffer> Framebuffer::create(int width, int height)
 	{
 		return createShared<FRAMEBUFFER>(width, height);

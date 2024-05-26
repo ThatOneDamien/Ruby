@@ -8,8 +8,8 @@
 #define SHADER OpenGLShader
 #endif
 
-namespace Ruby {
-
+namespace Ruby 
+{
 	std::unordered_map<std::string, SharedPtr<Shader>> Shader::s_ShaderLibrary;
 
 	SharedPtr<Shader> Shader::createShader(const std::string& filepath)

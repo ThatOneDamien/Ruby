@@ -4,10 +4,10 @@
 #include <soloud.h>
 #include <soloud_wav.h>
 
-namespace Ruby {
-
-	namespace Audio {
-
+namespace Ruby 
+{
+	namespace Audio 
+	{
 		static SoLoud::Soloud* s_SoloudContext;
 		static SoLoud::handle hand;
 

@@ -10,7 +10,11 @@
 
 #include <filesystem>
 
-namespace Ruby {
+namespace Ruby 
+{
+	// Forward declarations
+	namespace Renderer { void init(); void deInit(); }
+	namespace Audio { void init(); void deInit(); }
 
 	App* App::s_Instance = nullptr;
 
@@ -27,13 +31,13 @@ namespace Ruby {
 		std::filesystem::current_path(binaryParentDir);
 
 		if (!m_MainDir.empty())
-			std::filesystem::current_path(mainDir);
+			std::filesystem::current_path(spec.MainDirectory);
 		
-		RB_INFO("Working directory set at: \'%s\'", std::filesystem::current_path().c_str());
+		RB_INFO("Working directory set at: \'%s\'", std::filesystem::current_path().string().c_str());
+
 
 		// Create window and initialize windowing library.
-
-		m_Window = Window::createWindow(spec.WindowSpec);
+		m_Window = new Window(spec.WindowSpec);
 		
 		Font::init();
 		Audio::init();
@@ -52,6 +56,8 @@ namespace Ruby {
 		Ruby::Renderer::deInit();
 		Ruby::Audio::deInit();
 		Ruby::Font::deInit();
+
+		delete m_Window;
 	}
 
 	void App::handleEvent(Event& e)

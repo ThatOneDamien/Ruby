@@ -3,8 +3,8 @@
 #include "Event.h"
 #include "Ruby/Main/KeyCodes.h"
 
-namespace Ruby {
-
+namespace Ruby 
+{
 	class KeyPressedEvent : public Event
 	{
 	public:
@@ -17,7 +17,7 @@ namespace Ruby {
 		virtual inline std::string toStr() const override
 		{
 			std::stringstream ss;
-			ss << "Key " << (m_Repeat ? "Repeated " : "Pressed ") << m_KeyCode;
+			ss << "Key " << (m_Repeat ? "Repeated " : "Pressed ") << (uint16_t)m_KeyCode;
 			return ss.str();
 		}
 
@@ -38,7 +38,7 @@ namespace Ruby {
 		virtual inline std::string toStr() const override
 		{
 			std::stringstream ss;
-			ss << "Key Released " << m_KeyCode;
+			ss << "Key Released " << (uint16_t)m_KeyCode;
 			return ss.str();
 		}
 

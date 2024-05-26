@@ -6,8 +6,8 @@
 
 #include <glad/glad.h>
 
-namespace Ruby {
-
+namespace Ruby 
+{
 	/*
 	* 
 	* --------------VERTEX BUFFER----------------

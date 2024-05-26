@@ -11,27 +11,28 @@ Ruby::App* createApp(int argc, char** argv);
 
 int APIENTRY WinMain(_In_     HINSTANCE hInstance,
 	_In_opt_ HINSTANCE hPrevInstance,
-	_In_     PSTR      pCmdLine,
+	_In_     PSTR     pCmdLine,
 	_In_     int       nCmdShow)
 {
-	
-	// Get args in argv form
-	int argc;
-	PCHAR* argv = Ruby::CL::CommandLineToArgvA(pCmdLine, &argc);
+	// Generate console window only if debugging
 #ifdef RB_DEBUG
 	if (!Ruby::CL::CreateNewConsole(1024))
 		return -1;
 #endif
 
+
 	Ruby::Logger::init();
 	Ruby::Time::init();
-	Ruby::App* app = createApp(argc, argv);
+	Ruby::App* app = createApp(__argc, __argv);
 	app->run();
 	delete app;
+
+
 #ifdef RB_DEBUG
 	Ruby::CL::ReleaseConsole();
 #endif
-	LocalFree(argv);
+
+
 	return 0;
 }
 

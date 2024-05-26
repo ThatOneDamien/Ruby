@@ -2,8 +2,8 @@
 
 #include "Entity.h"
 
-namespace Ruby {
-
+namespace Ruby 
+{
 	Entity::Entity(Scene* scene)
 		: m_Scene(scene)
 	{

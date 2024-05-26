@@ -3,15 +3,15 @@
 #include "Ruby/Main/Core.h"
 
 
-namespace Ruby {
+namespace Ruby 
+{
 
-	namespace ImGuiUtil {
-
+	namespace ImGuiUtil 
+	{
 		void init();
 		void deInit();
 		void begin();
 		void end();
-
 	}
 
 }

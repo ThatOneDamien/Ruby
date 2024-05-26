@@ -1,8 +1,8 @@
 #pragma once
 
 
-namespace Ruby {
-
+namespace Ruby 
+{
 	struct EditorEntity
 	{
 		Entity entity;

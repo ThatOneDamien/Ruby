@@ -2,9 +2,8 @@
 
 #include "Event.h"
 
-namespace Ruby {
-
-
+namespace Ruby 
+{
 	class WindowResizeEvent : public Event
 	{
 	public:

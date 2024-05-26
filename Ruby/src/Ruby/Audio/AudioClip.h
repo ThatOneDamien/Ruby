@@ -1,12 +1,13 @@
 #pragma once
 
 // FORWARD DECLARATION
-namespace SoLoud {
+namespace SoLoud 
+{
 	class Wav;
 }
 
-namespace Ruby {
-
+namespace Ruby 
+{
 	class AudioClip
 	{
 	public:

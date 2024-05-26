@@ -5,8 +5,8 @@
 #include <glm/glm.hpp>
 #include <unordered_map>
 
-namespace Ruby {
-
+namespace Ruby 
+{
 	struct FontData;
 
 	class Font

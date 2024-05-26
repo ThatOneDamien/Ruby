@@ -2,8 +2,8 @@
 
 #include "Ruby/Render/Framebuffer.h"
 
-namespace Ruby {
-
+namespace Ruby 
+{
 	class OpenGLFramebuffer : public Framebuffer
 	{
 	public:

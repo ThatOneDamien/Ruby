@@ -3,8 +3,8 @@
 #include <cstring>
 #include <stdint.h>
 
-namespace Ruby {
-
+namespace Ruby 
+{
 	struct DataBuffer
 	{
 		uint8_t* Data = nullptr;

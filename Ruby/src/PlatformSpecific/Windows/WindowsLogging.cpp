@@ -7,8 +7,8 @@
 // IN A MULTIPLE DECLARATIONS ERROR IF DUPLICATED.
 #include "Ruby/Main/Logging.h"
 
-namespace Ruby {
-
+namespace Ruby 
+{
 	static HANDLE s_ConsoleHandle;
 	static uint16_t s_DefaultColor;
 	SharedPtr<Logger> Logger::s_EngineLogger;

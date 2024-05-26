@@ -2,8 +2,8 @@
 
 #include "Ruby/Render/VertexArray.h"
 
-namespace Ruby {
-
+namespace Ruby 
+{
 	class OpenGLVA : public VertexArray
 	{
 	public:

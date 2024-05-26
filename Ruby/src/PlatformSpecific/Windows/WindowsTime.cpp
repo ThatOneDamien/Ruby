@@ -4,13 +4,12 @@
 
 #include "Ruby/Main/Time.h"
 
-namespace Ruby {
-
-
+namespace Ruby 
+{
 	static double s_Freq = 0.0;
 
-	namespace Time {
-
+	namespace Time 
+	{
 		TimeStruct getLocalTime()
 		{
 			SYSTEMTIME localtime;
