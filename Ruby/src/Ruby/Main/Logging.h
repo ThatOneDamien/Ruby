@@ -8,26 +8,50 @@ namespace Ruby
 {
 	enum class LogLevel { Trace = 0, Info, Warn, Error, Critical };
 
-	// Currently from Windows console colors. TODO abstract this enum so it is not dependent on Windows.
+#ifdef RB_PLAT_WIND
 	enum class LogColor : uint8_t
 	{
 		Black = 0,
-		Dark_Blue = 1,
-		Dark_Green = 2,
-		Dark_Aqua, Dark_Cyan = 3,
-		Dark_Red = 4,
-		Dark_Purple = 5, Dark_Magenta = 5,
-		Gold = 6,
-		Light_Gray = 7,
-		Gray = 8,
-		Blue = 9,
-		Green = 10,
-		Aqua = 11, Cyan = 11,
-		Red = 12,
-		Purple = 13, Magenta = 13,
-		Yellow = 14,
-		White = 15
+		Dark_Blue,
+		Dark_Green,
+		Dark_Cyan,
+		Dark_Red,
+		Dark_Purple,
+		Gold,
+		Light_Gray,
+		Gray,
+		Blue,
+		Green,
+		Cyan,
+		Red,
+		Purple,
+		Yellow,
+		White
 	};
+	#define COLOR_COMBINE(textColor, highlightColor) (highlightColor << 4) | textColor 
+	#define TRACE_COLOR COLOR_COMBINE((uint16_t)LogColor::Green, (uint16_t)LogColor::Black)
+	#define INFO_COLOR COLOR_COMBINE((uint16_t)LogColor::Purple, (uint16_t)LogColor::Black)
+	#define WARN_COLOR COLOR_COMBINE((uint16_t)LogColor::Yellow, (uint16_t)LogColor::Black)
+	#define ERROR_COLOR COLOR_COMBINE((uint16_t)LogColor::Red, (uint16_t)LogColor::Black)
+	#define CRITICAL_COLOR COLOR_COMBINE((uint16_t)LogColor::White, (uint16_t)LogColor::Dark_Red)
+#elif RB_PLAT_LINUX
+	enum class LogColor : uint8_t
+	{
+		Black = 0, Gray = 0, Light_Gray = 0,
+		Red = 1, Dark_Red = 1,
+		Green = 2, Dark_Green = 2,
+ 		Yellow = 3, Gold = 3,
+		Blue = 4, Dark_Blue = 4,
+		Purple = 5, Dark_Purple = 5,
+		Cyan = 6, Dark_Cyan = 6,
+		White = 7
+	};
+	#define TRACE_COLOR (uint16_t)LogColor::Green
+	#define INFO_COLOR (uint16_t)LogColor::Purple
+	#define WARN_COLOR (uint16_t)LogColor::Yellow
+	#define ERROR_COLOR (uint16_t)LogColor::Red
+	#define CRITICAL_COLOR (uint16_t)LogColor::Red
+#endif
 
 	class Logger
 	{
@@ -47,9 +71,6 @@ namespace Ruby
 		inline LogLevel getLogLevel()             { return m_Level; }
 
 		void resetDefaultLogColor();
-
-
-
 
 		static void init();
 		static SharedPtr<Logger>& getEngineLogger() { return s_EngineLogger; }
@@ -76,7 +97,7 @@ namespace Ruby
 			if (getLogLevel() != LogLevel::Trace)
 				return;
 
-			internalSetLogColor(LogColor::Green, LogColor::Black);
+			internalSetLogColor(TRACE_COLOR);
 			TimeStruct time = Time::getLocalTime();
 			printf("[%.2d:%.2d:%.2d] %s: ", time.hour, time.minute, time.second, m_Name);
 			printf(message, std::forward<Args>(args)...);
@@ -89,7 +110,7 @@ namespace Ruby
 			if (getLogLevel() > LogLevel::Info)
 				return;
 
-			internalSetLogColor(LogColor::Purple, LogColor::Black);
+			internalSetLogColor(INFO_COLOR);
 			TimeStruct time = Time::getLocalTime();
 			printf("[%.2d:%.2d:%.2d] %s: ", time.hour, time.minute, time.second, m_Name);
 			printf(message, args...);
@@ -102,7 +123,7 @@ namespace Ruby
 			if (getLogLevel() > LogLevel::Warn)
 				return;
 
-			internalSetLogColor(LogColor::Yellow, LogColor::Black);
+			internalSetLogColor(WARN_COLOR);
 			TimeStruct time = Time::getLocalTime();
 			printf("[%.2d:%.2d:%.2d] %s: ", time.hour, time.minute, time.second, m_Name);
 			printf(message, std::forward<Args>(args)...);
@@ -115,7 +136,7 @@ namespace Ruby
 			if (getLogLevel() == LogLevel::Critical)
 				return;
 
-			internalSetLogColor(LogColor::Red, LogColor::Black);
+			internalSetLogColor(ERROR_COLOR);
 			TimeStruct time = Time::getLocalTime();
 			printf("[%.2d:%.2d:%.2d] %s: ", time.hour, time.minute, time.second, m_Name);
 			printf(message, std::forward<Args>(args)...);
@@ -125,25 +146,27 @@ namespace Ruby
 		template<typename... Args>
 		inline void critical(const char* message, Args... args)
 		{
-			internalSetLogColor(LogColor::White, LogColor::Dark_Red);
+			internalSetLogColor(CRITICAL_COLOR);
 			TimeStruct time = Time::getLocalTime();
 			printf("[%.2d:%.2d:%.2d] %s: ", time.hour, time.minute, time.second, m_Name);
 			printf(message, std::forward<Args>(args)...);
-			internalResetLogColor();
 			printf("\n");
 		}
 
 
 	private:
-		void internalSetLogColor(LogColor textColor, LogColor highlightColor);
 		void internalSetLogColor(uint16_t color);
 		void internalResetLogColor();
 
-		uint16_t m_CurrentColor, m_SavedColor;
+		uint16_t m_SavedColor;
 		LogLevel m_Level;
 		const char* m_Name; // Aka the Log Prefix.
 		static SharedPtr<Logger> s_EngineLogger;
 		static SharedPtr<Logger> s_ClientLogger;
 	};
-
+	#undef TRACE_COLOR
+	#undef INFO_COLOR
+	#undef WARN_COLOR
+	#undef ERROR_COLOR
+	#undef CRITICAL_COLOR
 }

@@ -9,7 +9,7 @@ namespace Ruby
 	struct AppSpec
 	{
 		std::string MainDirectory;
-		WindowSpec WindowSpec;
+		WindowSpec WinSpec;
 	};
 
 	class App

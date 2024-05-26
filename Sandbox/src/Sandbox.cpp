@@ -73,12 +73,12 @@ Ruby::App* createApp(int argc, char** argv)
 {
 	Ruby::AppSpec spec;
 	spec.MainDirectory = "../../../../Sandbox";
-	spec.WindowSpec.Name = "Sandbox App";
-	spec.WindowSpec.Width = 1280;
-	spec.WindowSpec.Height = 720;
-	spec.WindowSpec.MinWidth = 640;
-	spec.WindowSpec.MinHeight = 360;
-	spec.WindowSpec.VSync = true;
-	spec.WindowSpec.HasTitleBar = true;
+	spec.WinSpec.Name = "Sandbox App";
+	spec.WinSpec.Width = 1280;
+	spec.WinSpec.Height = 720;
+	spec.WinSpec.MinWidth = 640;
+	spec.WinSpec.MinHeight = 360;
+	spec.WinSpec.VSync = true;
+	spec.WinSpec.HasTitleBar = true;
 	return new Sandbox(argc, argv, spec);
 }

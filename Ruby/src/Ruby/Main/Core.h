@@ -3,42 +3,20 @@
 // For now OpenGL is the only Renderering API used.
 #define RB_USE_OPENGL 1
 
-#ifdef _WIN32
-
-	#define RB_NOVTABLE __declspec(novtable)
-
-	#ifdef _WIN64
-		// Windows x64 builds.
-		#define RB_PLAT_WIND 1
-		#define RB_DEBUG_BREAK() __debugbreak()
-
-	#else
-		// Windows x86 builds.
-		#error "x86/32-bit builds are not supported."
-	#endif
-
-#elif __linux__
-	#define RB_PLAT_LINUX 1
-	#include <signal.h>
-	#define RB_DEBUG_BREAK() raise(SIGTRAP)
-
-#else
-	// Other builds. TODO handle more systems specifically.
-	#error "Platform not currently supported."
-	#define RB_NOVTABLE  
-#endif
+#include "Platform.h"
 
 #include <stdint.h>
 typedef uint32_t RendererID;
 
 #include "Ruby/Main/Logging.h"
 
+// TODO: Add comments
 #ifdef RB_EXTERNAL_DEF
 #define RB_TRACE(msg, ...)                          ::Ruby::Logger::getClientLogger()->trace(msg, ##__VA_ARGS__);
 #define RB_INFO(msg, ...)                           ::Ruby::Logger::getClientLogger()->info(msg, ##__VA_ARGS__);
 #define RB_WARN(msg, ...)                           ::Ruby::Logger::getClientLogger()->warn(msg, ##__VA_ARGS__);
-#define RB_ERROR(msg, ...)                          ::Ruby::Logger::getClientLogger()->error(msg, ####__VA_ARGS__);
-#define RB_CRITICAL(msg, ...)                       ::Ruby::Logger::getClientLogger()->critical(msg##__VA_ARGS__);
+#define RB_ERROR(msg, ...)                          ::Ruby::Logger::getClientLogger()->error(msg, ##__VA_ARGS__);
+#define RB_CRITICAL(msg, ...)                       ::Ruby::Logger::getClientLogger()->critical(msg, ##__VA_ARGS__);
 #define RB_LOG_BASIC(msg, ...)                      ::Ruby::Logger::getClientLogger()->basicLog(msg, ##__VA_ARGS__);
 #define RB_LOG_SET_COLOR(textColor, highlightColor) ::Ruby::Logger::getClientLogger()->setLogColor(textColor, highlightColor);
 #else							                    

@@ -6,9 +6,9 @@
 
 namespace Ruby 
 {
-	static uint16_t s_DefaultColor;
 	SharedPtr<Logger> Logger::s_EngineLogger;
 	SharedPtr<Logger> Logger::s_ClientLogger;
+	constexpr const char* COLOR_CONVERSIONS[8] = { "\e[30m", "\e[31m", "\e[32m", "\e[33m", "\e[34m", "\e[35m", "\e[36m", "\e[37m" };
 
 	void Logger::init()
 	{
@@ -19,47 +19,34 @@ namespace Ruby
 	}
 
 	Logger::Logger(const char* name, LogLevel logLevel)
-		: m_Name(name), m_Level(logLevel), m_CurrentColor(s_DefaultColor), m_SavedColor(s_DefaultColor)
+		: m_Name(name), m_Level(logLevel), m_SavedColor((uint16_t)LogColor::White)
 	{}
 
 	void Logger::setLogColor(LogColor textColor, LogColor highlightColor)
 	{
-		// Prevents both the text and highlight from being the same color, which would render the text invisible.
-		if (textColor != highlightColor)
-		{
-			m_SavedColor = ((uint8_t)highlightColor << 4) | (uint8_t)textColor;
-		}
+		(void)highlightColor;
+		setLogTextColor(textColor);
 	}
 
 	void Logger::setLogTextColor(LogColor textColor)
 	{
-		if ((uint8_t)textColor != (m_SavedColor >> 4))
-		{
-			m_SavedColor = (m_SavedColor & 0xF0) | (uint8_t)textColor;
-		}
+		m_SavedColor = (uint16_t)textColor;
 	}
 
-	void Logger::setLogHighlightColor(LogColor highlightColor)
-	{
-		if ((uint8_t)highlightColor != (m_SavedColor & 0x0F))
-		{
-			m_SavedColor = (m_SavedColor & 0x0F) | (uint8_t)highlightColor;
-		}
-	}
+	void Logger::setLogHighlightColor(LogColor highlightColor) {(void)highlightColor;}
 
 	void Logger::resetDefaultLogColor()
 	{
+		m_SavedColor = (uint16_t)LogColor::White;
 	}
-
-	void Logger::internalSetLogColor(LogColor textColor, LogColor highlightColor)
-	{
-	}
-
+	
 	void Logger::internalSetLogColor(uint16_t color)
 	{
+		printf(COLOR_CONVERSIONS[color]);
 	}
 
 	void Logger::internalResetLogColor()
 	{
+		printf("\e[0m");
 	}
 }

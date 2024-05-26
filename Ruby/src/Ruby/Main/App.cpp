@@ -37,7 +37,7 @@ namespace Ruby
 
 
 		// Create window and initialize windowing library.
-		m_Window = new Window(spec.WindowSpec);
+		m_Window = new Window(spec.WinSpec);
 		
 		Font::init();
 		Audio::init();

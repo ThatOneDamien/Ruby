@@ -2,15 +2,12 @@
 
 #include "Ruby/Main/Core.h"
 
-// NOTE: DO NOT INCLUDE ANYWHERE ELSE IN THE PROGRAM EXCEPT IN
-// Logging.cpp, AS THIS FILE CONTAINS SOURCE CODE THAT WOULD RESULT
-// IN A MULTIPLE DECLARATIONS ERROR IF DUPLICATED.
 #include "Ruby/Main/Logging.h"
 
 namespace Ruby 
 {
 	static HANDLE s_ConsoleHandle;
-	static uint16_t s_DefaultColor;
+	static uint16_t s_DefaultColor, s_CurrentColor;
 	SharedPtr<Logger> Logger::s_EngineLogger;
 	SharedPtr<Logger> Logger::s_ClientLogger;
 
@@ -29,7 +26,7 @@ namespace Ruby
 	}
 
 	Logger::Logger(const char* name, LogLevel logLevel)
-		: m_Name(name), m_Level(logLevel), m_CurrentColor(s_DefaultColor), m_SavedColor(s_DefaultColor)
+		: m_Name(name), m_Level(logLevel), m_SavedColor(s_DefaultColor)
 	{}
 
 	void Logger::setLogColor(LogColor textColor, LogColor highlightColor)
@@ -62,28 +59,18 @@ namespace Ruby
 		m_SavedColor = s_DefaultColor;
 	}
 
-	void Logger::internalSetLogColor(LogColor textColor, LogColor highlightColor)
-	{
-		uint16_t color = ((uint8_t)highlightColor << 4) | (uint8_t)textColor;
-		if (m_CurrentColor != color)
-		{
-			SetConsoleTextAttribute(s_ConsoleHandle, color);
-			m_CurrentColor = color;
-		}
-	}
-
 	void Logger::internalSetLogColor(uint16_t color)
 	{
-		if (m_CurrentColor != color)
+		if (s_CurrentColor != color)
 		{
 			SetConsoleTextAttribute(s_ConsoleHandle, color);
-			m_CurrentColor = color;
+			s_CurrentColor = color;
 		}
 	}
 
 	void Logger::internalResetLogColor()
 	{
 		SetConsoleTextAttribute(s_ConsoleHandle, s_DefaultColor);
-		m_CurrentColor = s_DefaultColor;
+		s_CurrentColor = s_DefaultColor;
 	}
 }

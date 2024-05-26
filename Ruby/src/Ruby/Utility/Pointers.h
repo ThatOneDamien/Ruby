@@ -2,8 +2,9 @@
 
 #include <stdint.h>
 #include <iostream>
+#include "Ruby/Main/Platform.h"
 
-#ifdef _WIN32
+#ifdef RB_PLAT_WIND
 #define RB_NOVTABLE __declspec(novtable)
 #define RB_NO_DISCARD [[nodiscard]]
 #else
