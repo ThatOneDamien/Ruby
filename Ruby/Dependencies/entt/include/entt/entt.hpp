@@ -39080,6 +39080,26 @@ namespace entt {
             }
         }
 
+        template<typename Func>
+        void each_forward(Func func) const {
+            static_assert(std::is_invocable_v<Func, entity_type>);
+            for (auto pos = 0; pos < entities.size(); ++pos) {
+                if (const auto entt = entities[pos]; (to_integral(entt) & traits_type::entity_mask) == pos) {
+                    func(entt);
+                }
+            }
+        }
+
+        template<typename Func>
+        void each_backward(Func func) const {
+            static_assert(std::is_invocable_v<Func, entity_type>);
+            for (auto pos = entities.size(); pos; --pos) {
+                if (const auto entt = entities[pos - 1]; (to_integral(entt) & traits_type::entity_mask) == (pos - 1)) {
+                    func(entt);
+                }
+            }
+        }
+
         /**
          * @brief Sorts two pools of components in the same way.
          *

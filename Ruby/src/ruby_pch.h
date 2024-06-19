@@ -1,4 +1,5 @@
-#pragma once
+#ifndef RB_PCH_DEF
+#define RB_PCH_DEF
 #include "Ruby/Main/Core.h"
 
 #ifdef RB_PLAT_WIND
@@ -22,4 +23,5 @@
 #ifdef RB_PLAT_WIND
 #include <Windows.h>
 #endif
+#endif // RB_PCH_DEF
 

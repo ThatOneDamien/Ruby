@@ -61,7 +61,11 @@ project "Ruby"
             "src/PlatformSpecific/Windows/**.h",
             "src/PlatformSpecific/Windows/**.cpp"
         }
-        buildoptions "/Yc\"ruby_pch.h\""
+		if _ACTION == "vs2022" then
+		    buildoptions "/Yc\"ruby_pch.h\""
+		elseif _ACTION == "gmake2" then
+		    defines "RB_GMAKE"
+		end
 
 	filter "system:linux"
 		files

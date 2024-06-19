@@ -19,6 +19,8 @@ namespace Ruby
 		void updateScene(double deltaMillis);
 
 		Entity createEntity();
+		bool serializeScene();
+		bool serializeScene(const std::string& saveLocation);
 
 	private:
 		friend class Entity;

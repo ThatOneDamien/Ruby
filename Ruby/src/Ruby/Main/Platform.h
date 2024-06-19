@@ -1,7 +1,11 @@
 #ifdef _WIN32
-
-	#define RB_NOVTABLE __declspec(novtable)
-
+        #ifndef RB_GMAKE
+            #define RB_NOVTABLE __declspec(novtable)
+            #define RB_NO_DISCARD [[nodiscard]]
+        #else
+            #define RB_NOVTABLE
+            #define RB_NO_DISCARD
+        #endif
 	#ifdef _WIN64
 		// Windows x64 builds.
 		#define RB_PLAT_WIND 1

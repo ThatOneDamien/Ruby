@@ -1,6 +1,9 @@
 bin
 TestGame
 
+# Temporary!!! Hides the Ruby Scene files
+**/*.rusc
+
 *.ini
 **/Makefile
 .vscode

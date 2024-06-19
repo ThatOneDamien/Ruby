@@ -8,38 +8,45 @@ project "RubyEditor"
 
 	files
 	{
-		"src/**.h",
-		"src/**.cpp"
+	    "src/**.h",
+	    "src/**.cpp"
 	}
 
 	includedirs
 	{
-		"%{wks.location}/third_party",
-		"%{wks.location}/Ruby/src",
-		"%{wks.location}/Ruby/Dependencies/glm",
-        "%{wks.location}/Ruby/Dependencies/entt/include"
+            "%{wks.location}/third_party",
+	    "%{wks.location}/Ruby/src",
+	    "%{wks.location}/Ruby/Dependencies/glm",
+            "%{wks.location}/Ruby/Dependencies/entt/include"
 	}
+        links
+        { 
+            "Ruby", 
+            "glad", 
+            "GLFW", 
+            "ImGui", 
+            "msdf-atlas-gen", 
+            "msdfgen", 
+            "FreeType", 
+            "SoloudStatic",
+        }
 
 	filter "system:windows"
-		kind "WindowedApp"
-		systemversion "latest"
-        entrypoint "WinMainCRTStartup"
-		links "Ruby"
+	    kind "WindowedApp"
+	    systemversion "latest"
+            entrypoint "WinMainCRTStartup"
+            links
+            {   
+                "Dwmapi",
+                "winmm"
+            }
+            if _ACTION == "gmake2" then
+                defines "RB_GMAKE"
+            end
 
 	filter "system:linux"
 	    kind "ConsoleApp"
-		links 
-		{
-			"Ruby", 
-			"glad", 
-			"GLFW", 
-			"ImGui", 
-			"msdf-atlas-gen", 
-			"msdfgen", 
-			"FreeType", 
-			"SoloudStatic"
-		}
-		disablewarnings "format-security"
+	    disablewarnings "format-security"
 	    
 
 	filter "configurations:Debug"

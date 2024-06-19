@@ -16,11 +16,20 @@ public:
 	{
 	}
 
-	virtual void onStart() override 
+	virtual void onStart() override
 	{
 		Ruby::Renderer::useCamera(cam);
 		aspectRatio = Ruby::App::getInstance().getWindow().getAspectRatio();
-		Ruby::Renderer::API::setClearColor({0.2f, 0.2f, 0.2f});
+		Ruby::Renderer::API::setClearColor({ 0.2f, 0.2f, 0.2f });
+		scene.createEntity();
+		Ruby::Entity e = scene.createEntity();
+		scene.createEntity();
+		Ruby::Components::Transform& t = e.addComponent<Ruby::Components::Transform>();
+		t.Position = { 1.0f, 1.2f };
+		t.Rotation = 1.0f;
+		t.Scale = {1.0f, 0.3f};
+
+		scene.serializeScene("bruh.rusc");
 	}
 
 	virtual void update(double deltaMillis) override 
@@ -56,6 +65,7 @@ public:
 
 
 private:
+	Ruby::Scene scene{"Unnamed scene"};
 	Ruby::Camera cam;
 	float aspectRatio = 0.0f;
 	float scale = 1.0f;

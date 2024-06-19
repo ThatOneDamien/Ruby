@@ -4,14 +4,6 @@
 #include <iostream>
 #include "Ruby/Main/Platform.h"
 
-#ifdef RB_PLAT_WIND
-#define RB_NOVTABLE __declspec(novtable)
-#define RB_NO_DISCARD [[nodiscard]]
-#else
-#define RB_NOVTABLE
-#define RB_NO_DISCARD
-#endif
-
 #include <type_traits>
 #include <iostream>
 
