@@ -23,3 +23,7 @@ group "Core"
     include "RubyEditor"
     include "Sandbox"
 group ""
+
+group "User"
+    include "UserProjs"
+group ""

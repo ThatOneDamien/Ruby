@@ -9,9 +9,9 @@
 
 namespace Ruby 
 {
-	SharedPtr<Framebuffer> Framebuffer::create(int width, int height)
-	{
-		return createShared<FRAMEBUFFER>(width, height);
-	}
+    SharedPtr<Framebuffer> Framebuffer::create(int width, int height)
+    {
+        return createShared<FRAMEBUFFER>(width, height);
+    }
 
 }

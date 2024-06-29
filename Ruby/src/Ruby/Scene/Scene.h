@@ -5,29 +5,37 @@
 
 namespace Ruby 
 {
-	class Entity;
+    class Entity;
 
-	class Scene
-	{
-	public:
-		Scene(const std::string& name);
-		//TODO: Make constructor for scene with filename
-		//Scene(const std::string& filepath);
-		~Scene();
+    class Scene
+    {
+    public:
+        Scene();
+        Scene(const std::string& filepath);
+        ~Scene();
 
-		// Call this function within Renderer::resetBatch() and Renderer::renderBatched()
-		void updateScene(double deltaMillis);
+        // Call this function within Renderer::resetBatch() and Renderer::renderBatched()
+        void updateScene(double deltaMillis);
 
-		Entity createEntity();
-		bool serializeScene();
-		bool serializeScene(const std::string& saveLocation);
+        Entity createEntity();
 
-	private:
-		friend class Entity;
+        bool serialize();
+        bool serialize(const std::string& saveLocation);
+        
+        // Deserializes the specified file from disk and places its contents into
+        // the calling Scene object. If the Scene object had previous data, it is
+        // cleared and replaced with the new Scene data from the file. Returns true
+        // if successful, false otherwise.
+        bool deserializeFile(const std::string& filepath);
 
-		std::string m_Name;
-		entt::registry m_Registry;
-		Entity* m_MainCamera{nullptr};
-	};
+    private:
+        static constexpr const char* DEFAULT_SCENE_NAME = "Untitled Scene";
+        friend class Entity;
+
+        std::string m_Filepath;
+        std::string m_Name;
+        entt::registry m_Registry;
+        Entity* m_MainCamera{nullptr};
+    };
 
 }

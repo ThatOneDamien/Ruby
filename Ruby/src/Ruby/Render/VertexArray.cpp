@@ -10,9 +10,9 @@
 
 namespace Ruby 
 {
-	SharedPtr<VertexArray> VertexArray::createVAO()
-	{
-		return createShared<VARRAY>();
-	}
+    SharedPtr<VertexArray> VertexArray::createVAO()
+    {
+        return createShared<VARRAY>();
+    }
 
 }

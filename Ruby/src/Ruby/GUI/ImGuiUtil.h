@@ -6,12 +6,12 @@
 namespace Ruby 
 {
 
-	namespace ImGuiUtil 
-	{
-		void init();
-		void deInit();
-		void begin();
-		void end();
-	}
+    namespace ImGuiUtil 
+    {
+        void init();
+        void deInit();
+        void begin();
+        void end();
+    }
 
 }

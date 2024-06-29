@@ -7,16 +7,16 @@
 
 namespace Ruby
 {
-	namespace Input
-	{
-		inline bool isKeyDown(KeyCode code)
-		{
-			return App::getInstance().getWindow().isKeyDown(code);
-		}
+    namespace Input
+    {
+        inline bool isKeyDown(KeyCode code)
+        {
+            return App::getInstance().getWindow().isKeyDown(code);
+        }
 
-		inline bool isMouseButtonDown(MouseCode code)
-		{
-			return App::getInstance().getWindow().isMouseButtonDown(code);
-		}
-	}
+        inline bool isMouseButtonDown(MouseCode code)
+        {
+            return App::getInstance().getWindow().isMouseButtonDown(code);
+        }
+    }
 }

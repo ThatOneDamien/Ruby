@@ -1,24 +1,24 @@
 project "Sandbox"
-	language "C++"
-	cppdialect "C++17"
-	staticruntime "on"
+    language "C++"
+    cppdialect "C++17"
+    staticruntime "on"
 
-	targetdir ("%{wks.location}/bin/" .. outdir .. "/%{prj.name}")
-	objdir ("%{wks.location}/bin/int/" .. outdir .. "/%{prj.name}")
+    targetdir ("%{wks.location}/bin/" .. outdir .. "/%{prj.name}")
+    objdir ("%{wks.location}/bin/int/" .. outdir .. "/%{prj.name}")
 
-	files
-	{
-	    "src/**.h",
-	    "src/**.cpp"
-	}
+    files
+    {
+        "src/**.h",
+        "src/**.cpp"
+    }
 
-	includedirs
-	{
+    includedirs
+    {
             "%{wks.location}/third_party",
-	    "%{wks.location}/Ruby/src",
-	    "%{wks.location}/Ruby/Dependencies/glm",
+        "%{wks.location}/Ruby/src",
+        "%{wks.location}/Ruby/Dependencies/glm",
             "%{wks.location}/Ruby/Dependencies/entt/include"
-	}
+    }
         links
         { 
             "Ruby", 
@@ -31,9 +31,9 @@ project "Sandbox"
             "SoloudStatic",
         }
 
-	filter "system:windows"
-	    kind "WindowedApp"
-	    systemversion "latest"
+    filter "system:windows"
+        kind "WindowedApp"
+        systemversion "latest"
             entrypoint "WinMainCRTStartup"
             links
             {   
@@ -44,17 +44,17 @@ project "Sandbox"
                 defines "RB_GMAKE"
             end
 
-	filter "system:linux"
-	    kind "ConsoleApp"
-	    disablewarnings "format-security"
-	    
+    filter "system:linux"
+        kind "ConsoleApp"
+        disablewarnings "format-security"
+        
 
-	filter "configurations:Debug"
-		defines "RB_DEBUG"
-		runtime "Debug"
-		symbols "on"
+    filter "configurations:Debug"
+        defines "RB_DEBUG"
+        runtime "Debug"
+        symbols "on"
 
-	filter "configurations:Release"
-		defines "RB_RELEASE"
-		runtime "Release"
-		optimize "on"
+    filter "configurations:Release"
+        defines "RB_RELEASE"
+        runtime "Release"
+        optimize "on"

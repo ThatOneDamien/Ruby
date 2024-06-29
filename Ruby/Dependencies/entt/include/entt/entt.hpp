@@ -1,3 +1,6 @@
+#pragma warning( push )
+#pragma warning( disable : 26827 26451 )
+
 // IWYU pragma: begin_exports
 // #include "config/config.h"
 #ifndef ENTT_CONFIG_CONFIG_H
@@ -90496,3 +90499,4 @@ namespace entt {
 #endif
 
 // IWYU pragma: end_exports
+#pragma warning(pop)

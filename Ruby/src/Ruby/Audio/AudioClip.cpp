@@ -5,26 +5,26 @@
 
 namespace Ruby 
 {
-	namespace Audio
-	{
-		bool isInitialized();
-	}
+    namespace Audio
+    {
+        bool isInitialized();
+    }
 
-	AudioClip::AudioClip(const char* filename, const std::string& name)
-		: m_Name(name)
-	{
-		m_Sample = new SoLoud::Wav();
-		m_Sample->load(filename);
-	}
+    AudioClip::AudioClip(const char* filename, const std::string& name)
+        : m_Name(name)
+    {
+        m_Sample = new SoLoud::Wav();
+        m_Sample->load(filename);
+    }
 
-	AudioClip::AudioClip(const char* filename)
-		: AudioClip::AudioClip(filename, filename)
-	{}
+    AudioClip::AudioClip(const char* filename)
+        : AudioClip::AudioClip(filename, filename)
+    {}
 
-	AudioClip::~AudioClip() 
-	{
-		if (Audio::isInitialized())
-			delete m_Sample;
-	}
+    AudioClip::~AudioClip() 
+    {
+        if (Audio::isInitialized())
+            delete m_Sample;
+    }
 
 }

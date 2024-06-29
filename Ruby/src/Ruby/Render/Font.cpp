@@ -10,7 +10,7 @@
 
 namespace Ruby 
 {
-	static msdfgen::FreetypeHandle* s_Lib{ nullptr };
+    static msdfgen::FreetypeHandle* s_Lib{ nullptr };
 
     struct FontData
     {
@@ -19,9 +19,9 @@ namespace Ruby
     };
 
 
-	Font::Font(const std::string& filepath)
-	{
-		RB_ASSERT_RET_VOID(s_Lib, "FT Library not initialized, maybe you forgot to call Ruby::Font::init()?");
+    Font::Font(const std::string& filepath)
+    {
+        RB_ASSERT_RET_VOID(s_Lib, "FT Library not initialized, maybe you forgot to call Ruby::Font::init()?");
         
         // Load font file
         msdfgen::FontHandle* font = msdfgen::loadFont(s_Lib, filepath.c_str());
@@ -74,7 +74,7 @@ namespace Ruby
         
         // Cleanup
         msdfgen::destroyFont(font);
-	}
+    }
 
     Font::~Font()
     {
@@ -92,5 +92,5 @@ namespace Ruby
         msdfgen::deinitializeFreetype(s_Lib);
     }
 
-	
+    
 }
