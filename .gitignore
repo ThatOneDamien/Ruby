@@ -1,5 +1,7 @@
 bin
 UserProjs
+compile_commands.json
+.cache
 
 # Temporary!!! Hides the Ruby Scene files
 **/*.rusc

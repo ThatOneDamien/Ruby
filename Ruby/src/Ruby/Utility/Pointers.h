@@ -204,13 +204,13 @@ namespace Ruby
     }
 
     template <typename T, typename = void>
-    bool operator==(const SharedPtr<T>& left, nullptr_t) noexcept
+    bool operator==(const SharedPtr<T>& left, std::nullptr_t) noexcept
     {
         return !(bool)left;
     }
 
     template <typename T, typename = void>
-    bool operator==(nullptr_t, const SharedPtr<T>& right) noexcept
+    bool operator==(std::nullptr_t, const SharedPtr<T>& right) noexcept
     {
         return !(bool)right;
     }
@@ -222,13 +222,13 @@ namespace Ruby
     }
 
     template <typename T, typename = void>
-    bool operator!=(const SharedPtr<T>& left, nullptr_t) noexcept
+    bool operator!=(const SharedPtr<T>& left, std::nullptr_t) noexcept
     {
         return (bool)left;
     }
 
     template <typename T, typename = void>
-    bool operator!=(nullptr_t, const SharedPtr<T>& right) noexcept
+    bool operator!=(std::nullptr_t, const SharedPtr<T>& right) noexcept
     {
         return (bool)right;
     }
@@ -244,7 +244,7 @@ namespace Ruby
     {
     public:
         constexpr UniPtr() noexcept = default;
-        constexpr UniPtr(nullptr_t) noexcept {}
+        constexpr UniPtr(std::nullptr_t) noexcept {}
 
         explicit UniPtr(T* ptr) noexcept
         {
@@ -376,13 +376,13 @@ namespace Ruby
     }
 
     template <typename T, typename T2>
-    bool operator==(const UniPtr<T>& left, nullptr_t) noexcept
+    bool operator==(const UniPtr<T>& left, std::nullptr_t) noexcept
     {
         return !left.get();
     }
 
     template <typename T, typename T2>
-    bool operator==(nullptr_t, const UniPtr<T>& right) noexcept
+    bool operator==(std::nullptr_t, const UniPtr<T>& right) noexcept
     {
         return !right.get();
     }
@@ -394,13 +394,13 @@ namespace Ruby
     }
 
     template <typename T, typename T2>
-    bool operator!=(const UniPtr<T>& left, nullptr_t) noexcept
+    bool operator!=(const UniPtr<T>& left, std::nullptr_t) noexcept
     {
         return left.get();
     }
 
     template <typename T, typename T2>
-    bool operator!=(nullptr_t, const UniPtr<T>& right) noexcept
+    bool operator!=(std::nullptr_t, const UniPtr<T>& right) noexcept
     {
         return right.get();
     }

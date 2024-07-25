@@ -29,7 +29,7 @@ public:
         Ruby::Components::Sprite& s = e.addComponent<Ruby::Components::Sprite>();
         s.Color = { 0.3f, 0.3f, 0.4f, 1.0f };
 
-        scene.serializeScene("bruh.rusc");
+        scene.serialize("bruh.rusc");
     }
 
     virtual void update(double deltaMillis) override 

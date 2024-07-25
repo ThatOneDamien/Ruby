@@ -1,13 +1,20 @@
 #pragma once
 
+#include <Ruby.h>
 
 namespace Ruby 
 {
     struct EditorEntity
     {
-        Entity entity;
-        std::string name = "Unnamed Entity";
-        size_t parentIndex = ULLONG_MAX;
+        Entity EntityID;
+        std::string Name = "Unnamed Entity";
+        size_t ParentIndex = ULLONG_MAX;
+    };
+
+    struct FloatControl
+    {
+        char Label[4];
+        glm::vec4 Color;
     };
 
     class EditorApp : public App
@@ -26,9 +33,12 @@ namespace Ruby
 
     private:
         void renderInspector();
+        void drawStyledControl(const std::string& label, float* values, 
+                               const FloatControl* styles, size_t count, 
+                               float resetValue, float dragSpeed,
+                               float minValue, float maxValue, float columnWidth);
     private:
         Camera m_Cam{ 1.0f,1.0f };
-        SharedPtr<Texture> m_Tex;
         SharedPtr<Framebuffer> m_FBO;
         SharedPtr<Scene> m_LoadedScene;
         std::vector<EditorEntity> m_EntityList;

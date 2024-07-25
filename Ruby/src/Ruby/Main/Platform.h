@@ -21,6 +21,8 @@
     #include <signal.h>
     #define RB_DEBUG_BREAK() raise(SIGTRAP)
 
+    #define RB_NOVTABLE
+    #define RB_NO_DISCARD
 #else
     // Other builds. TODO handle more systems specifically.
     #error "Platform not currently supported."

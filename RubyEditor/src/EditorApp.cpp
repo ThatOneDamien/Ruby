@@ -1,13 +1,17 @@
-#include <Ruby.h>
-#include <Ruby/Main/MainFunctionEntry.h>
 #include "EditorApp.h"
+#include "Ruby/Scene/Components.h"
+#include <Ruby/Main/MainFunctionEntry.h>
 #include <ImGui/imgui.h>
+#include <ImGui/imgui_internal.h>
+#include <ImGui/misc/cpp/imgui_stdlib.h>
 
 namespace Ruby 
 {
+    static bool s_ShowDebugWindow = false;
+
+
     void EditorApp::onStart()
     {
-        m_Tex = Texture::createTexture("res/images/poop.jpg");
         m_LoadedScene = createShared<Scene>();
 
         auto& wind = App::getInstance().getWindow();
@@ -19,8 +23,9 @@ namespace Ruby
         m_Cam.setProjection((float)width / (float)height);
         ImGuiIO& io = ImGui::GetIO();
         io.Fonts->AddFontFromFileTTF("res/fonts/Nunito-Regular.ttf", 20);
+        io.ConfigFlags &= ~ImGuiConfigFlags_ViewportsEnable;
+
         Renderer::useCamera(m_Cam);
-        
     }
 
     void EditorApp::update(double deltaMillis)
@@ -45,7 +50,6 @@ namespace Ruby
 
     void EditorApp::ImGuiRender(double deltaMillis)
     {
-        //ImGui::ShowDemoWindow();
         static bool dockspaceOpen = true;
         static ImGuiDockNodeFlags dockspaceFlags = ImGuiDockNodeFlags_None;
 
@@ -83,6 +87,9 @@ namespace Ruby
             ImGui::PopStyleVar();
         }
 
+        if(s_ShowDebugWindow)
+            ImGui::ShowDemoWindow();
+
 
         if (ImGui::BeginMenuBar())
         {
@@ -112,13 +119,8 @@ namespace Ruby
         {
             for (size_t i = 0; i < m_EntityList.size(); ++i)
             {
-                if (ImGui::Selectable(m_EntityList[i].name.c_str(), m_SelectedEntity == i))
+                if (ImGui::Selectable(m_EntityList[i].Name.c_str(), m_SelectedEntity == i))
                     m_SelectedEntity = i;
-                // FOR WHEN I IMPLEMENT THE FULL ENTITY TREE
-                /*if (ImGui::TreeNode(e.name.c_str()))
-                {
-                    ImGui::TreePop();
-                }*/
             }
             if (ImGui::Button("Add Entity"))
             {
@@ -142,8 +144,8 @@ namespace Ruby
             ImVec2 viewportMaxRegion = ImGui::GetWindowContentRegionMax();
 
             ImGui::Image((ImTextureID)(uint64_t)m_FBO->getTextureID(),
-                ImVec2{ viewportMaxRegion.x, viewportMaxRegion.x * m_InvAspectRatio },
-                { 0, 1 }, { 1, 0 });
+                    ImVec2{ viewportMaxRegion.x, viewportMaxRegion.x * m_InvAspectRatio },
+                    { 0, 1 }, { 1, 0 });
         }
         ImGui::End();
         ImGui::PopStyleVar();
@@ -155,28 +157,37 @@ namespace Ruby
     {
         switch (e.getType())
         {
-        case EventType::WindowResized:
-        {
-            WindowResizeEvent& wrEvent = static_cast<WindowResizeEvent&>(e);
-            uint32_t width = wrEvent.getWidth(), height = wrEvent.getHeight();
-            if (width && height)
-            {
-                m_FBO->regenerate(width, height);
-                m_InvAspectRatio = (float)height / (float)width;
-                m_Cam.setProjection((float)width / (float)height);
-            }
-            break;
-        }
-        case EventType::MouseScroll:
-        {
-            if (m_SceneSelected)
-            {
-                MouseScrollEvent& msEvent = static_cast<MouseScrollEvent&>(e);
-                m_Scale -= 0.05f * m_Scale * msEvent.getYOffset();
-                m_Cam.setProjection(1 / m_InvAspectRatio, m_Scale);
-            }
-            break;
-        }
+            case EventType::WindowResized:
+                {
+                    WindowResizeEvent& wrEvent = static_cast<WindowResizeEvent&>(e);
+                    uint32_t width = wrEvent.getWidth(), height = wrEvent.getHeight();
+                    if (width && height)
+                    {
+                        m_FBO->regenerate(width, height);
+                        m_InvAspectRatio = (float)height / (float)width;
+                        m_Cam.setProjection((float)width / (float)height);
+                    }
+                    break;
+                }
+            case EventType::MouseScroll:
+                {
+                    if (m_SceneSelected)
+                    {
+                        MouseScrollEvent& msEvent = static_cast<MouseScrollEvent&>(e);
+                        m_Scale -= 0.05f * m_Scale * msEvent.getYOffset();
+                        m_Cam.setProjection(1 / m_InvAspectRatio, m_Scale);
+                    }
+                    break;
+                }
+            case EventType::KeyPressed:
+                {
+                    KeyPressedEvent& kpEvent = static_cast<KeyPressedEvent&>(e);
+                    if(kpEvent.getKeyCode() == KeyCode::D && Input::isKeyDown(KeyCode::LeftControl))
+                        s_ShowDebugWindow = !s_ShowDebugWindow;
+                    break;
+                }
+            default: 
+                break;
         }
     }
 
@@ -190,36 +201,116 @@ namespace Ruby
         if (m_EntityList.empty() || m_SelectedEntity >= m_EntityList.size())
             return;
 
-        Entity& e = m_EntityList[m_SelectedEntity].entity;
+
+        Entity& e = m_EntityList[m_SelectedEntity].EntityID;
+
+
+        if(ImGui::BeginCombo("Add Component", "", ImGuiComboFlags_NoPreview))
+        {
+            if(ImGui::MenuItem("Transform") && 
+                    !e.hasComponents<Components::Transform>())
+            {
+                e.addComponent<Components::Transform>(m_Cam.getPosition(), 0.0f, glm::vec2{1.0f, 1.0f});
+            }
+            else if(ImGui::MenuItem("Sprite") &&
+                    !e.hasComponents<Components::Sprite>())
+            {
+                e.addComponent<Components::Sprite>();
+            }
+            ImGui::EndCombo();
+        }
+
+
         float width = ImGui::CalcItemWidth();
         if (e.hasComponents<Components::Transform>())
         {
             Components::Transform& transform = e.getComponent<Components::Transform>();
             if (ImGui::TreeNode("Transform"))
             {
-                ImGui::BeginTable("a", 4);
-                ImGui::EndTable();
-                ImGui::Text("Position");
-                ImGui::TextColored({0.0f, 1.0f, 1.0f, 1.0f}, "X");
-                ImGui::SameLine();
-                ImGui::SetNextItemWidth(width * 0.5f);
-                ImGui::InputFloat("##X", &transform.Position.x);
-                ImGui::SameLine();
-                ImGui::Text("Y");
-                ImGui::SameLine();
-                ImGui::SetNextItemWidth(width * 0.5f);
-                ImGui::InputFloat("##Y", &transform.Position.y);
-                ImGui::Text("Rotation");
-                ImGui::Text("X");
-                ImGui::SameLine();
-                ImGui::SetNextItemWidth(width);
-                ImGui::InputFloat("##Rotation", &transform.Position.x);
+                FloatControl fc[2] = 
+                {
+                    {"##X", {0.8f, 0.15f, 0.2f, 1.0f}}, 
+                    {"##Y", {0.2f, 0.8f, 0.15f, 1.0f}} 
+                };
+                drawStyledControl("Position", &transform.Position.x, fc, 2, 0.0f, 0.02f, 0.0f, 0.0f, 100.0f);
+                drawStyledControl("Rotation", &transform.Rotation, fc, 1, 0.0f, 0.02f, 0.0f, 6.28318f, 100.0f);
+                drawStyledControl("Scale", &transform.Scale.x, fc, 2, 1.0f, 0.02f, 0.0f, FLT_MAX / INT_MAX, 100.0f);
+                
                 ImGui::TreePop();
             }
         }
 
+        if (e.hasComponents<Components::Sprite>())
+        {
+            Components::Sprite& sprite = e.getComponent<Components::Sprite>();
+            if (ImGui::TreeNode("Sprite"))
+            {
+                // drawStyledControl("Rotation", &transform.Rotation, 1);
+                FloatControl fc[4] = 
+                {
+                    {"##R", {0.8f, 0.15f, 0.2f, 1.0f}}, 
+                    {"##G", {0.2f, 0.8f, 0.15f, 1.0f}}, 
+                    {"##B", {0.15f, 0.2f, 0.8f, 1.0f}}, 
+                    {"##A", {0.8f, 0.8f, 0.8f, 1.0f}}
+                };
+                drawStyledControl("Color", &sprite.Color.r, fc, 4, 1.0f, 0.01f, 0.0f, 1.0f, 50.0f);
+                
+                ImGui::TreePop();
+            }
+        }
     }
     
+    void EditorApp::drawStyledControl(const std::string& label, float* values, 
+                                      const FloatControl* styles, size_t count, 
+                                      float resetValue, float dragSpeed,
+                                      float minValue, float maxValue, float columnWidth)
+    {
+        if(count > 4 || count == 0)
+            return;
+        ImGuiIO& io = ImGui::GetIO();
+
+        ImGui::PushID(label.c_str());
+        ImGui::Columns(2);
+        ImGui::SetColumnWidth(0, columnWidth);
+        ImGui::Text(label.c_str());
+        ImGui::NextColumn();
+        
+        ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2{ 0, 10.0f });
+        
+        if(count != 1)
+        {
+            ImGui::PushMultiItemsWidths(count, ImGui::CalcItemWidth());
+
+            float lineHeight = GImGui->Font->FontSize + GImGui->Style.FramePadding.y * 2.0f;
+            ImVec2 buttonSize = { lineHeight + 3.0f, lineHeight };
+            
+            for(size_t i = 0; i < count; ++i)
+            {
+                const glm::vec4& c = styles[i].Color;
+                ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ c.r, c.g, c.b, c.a });
+                ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ c.r + 0.1f, c.g + 0.1f, c.b + 0.1f, c.a });
+                ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ c.r, c.g, c.b, c.a });
+                if (ImGui::Button(&styles[i].Label[2], buttonSize))
+                    values[i] = resetValue;
+                ImGui::PopStyleColor(3);
+
+                ImGui::SameLine();
+                ImGui::DragFloat(styles[i].Label, values + i, dragSpeed, minValue, maxValue, "%.2f");
+                ImGui::PopItemWidth();
+                if(i != count - 1)
+                    ImGui::SameLine();
+
+            }
+        }
+        else
+            ImGui::DragFloat("", values, dragSpeed, minValue, maxValue, "%.2f");
+
+        ImGui::PopStyleVar();
+        ImGui::Columns(1);
+
+        ImGui::PopID();
+    }
+
 }
 
 Ruby::App* createApp(int argc, char** argv)
