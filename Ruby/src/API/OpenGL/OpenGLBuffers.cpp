@@ -41,7 +41,7 @@ namespace Ruby
 
     void OpenGLVB::unbind() const
     {
-        glBindBuffer(GL_ARRAY_BUFFER, NULL);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
     }
 
     void OpenGLVB::setVertexData(const void* vertices, uint32_t size, uint32_t offset)

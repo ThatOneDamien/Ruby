@@ -23,7 +23,7 @@ public:
         Ruby::Renderer::API::setClearColor({ 0.2f, 0.2f, 0.2f });
         Ruby::Entity e = scene.createEntity();
         Ruby::Components::Transform& t = e.addComponent<Ruby::Components::Transform>();
-        t.Position = { 1.0f, 1.2f };
+        t.Position = { 1.0f, 1.2f, 0.0f };
         t.Rotation = 1.0f;
         t.Scale = {1.0f, 0.3f};
         Ruby::Components::Sprite& s = e.addComponent<Ruby::Components::Sprite>();
@@ -75,7 +75,7 @@ private:
         glm::vec2 pos = cam.getPosition();
         pos.x += 0.03f * scale * (Ruby::Input::isKeyDown(Ruby::KeyCode::D) - Ruby::Input::isKeyDown(Ruby::KeyCode::A));
         pos.y += 0.03f * scale * (Ruby::Input::isKeyDown(Ruby::KeyCode::W) - Ruby::Input::isKeyDown(Ruby::KeyCode::S));
-        cam.setPosition(pos);
+        cam.setPosition({pos.x, pos.y, 0.0f});
     }
 };
 

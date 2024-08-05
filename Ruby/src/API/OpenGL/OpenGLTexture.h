@@ -8,7 +8,7 @@ namespace Ruby
     class OpenGLTexture : public Texture
     {
     public:
-        OpenGLTexture(const std::string& filepath);
+        OpenGLTexture(const std::string& filepath, const TextureSpec& spec);
         OpenGLTexture(const TextureSpec& spec);
         OpenGLTexture(const void* data, const TextureSpec& spec);
     

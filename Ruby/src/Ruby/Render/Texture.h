@@ -2,6 +2,8 @@
 
 #include <glm/glm.hpp>
 
+#include "Ruby/Main/Core.h"
+
 namespace Ruby 
 {
     // The way the numbers are set up are for the purpose of what follows:
@@ -40,22 +42,14 @@ namespace Ruby
 
     struct TextureSpec
     {
-        uint32_t Width;
-        uint32_t Height;
-        PixelFormat Format;
-        TextureFilter MinFilter; // Minimizing function for when the texture needs to be rendered at a smaller size.
-        TextureFilter MagFilter; // Magnifying function for when the texture needs to be rendered at a larger size.
-        TextureWrap WrapS;
-        TextureWrap WrapT;
-        bool MipMapping;
-        
-        TextureSpec()
-            : Width(1), Height(1), Format(PixelFormat::RGBA8),
-            MinFilter(TextureFilter::Linear), MagFilter(TextureFilter::Linear),
-            WrapS(TextureWrap::ClampToEdge),
-            WrapT(TextureWrap::ClampToEdge),
-            MipMapping(false)
-        {}
+        uint32_t Width = 1;
+        uint32_t Height = 1;
+        PixelFormat Format = PixelFormat::RGBA8;
+        TextureFilter MinFilter = TextureFilter::Linear; // Minimizing function for when the texture needs to be rendered at a smaller size.
+        TextureFilter MagFilter = TextureFilter::Linear; // Magnifying function for when the texture needs to be rendered at a larger size.
+        TextureWrap WrapS = TextureWrap::ClampToEdge;
+        TextureWrap WrapT = TextureWrap::ClampToEdge;
+        bool MipMapping = false;
     };
 
     class RB_NOVTABLE Texture
@@ -71,7 +65,7 @@ namespace Ruby
         virtual inline glm::vec2 getSize() const = 0;
         virtual inline const std::string& getFilepath() const = 0;
 
-        static SharedPtr<Texture> createTexture(const std::string& filepath);
+        static SharedPtr<Texture> createTexture(const std::string& filepath, const TextureSpec& spec = {});
         static SharedPtr<Texture> createTexture(const TextureSpec& spec);
         static SharedPtr<Texture> createTexture(const void* data, const TextureSpec& spec);
     };

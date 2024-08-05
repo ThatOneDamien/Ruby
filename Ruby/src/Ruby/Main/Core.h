@@ -10,6 +10,19 @@ typedef uint32_t RendererID;
 
 #include "Ruby/Main/Logging.h"
 
+#define RB_CLIENT_TRACE(msg, ...)                          ::Ruby::Logger::getClientLogger()->trace(msg, ##__VA_ARGS__);
+#define RB_CLIENT_INFO(msg, ...)                           ::Ruby::Logger::getClientLogger()->info(msg, ##__VA_ARGS__);
+#define RB_CLIENT_WARN(msg, ...)                           ::Ruby::Logger::getClientLogger()->warn(msg, ##__VA_ARGS__);
+#define RB_CLIENT_ERROR(msg, ...)                          ::Ruby::Logger::getClientLogger()->error(msg, ##__VA_ARGS__);
+#define RB_CLIENT_CRITICAL(msg, ...)                       ::Ruby::Logger::getClientLogger()->critical(msg, ##__VA_ARGS__);
+#define RB_ENGINE_TRACE(msg, ...)                          ::Ruby::Logger::getEngineLogger()->trace(msg, ##__VA_ARGS__)
+#define RB_ENGINE_INFO(msg, ...)                           ::Ruby::Logger::getEngineLogger()->info(msg, ##__VA_ARGS__)
+#define RB_ENGINE_WARN(msg, ...)                           ::Ruby::Logger::getEngineLogger()->warn(msg, ##__VA_ARGS__)
+#define RB_ENGINE_ERROR(msg, ...)                          ::Ruby::Logger::getEngineLogger()->error(msg, ##__VA_ARGS__)
+#define RB_ENGINE_CRITICAL(msg, ...)                       ::Ruby::Logger::getEngineLogger()->critical(msg, ##__VA_ARGS__)
+
+
+
 // TODO: Add comments
 #ifdef RB_EXTERNAL_DEF
 #define RB_TRACE(msg, ...)                          ::Ruby::Logger::getClientLogger()->trace(msg, ##__VA_ARGS__);
@@ -46,8 +59,9 @@ typedef uint32_t RendererID;
 
     // Asserts that condition x is true, if x is false it prints error msg, debug breaks, and breaks from loop.
     #define RB_ASSERT_BRK(x, msg, ...) { if(!(x)) { RB_ERROR_DEBUG(msg, ##__VA_ARGS__); break; } }
+    
 #else
-#define RB_ERROR_DEBUG(msg, ...) RB_ERROR(msg, ##__VA_ARGS__);
+    #define RB_ERROR_DEBUG(msg, ...) RB_ERROR(msg, ##__VA_ARGS__);
     #define RB_ASSERT(x, msg, ...) x
     #define RB_ASSERT_CRITICAL(x, msg, ...) x
     #define RB_ASSERT_RET(x, ret_val, msg, ...) { if(!(x)) { return ret_val; } }

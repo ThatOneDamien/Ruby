@@ -40,7 +40,7 @@ namespace Ruby
 
     }
 
-    OpenGLTexture::OpenGLTexture(const std::string& filepath)
+    OpenGLTexture::OpenGLTexture(const std::string& filepath, const TextureSpec& spec)
         : m_BoundSlot(-1), m_Filepath(filepath)
     {
         stbi_set_flip_vertically_on_load(1);
@@ -49,7 +49,7 @@ namespace Ruby
         uint8_t* data = nullptr;
 
         glCreateTextures(GL_TEXTURE_2D, 1, &m_RendererID);
-        data = stbi_load(filepath.c_str(), (int*)(&m_Width), (int*)(&m_Height), (int*)(&m_BPP), 0);
+        data = stbi_load(filepath.c_str(), (int*)(&m_Width), (int*)(&m_Height), (int*)(&m_BPP), Internal::bppFromPixelFormat(spec.Format));
 
         RB_ASSERT(data, "Unable to load texture at path %s", filepath.c_str());
 
@@ -77,10 +77,10 @@ namespace Ruby
         glPixelStorei(GL_UNPACK_ALIGNMENT, (m_BPP & 1) ? 1 : m_BPP);
         glTextureStorage2D(m_RendererID, 1, m_FormatIntern, m_Width, m_Height);
 
-        glTextureParameteri(m_RendererID, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTextureParameteri(m_RendererID, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glTextureParameteri(m_RendererID, GL_TEXTURE_MIN_FILTER, (GLint)spec.MinFilter);
+        glTextureParameteri(m_RendererID, GL_TEXTURE_MAG_FILTER, (GLint)spec.MagFilter);
+        glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_S, (GLint)spec.WrapS);
+        glTextureParameteri(m_RendererID, GL_TEXTURE_WRAP_T, (GLint)spec.WrapT);
 
         glTextureSubImage2D(m_RendererID, 0, 0, 0, m_Width, m_Height, m_FormatBase, GL_UNSIGNED_BYTE, data);
 

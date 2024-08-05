@@ -9,9 +9,9 @@
 #endif
 namespace Ruby 
 {
-    SharedPtr<Texture> Texture::createTexture(const std::string& filepath)
+    SharedPtr<Texture> Texture::createTexture(const std::string& filepath, const TextureSpec& spec)
     {
-        return createShared<TEXTURE>(filepath);
+        return createShared<TEXTURE>(filepath, spec);
     }
 
     SharedPtr<Texture> Texture::createTexture(const TextureSpec& spec)

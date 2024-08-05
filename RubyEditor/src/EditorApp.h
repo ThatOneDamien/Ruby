@@ -33,7 +33,7 @@ namespace Ruby
 
     private:
         void renderInspector();
-        void drawStyledControl(const std::string& label, float* values, 
+        void drawStyledControl(const char* label, float* values, 
                                const FloatControl* styles, size_t count, 
                                float resetValue, float dragSpeed,
                                float minValue, float maxValue, float columnWidth);

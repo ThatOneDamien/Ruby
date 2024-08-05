@@ -3,6 +3,8 @@
 #include <entt/entt.hpp>
 #include "Components.h"
 
+
+
 namespace Ruby 
 {
     class Entity;
@@ -21,7 +23,7 @@ namespace Ruby
 
         bool serialize();
         bool serialize(const std::string& saveLocation);
-        
+
         // Deserializes the specified file from disk and places its contents into
         // the calling Scene object. If the Scene object had previous data, it is
         // cleared and replaced with the new Scene data from the file. Returns true
@@ -30,6 +32,7 @@ namespace Ruby
 
     private:
         static constexpr const char* DEFAULT_SCENE_NAME = "Untitled Scene";
+        static constexpr const char* DEFAULT_SCENE_FILEPATH = "untitled_scene.rusc";
         friend class Entity;
 
         std::string m_Filepath;

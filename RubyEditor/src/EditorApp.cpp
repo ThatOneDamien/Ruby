@@ -1,5 +1,6 @@
 #include "EditorApp.h"
 #include "Ruby/Scene/Components.h"
+#include "Ruby/Utility/PlatformFileUtils.h"
 #include <Ruby/Main/MainFunctionEntry.h>
 #include <ImGui/imgui.h>
 #include <ImGui/imgui_internal.h>
@@ -9,6 +10,22 @@ namespace Ruby
 {
     static bool s_ShowDebugWindow = false;
 
+    inline void beginImGuiRow(const char* label, float columnWidth)
+    {
+        ImGui::PushID(label);
+        ImGui::Columns(2);
+        ImGui::SetColumnWidth(0, columnWidth);
+        ImGui::Text(label);
+        ImGui::NextColumn();
+        ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2{ 0, 10.0f });
+    }
+
+    inline void endImGuiRow()
+    {
+        ImGui::PopStyleVar();
+        ImGui::Columns(1);
+        ImGui::PopID();
+    }
 
     void EditorApp::onStart()
     {
@@ -35,7 +52,7 @@ namespace Ruby
             glm::vec2 pos = m_Cam.getPosition();
             pos.x += m_Scale * 0.02f * (Input::isKeyDown(KeyCode::D) - Input::isKeyDown(KeyCode::A));
             pos.y += m_Scale * 0.02f * (Input::isKeyDown(KeyCode::W) - Input::isKeyDown(KeyCode::S));
-            m_Cam.setPosition(pos);
+            m_Cam.setPosition({pos.x, pos.y, 0.0f});
         }
 
         Renderer::API::clear();
@@ -101,8 +118,17 @@ namespace Ruby
                     if (!openedFile.empty())
                     {
                         m_LoadedScene = createShared<Scene>(openedFile);
-                        openedFile = "Ruby Editor \xE2\x80\xA2 " + openedFile.substr(openedFile.find_last_of('\\') + 1);
+                        openedFile = "Ruby Editor \xE2\x80\xA2 " + openedFile.substr(openedFile.find_last_of("/\\") + 1);
                         App::getInstance().getWindow().setWindowTitle(openedFile.c_str());
+                    }
+                }
+                else if(ImGui::MenuItem("Save Scene"))
+                {
+                    std::string saveFile = FileUtils::saveFile();
+                    RB_INFO("SAVE AT: %s", saveFile.c_str());
+                    if(!saveFile.empty())
+                    {
+                        m_LoadedScene->serialize(saveFile);
                     }
                 }
 
@@ -145,7 +171,7 @@ namespace Ruby
 
             ImGui::Image((ImTextureID)(uint64_t)m_FBO->getTextureID(),
                     ImVec2{ viewportMaxRegion.x, viewportMaxRegion.x * m_InvAspectRatio },
-                    { 0, 1 }, { 1, 0 });
+                    { 0.0f, 1.0f }, { 1.0f, 0.0f });
         }
         ImGui::End();
         ImGui::PopStyleVar();
@@ -233,7 +259,9 @@ namespace Ruby
                     {"##Y", {0.2f, 0.8f, 0.15f, 1.0f}} 
                 };
                 drawStyledControl("Position", &transform.Position.x, fc, 2, 0.0f, 0.02f, 0.0f, 0.0f, 100.0f);
-                drawStyledControl("Rotation", &transform.Rotation, fc, 1, 0.0f, 0.02f, 0.0f, 6.28318f, 100.0f);
+                beginImGuiRow("Rotation", 100.0f);
+                ImGui::DragFloat("", &transform.Rotation, 0.02f, 0.0f, 6.28318f, "%.2f");
+                endImGuiRow();
                 drawStyledControl("Scale", &transform.Scale.x, fc, 2, 1.0f, 0.02f, 0.0f, FLT_MAX / INT_MAX, 100.0f);
                 
                 ImGui::TreePop();
@@ -245,70 +273,55 @@ namespace Ruby
             Components::Sprite& sprite = e.getComponent<Components::Sprite>();
             if (ImGui::TreeNode("Sprite"))
             {
-                // drawStyledControl("Rotation", &transform.Rotation, 1);
-                FloatControl fc[4] = 
+                beginImGuiRow("Color", 100.0f);
+                ImGui::ColorEdit4("", &sprite.Color.r);
+                endImGuiRow();
+                // TODO: MAKE THIS LOOK BETTER
+                if(ImGui::Button("Texture"))
                 {
-                    {"##R", {0.8f, 0.15f, 0.2f, 1.0f}}, 
-                    {"##G", {0.2f, 0.8f, 0.15f, 1.0f}}, 
-                    {"##B", {0.15f, 0.2f, 0.8f, 1.0f}}, 
-                    {"##A", {0.8f, 0.8f, 0.8f, 1.0f}}
-                };
-                drawStyledControl("Color", &sprite.Color.r, fc, 4, 1.0f, 0.01f, 0.0f, 1.0f, 50.0f);
-                
+                    std::string path = FileUtils::loadFile(".png\0.jpg\0.jpeg\0.bmp");
+                    if(!path.empty())
+                        sprite.Tex = Texture::createTexture(path);
+                }
                 ImGui::TreePop();
             }
         }
     }
     
-    void EditorApp::drawStyledControl(const std::string& label, float* values, 
+    void EditorApp::drawStyledControl(const char* label, float* values, 
                                       const FloatControl* styles, size_t count, 
                                       float resetValue, float dragSpeed,
                                       float minValue, float maxValue, float columnWidth)
     {
-        if(count > 4 || count == 0)
+        if(count - 2 > 2)
             return;
-        ImGuiIO& io = ImGui::GetIO();
 
-        ImGui::PushID(label.c_str());
-        ImGui::Columns(2);
-        ImGui::SetColumnWidth(0, columnWidth);
-        ImGui::Text(label.c_str());
-        ImGui::NextColumn();
+        beginImGuiRow(label, columnWidth);
         
-        ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2{ 0, 10.0f });
+        ImGui::PushMultiItemsWidths(count, ImGui::CalcItemWidth());
+
+        float lineHeight = GImGui->Font->FontSize + GImGui->Style.FramePadding.y * 2.0f;
+        ImVec2 buttonSize = { lineHeight + 3.0f, lineHeight };
         
-        if(count != 1)
+        for(size_t i = 0; i < count; ++i)
         {
-            ImGui::PushMultiItemsWidths(count, ImGui::CalcItemWidth());
+            const glm::vec4& c = styles[i].Color;
+            ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ c.r, c.g, c.b, c.a });
+            ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ c.r + 0.1f, c.g + 0.1f, c.b + 0.1f, c.a });
+            ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ c.r, c.g, c.b, c.a });
+            if (ImGui::Button(&styles[i].Label[2], buttonSize))
+                values[i] = resetValue;
+            ImGui::PopStyleColor(3);
 
-            float lineHeight = GImGui->Font->FontSize + GImGui->Style.FramePadding.y * 2.0f;
-            ImVec2 buttonSize = { lineHeight + 3.0f, lineHeight };
-            
-            for(size_t i = 0; i < count; ++i)
-            {
-                const glm::vec4& c = styles[i].Color;
-                ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ c.r, c.g, c.b, c.a });
-                ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ c.r + 0.1f, c.g + 0.1f, c.b + 0.1f, c.a });
-                ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ c.r, c.g, c.b, c.a });
-                if (ImGui::Button(&styles[i].Label[2], buttonSize))
-                    values[i] = resetValue;
-                ImGui::PopStyleColor(3);
-
+            ImGui::SameLine();
+            ImGui::DragFloat(styles[i].Label, values + i, dragSpeed, minValue, maxValue, "%.2f");
+            ImGui::PopItemWidth();
+            if(i != count - 1)
                 ImGui::SameLine();
-                ImGui::DragFloat(styles[i].Label, values + i, dragSpeed, minValue, maxValue, "%.2f");
-                ImGui::PopItemWidth();
-                if(i != count - 1)
-                    ImGui::SameLine();
 
-            }
         }
-        else
-            ImGui::DragFloat("", values, dragSpeed, minValue, maxValue, "%.2f");
 
-        ImGui::PopStyleVar();
-        ImGui::Columns(1);
-
-        ImGui::PopID();
+        endImGuiRow();
     }
 
 }
