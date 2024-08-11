@@ -12,18 +12,23 @@ namespace Ruby
 
     inline void beginImGuiRow(const char* label, float columnWidth)
     {
+        ImGui::PushStyleVar(ImGuiStyleVar_IndentSpacing, 0.0f);
         ImGui::PushID(label);
-        ImGui::Columns(2);
-        ImGui::SetColumnWidth(0, columnWidth);
+        std::string temp = std::string(label) + "Table";
+        ImGui::BeginTable(temp.c_str(), 2, ImGuiTableFlags_BordersInnerV, {0.0f, 0.0f});
+        RB_INFO("Column Width: %f", columnWidth);
+        ImGui::TableSetupColumn("0", ImGuiTableColumnFlags_WidthFixed, columnWidth);
+        ImGui::TableNextRow();
+        ImGui::TableNextColumn();
         ImGui::Text(label);
-        ImGui::NextColumn();
+        ImGui::TableNextColumn();
         ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2{ 0, 10.0f });
     }
 
     inline void endImGuiRow()
     {
-        ImGui::PopStyleVar();
-        ImGui::Columns(1);
+        ImGui::PopStyleVar(2);
+        ImGui::EndTable();
         ImGui::PopID();
     }
 
@@ -258,11 +263,11 @@ namespace Ruby
                     {"##X", {0.8f, 0.15f, 0.2f, 1.0f}}, 
                     {"##Y", {0.2f, 0.8f, 0.15f, 1.0f}} 
                 };
-                drawStyledControl("Position", &transform.Position.x, fc, 2, 0.0f, 0.02f, 0.0f, 0.0f, 100.0f);
-                beginImGuiRow("Rotation", 100.0f);
+                drawStyledControl("Position", &transform.Position.x, fc, 2, 0.0f, 0.02f, 0.0f, 0.0f, 80.0f);
+                beginImGuiRow("Rotation", 80.0f);
                 ImGui::DragFloat("", &transform.Rotation, 0.02f, 0.0f, 6.28318f, "%.2f");
                 endImGuiRow();
-                drawStyledControl("Scale", &transform.Scale.x, fc, 2, 1.0f, 0.02f, 0.0f, FLT_MAX / INT_MAX, 100.0f);
+                drawStyledControl("Scale", &transform.Scale.x, fc, 2, 1.0f, 0.02f, 0.0f, FLT_MAX / INT_MAX, 80.0f);
                 
                 ImGui::TreePop();
             }
@@ -273,7 +278,7 @@ namespace Ruby
             Components::Sprite& sprite = e.getComponent<Components::Sprite>();
             if (ImGui::TreeNode("Sprite"))
             {
-                beginImGuiRow("Color", 100.0f);
+                beginImGuiRow("Color", 80.0f);
                 ImGui::ColorEdit4("", &sprite.Color.r);
                 endImGuiRow();
                 // TODO: MAKE THIS LOOK BETTER

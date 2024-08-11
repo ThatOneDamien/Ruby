@@ -98,7 +98,7 @@ namespace Ruby
         return true;
     }
 
-    static size_t extractFloat(const std::string& line, size_t startIndex, float* o_Float)
+    static size_t extractFloatImpl(const std::string& line, size_t startIndex, float* o_Float)
     {
         startIndex = line.find_first_of("0123456789.", startIndex);
         if(startIndex == std::string::npos)
@@ -113,6 +113,11 @@ namespace Ruby
 
     bool Scene::deserializeFile(const std::string& filepath)
     {
+
+        // Adds check for bad syntax to exit function early.
+#define ExtractFloat(line, startIndex, out) if(!(startIndex = extractFloatImpl(line, startIndex, out))) return false;
+        
+
         std::ifstream is(filepath);
         RB_ASSERT_RET(is, false, "Unable to open scene file \'%s\'.", filepath.c_str());
 
@@ -150,10 +155,9 @@ namespace Ruby
                 continue;
             if(line[0] != '\t')
             {
-                if(std::regex_match(line, std::basic_regex("Entity .*")))
-                    currentEntity = new Entity(this); 
-                else
+                if(!std::regex_match(line, std::basic_regex("Entity .*")))
                     return false;
+                currentEntity = new Entity(this); 
             }
             else if(!currentEntity)
                 return false;
@@ -187,24 +191,16 @@ namespace Ruby
                     if(std::regex_match(line, std::basic_regex("\t\tPosition:.*")))
                     {
                         size_t index = 11;
-                        index = extractFloat(line, index, &transform.Position.x);
-                        if(!index)
-                            RB_ERROR("Incorrect syntax in file \'%s\'. Please check line %lu.", filepath.c_str(), lineNum);
-                        index = extractFloat(line, index, &transform.Position.y);
-                        if(!index)
-                            RB_ERROR("Incorrect syntax in file \'%s\'. Please check line %lu.", filepath.c_str(), lineNum);
+                        ExtractFloat(line, index, &transform.Position.x);
+                        ExtractFloat(line, index, &transform.Position.y);
                     }
                     else if(std::regex_match(line, std::basic_regex("\t\tRotation:.*")))
-                        extractFloat(line, 11, &transform.Rotation);
+                        extractFloatImpl(line, 11, &transform.Rotation);
                     else if(std::regex_match(line, std::basic_regex("\t\tScale:.*")))
                     {
                         size_t index = 8;
-                        index = extractFloat(line, index, &transform.Scale.x);
-                        if(!index)
-                            RB_ERROR("Incorrect syntax in file \'%s\'. Please check line %lu.", filepath.c_str(), lineNum);
-                        index = extractFloat(line, index, &transform.Scale.y);
-                        if(!index)
-                            RB_ERROR("Incorrect syntax in file \'%s\'. Please check line %lu.", filepath.c_str(), lineNum);
+                        ExtractFloat(line, index, &transform.Scale.x);
+                        ExtractFloat(line, index, &transform.Scale.y);
                     }
                 }
                 else if(compState == Sprite)
@@ -213,18 +209,10 @@ namespace Ruby
                     if(std::regex_match(line, std::basic_regex("\t\tColor:.*")))
                     {
                         size_t index = 8;
-                        index = extractFloat(line, index, &sprite.Color.r);
-                        if(!index)
-                            RB_ERROR("Incorrect syntax in file \'%s\'. Please check line %lu.", filepath.c_str(), lineNum);
-                        index = extractFloat(line, index, &sprite.Color.g);
-                        if(!index)
-                            RB_ERROR("Incorrect syntax in file \'%s\'. Please check line %lu.", filepath.c_str(), lineNum);
-                        index = extractFloat(line, index, &sprite.Color.b);
-                        if(!index)
-                            RB_ERROR("Incorrect syntax in file \'%s\'. Please check line %lu.", filepath.c_str(), lineNum);
-                        index = extractFloat(line, index, &sprite.Color.a);
-                        if(!index)
-                            RB_ERROR("Incorrect syntax in file \'%s\'. Please check line %lu.", filepath.c_str(), lineNum);
+                        ExtractFloat(line, index, &sprite.Color.r);
+                        ExtractFloat(line, index, &sprite.Color.g);
+                        ExtractFloat(line, index, &sprite.Color.b);
+                        ExtractFloat(line, index, &sprite.Color.a);
                     }
                 }
             }
@@ -232,5 +220,6 @@ namespace Ruby
                 return false;
         }
         return true;
+#undef ExtractFloat
     }
 }
