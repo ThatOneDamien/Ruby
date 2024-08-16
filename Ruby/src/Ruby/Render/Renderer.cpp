@@ -28,7 +28,6 @@ namespace Ruby
         namespace API
         {
             void initAPI();
-            void deInitAPI();
             int getBindableTextureSlots();
         }
 
@@ -110,11 +109,14 @@ namespace Ruby
         void init()
         {
             API::initAPI();
+            clear();
 
             // Queries GPU for slot count and creates array to hold that many bound textures
             s_TextureSlotCount = API::getBindableTextureSlots();
             s_TextureSlotCount = s_TextureSlotCount > 32 ? 32 : s_TextureSlotCount;
             s_BoundTextures = new SharedPtr<Texture>[s_TextureSlotCount - 1];
+            int* bruh = new int;
+            int a = 0;
 
             // QUAD STUFF
             
@@ -194,7 +196,9 @@ namespace Ruby
             uint32_t white = 0xFFFFFFFF;
             s_BlankColorTexture->setData((const void*)&white, sizeof(uint32_t));
 
-            s_QuadShader = Shader::createShader("res/shaders/renderer/quad.glsl");
+            const std::string& RubyDir = App::getInstance().getRubyDir();
+
+            s_QuadShader = Shader::createShader(RubyDir + "/assets/shaders/quad.glsl");
 
             s_QuadShader->bind();
             s_CamUBO = UniformBuffer::createUBO(sizeof(glm::mat4), 0);
@@ -206,16 +210,36 @@ namespace Ruby
                 s_QuadShader->setUniformIntArray("u_Textures", s_TextureSlotCount, arr);
             }
 
-            s_TextShader = Shader::createShader("res/shaders/renderer/text.glsl");
+            s_TextShader = Shader::createShader(RubyDir + "/assets/shaders/text.glsl");
 
         }
 
-
-
-        void deInit()
+        void clear()
         {
             delete[] s_QuadVBData;
-            API::deInitAPI();
+            delete[] s_TextVBData;
+            delete[] s_BoundTextures;
+
+            s_QuadVAO = nullptr;
+            s_QuadVBO = nullptr;
+            s_QuadTextIBO = nullptr;
+            s_QuadShader = nullptr;
+            s_QuadVBData = nullptr;
+            s_QuadVBOffset = nullptr;
+            s_QuadCount = 0;
+            s_TextVAO = nullptr;
+            s_TextVBO = nullptr;
+            s_TextShader = nullptr;
+            s_CurrentFont = nullptr;
+            s_TextVBData = nullptr;
+            s_TextVBOffset = nullptr;
+            s_TextCount = 0;
+            s_BoundTextures = nullptr;
+            s_BlankColorTexture = nullptr;
+            s_TextureSlotCount = -1;
+            s_TextureInsert = 0;
+            s_CameraInUse = nullptr;
+            s_CamUBO = nullptr;
         }
 
         void useCamera(const Camera& cam)
@@ -226,13 +250,6 @@ namespace Ruby
         void useFont(const SharedPtr<Font>& font)
         {
             s_CurrentFont = font;
-        }
-
-        void renderSubmit(const SharedPtr<VertexArray>& vao, const SharedPtr<Shader> shader)
-        {
-            shader->bind();
-
-            API::drawCall(vao, vao->getIndexBuffer()->getCount());
         }
 
         void resetBatch()

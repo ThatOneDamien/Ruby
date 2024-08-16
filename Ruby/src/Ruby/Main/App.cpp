@@ -13,13 +13,13 @@
 namespace Ruby 
 {
     // Forward declarations
-    namespace Renderer { void init(); void deInit(); }
+    namespace Renderer { namespace API { void initAPI(); } }
     namespace Audio { void init(); void deInit(); }
 
     App* App::s_Instance = nullptr;
 
     App::App(int argc, char** argv, const AppSpec& spec)
-        : m_Argc(argc), m_Argv(argv), m_MainDir(spec.MainDirectory)
+        : m_Argc(argc), m_Argv(argv), m_MainDir(spec.MainDirectory), m_RubyDir(spec.RubyDirectory)
     {
         RB_ASSERT(!s_Instance, "An instance of App already exists in the program.");
         s_Instance = this;
@@ -42,8 +42,8 @@ namespace Ruby
         Font::init();
         Audio::init();
 
-        // Initialize the renderer, depending on API this will incorporate the windowing library.
-        Renderer::init();
+        // Init the Rendering API
+        Renderer::API::initAPI();
         ImGuiUtil::init();
     }
 
@@ -53,7 +53,6 @@ namespace Ruby
             s_Instance = nullptr;
             
         Ruby::ImGuiUtil::deInit();
-        Ruby::Renderer::deInit();
         Ruby::Audio::deInit();
         Ruby::Font::deInit();
 
@@ -78,6 +77,8 @@ namespace Ruby
                 m_Window->windowResized(width, height);
                 Renderer::API::setViewport(0, 0, (int)width, (int)height);
             }
+            default:
+                break;
         }
 
         onEvent(e);

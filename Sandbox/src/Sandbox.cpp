@@ -18,6 +18,7 @@ public:
 
     virtual void onStart() override
     {
+        Ruby::Renderer::init();
         Ruby::Renderer::useCamera(cam);
         aspectRatio = Ruby::App::getInstance().getWindow().getAspectRatio();
         Ruby::Renderer::API::setClearColor({ 0.2f, 0.2f, 0.2f });
@@ -83,6 +84,7 @@ Ruby::App* createApp(int argc, char** argv)
 {
     Ruby::AppSpec spec;
     spec.MainDirectory = "../../../../Sandbox";
+    spec.RubyDirectory = "../Ruby";
     spec.WinSpec.Name = "Sandbox App";
     spec.WinSpec.Width = 1280;
     spec.WinSpec.Height = 720;

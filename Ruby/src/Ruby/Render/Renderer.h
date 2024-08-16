@@ -27,15 +27,27 @@ namespace Ruby
             void clear();
         }
 
-        // 
-        void useCamera(const Camera& cam);
-        void useFont(const SharedPtr<Font>& font);
-        void renderSubmit(const SharedPtr<VertexArray>& vao, const SharedPtr<Shader> shader);
+        // Clears any previous data, allocates new storage, and initializes 
+        // the 2D renderer to its base state.
+        void init();
 
+        // Deallocates all data owned by the renderer, and
+        // sets it to a blank state. By calling this manually,
+        // you effectively remove batch rendering capabilities.
+        void clear();
+
+
+        // Use provided Camera's projection matrix in the GPU for
+        // projection of the batched geometry.
+        void useCamera(const Camera& cam);
+        // Use font provided for text rendering.
+        void useFont(const SharedPtr<Font>& font);
 
         // *** BATCH RENDERER ***
         
-
+        // Reset the batch renderer to a blank state with no vertex data.
+        // You should call this every frame when rendering dynamic scenes
+        // (so like, all the time).
         void resetBatch();
         // Render the current batched geometry. Optional parameter cam
         // can be used to render based on a user defined camera rather

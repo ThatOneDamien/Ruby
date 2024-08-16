@@ -6,6 +6,12 @@
 #ifdef RB_USE_OPENGL
 #include <glad/glad.h>
 
+// Forward Declaration for loading GL context into GLFW
+extern "C" {
+    typedef void (*GLFWglproc)(void);
+    GLFWglproc glfwGetProcAddress(const char* procname);
+}
+
 namespace Ruby 
 {
     namespace Renderer
@@ -44,21 +50,22 @@ namespace Ruby
 
             // Should only be called once prior to Renderer Initialization
             // Called in order to avoid including GLFW in this file.
-            void setGladLoadProc(GLADloadproc loadProc)
-            {
-                if (!s_GladInitialized)
-                {
-                    s_LoadProc = loadProc;
-                }
-            }
+            // void setGladLoadProc(GLADloadproc loadProc)
+            // {
+            //     if (!s_GladInitialized)
+            //     {
+            //         s_LoadProc = loadProc;
+            //     }
+            // }
 
 
 
             void initAPI()
             {
-                RB_ASSERT(!s_GladInitialized, "Attemped to initialize glad more than once.");
-                RB_ASSERT(s_LoadProc, "Load proc is nullptr, maybe you forgot to call setGladLoadProc()?");
-                int success = gladLoadGLLoader(s_LoadProc);
+                if(s_GladInitialized)
+                    return;
+                
+                int success = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
                 RB_ASSERT_CRITICAL(success, "Glad failed to initialize!");
                 RB_ASSERT((GLVersion.major == 4 && GLVersion.minor > 5) || GLVersion.major > 4, "OpenGL version 4.6 or higher is required to run Ruby.");
 
@@ -74,11 +81,6 @@ namespace Ruby
                 glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
                 //glEnable(GL_DEPTH_TEST);
                 //glDepthFunc(GL_LESS);
-            }
-
-            void deInitAPI()
-            {
-                // Empty implementation for OpenGL because it doesn't require shutdown.
             }
 
             void drawCall(const SharedPtr<VertexArray>& vao, uint32_t indexCount)

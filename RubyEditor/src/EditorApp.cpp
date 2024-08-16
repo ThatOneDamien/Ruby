@@ -34,6 +34,7 @@ namespace Ruby
 
     void EditorApp::onStart()
     {
+        Renderer::init();
         m_LoadedScene = createShared<Scene>();
 
         auto& wind = App::getInstance().getWindow();
@@ -335,6 +336,7 @@ Ruby::App* createApp(int argc, char** argv)
 {
     Ruby::AppSpec spec;
     spec.MainDirectory = "../../../../RubyEditor";
+    spec.RubyDirectory = "../Ruby";
     spec.WinSpec.Name = "Ruby Editor";
     spec.WinSpec.Width = 1280;
     spec.WinSpec.Height = 720;

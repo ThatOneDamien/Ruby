@@ -16,13 +16,6 @@
 #include <GLFW/glfw3native.h>
 #endif
 
-// OpenGL specific forward declaration
-#ifdef RB_USE_OPENGL
-//FROM glad.h
-typedef void* (*GLADloadproc)(const char*);
-namespace Ruby { namespace Renderer { namespace API { void setGladLoadProc(GLADloadproc loadProc); } } }
-#endif
-
 namespace Ruby 
 {
     static void glfwErrorCallbackFunc(int error, const char* description)
@@ -129,10 +122,6 @@ namespace Ruby
             });
 
         glfwSwapInterval((int)m_VSync);
-
-#ifdef RB_USE_OPENGL
-        Renderer::API::setGladLoadProc((GLADloadproc)glfwGetProcAddress);
-#endif
     }
 
     Window::~Window()

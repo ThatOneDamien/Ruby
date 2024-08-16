@@ -3,10 +3,9 @@ project "Ruby"
     language "C++"
     cppdialect "C++17"
     staticruntime "on"
-    libdirs { ("%{wks.location}/bin/" .. outdir .. "/**") }
 
-    targetdir ("%{wks.location}/bin/" .. outdir .. "/%{prj.name}")
-    objdir ("%{wks.location}/bin/int/" .. outdir .. "/%{prj.name}")
+    targetdir (outdir .. "/%{prj.name}")
+    objdir (intdir .. "/%{prj.name}")
     
     pchheader "ruby_pch.h"
     pchsource "src/ruby_pch.cpp"
@@ -17,25 +16,25 @@ project "Ruby"
         "src/API/**.cpp",
         "src/Ruby/**.h",
         "src/Ruby/**.cpp",
-        "Dependencies/glm/**.hpp",
-        "Dependencies/glm/**.inl",
-        "Dependencies/stb_image/**.h",
-        "Dependencies/stb_image/**.cpp"
+        "%{wks.location}/Dependencies/glm/**.hpp",
+        "%{wks.location}/Dependencies/glm/**.inl",
+        "%{wks.location}/Dependencies/stb_image/**.h",
+        "%{wks.location}/Dependencies/stb_image/**.cpp"
     }
 
     includedirs
     {
         "src",
-        "%{wks.location}/third_party/GLFW/include",
-        "%{wks.location}/third_party/glad/include",
-        "%{wks.location}/third_party/FreeType/include",
-        "%{wks.location}/third_party/ImGui",
-        "%{wks.location}/third_party/soloud/include",
-        "%{wks.location}/third_party/msdf-atlas-gen",
-        "%{wks.location}/third_party/msdf-atlas-gen/msdfgen",
-        "Dependencies/glm",
-        "Dependencies/stb_image",
-        "Dependencies/entt/include",
+        "%{wks.location}/Dependencies/GLFW/include",
+        "%{wks.location}/Dependencies/glad/include",
+        "%{wks.location}/Dependencies/FreeType/include",
+        "%{wks.location}/Dependencies/ImGui",
+        "%{wks.location}/Dependencies/soloud/include",
+        "%{wks.location}/Dependencies/msdf-atlas-gen",
+        "%{wks.location}/Dependencies/msdf-atlas-gen/msdfgen",
+        "%{wks.location}/Dependencies/glm",
+        "%{wks.location}/Dependencies/stb_image",
+        "%{wks.location}/Dependencies/entt/include",
     }
 
     links

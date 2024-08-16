@@ -1,4 +1,4 @@
-workspace "Ruby2D"
+workspace "Ruby"
     architecture "x64"
     startproject "RubyEditor"
     configurations
@@ -7,19 +7,22 @@ workspace "Ruby2D"
         "Release"
     }
 
-outdir = "%{cfg.system}%{cfg.architecture}/%{cfg.buildcfg}"
+    -- Final and intermediate directories for the build.
+    outdir = "%{wks.location}/bin/%{cfg.system}/%{cfg.buildcfg}"
+    intdir = "%{wks.location}/bin/int/%{cfg.system}/%{cfg.buildcfg}"
 
-group "Dependencies"
-    include "third_party/GLFW"
-    include "third_party/glad"
-    include "third_party/ImGui"
-    include "third_party/FreeType"
-    include "third_party/msdf-atlas-gen"
-    include "third_party/soloud"
-group ""
 
-group "Core"
-    include "Ruby"
-    include "RubyEditor"
-    include "Sandbox"
-group ""
+    group "Dependencies"
+        include "Dependencies/GLFW"
+        include "Dependencies/glad"
+        include "Dependencies/ImGui"
+        include "Dependencies/FreeType"
+        include "Dependencies/msdf-atlas-gen"
+        include "Dependencies/soloud"
+    group ""
+
+    group "Core"
+        include "Ruby"
+        include "RubyEditor"
+        include "Sandbox"
+    group ""

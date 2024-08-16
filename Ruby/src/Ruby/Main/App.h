@@ -8,7 +8,14 @@ namespace Ruby
 {
     struct AppSpec
     {
+        // Path to app's main directory relative to the BINARY
+        // this may need to change between development and deployment.
         std::string MainDirectory;
+        // Path to main Ruby directory relative to the MAIN DIRECTORY
+        // specified in this struct. I know this is confusing, but it
+        // is structured this way to avoid unnecessary copies of core
+        // assets during development.
+        std::string RubyDirectory;
         WindowSpec WinSpec
         {
             "Ruby Window", // Default Window Name
@@ -57,6 +64,7 @@ namespace Ruby
         inline Window& getWindow() { return *m_Window; }
         // Get const reference to window attached to this application
         inline const Window& getWindow() const { return *m_Window; }
+        inline const std::string& getRubyDir() const { return m_RubyDir; }
         // Get reference to the current instance of this application
         static inline App& getInstance() { return *s_Instance; }
         // Returns true if there is an instance of the application running.
@@ -67,7 +75,7 @@ namespace Ruby
         bool m_Running = false, m_Minimized = false;
         int m_Argc;
         char** m_Argv;
-        std::string m_MainDir;
+        std::string m_MainDir, m_RubyDir;
 
         static App* s_Instance;
         Window* m_Window;
