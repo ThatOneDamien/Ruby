@@ -16,9 +16,6 @@ project "Ruby"
         "src/API/**.cpp",
         "src/Ruby/**.h",
         "src/Ruby/**.cpp",
-        "%{wks.location}/Dependencies/glm/**.hpp",
-        "%{wks.location}/Dependencies/glm/**.inl",
-        "%{wks.location}/Dependencies/stb_image/**.h",
         "%{wks.location}/Dependencies/stb_image/**.cpp"
     }
 

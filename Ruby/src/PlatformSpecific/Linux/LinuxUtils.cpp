@@ -24,8 +24,9 @@ namespace Ruby
             return std::string(filename);
         }
 
-        std::string saveFile()
+        std::string saveFile(const char* filters)
         {
+            (void)filters;
             char filename[1024];
             memset(filename, 0, 1024);
             FILE *f = popen("zenity --file-selection --save", "r");

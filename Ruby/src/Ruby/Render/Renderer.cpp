@@ -115,8 +115,6 @@ namespace Ruby
             s_TextureSlotCount = API::getBindableTextureSlots();
             s_TextureSlotCount = s_TextureSlotCount > 32 ? 32 : s_TextureSlotCount;
             s_BoundTextures = new SharedPtr<Texture>[s_TextureSlotCount - 1];
-            int* bruh = new int;
-            int a = 0;
 
             // QUAD STUFF
             
@@ -307,7 +305,7 @@ namespace Ruby
         float getTextureSlotOrAdd(const SharedPtr<Texture>& tex)
         {
             float res = 0;
-            for (int i = 0; i < s_TextureInsert; ++i)
+            for (int i = 0; i < s_TextureSlotCount - 1; ++i)
             {
                 if (s_BoundTextures[i] == tex)
                 {
@@ -318,7 +316,7 @@ namespace Ruby
 
             if (!res)
             {
-                if (s_TextureInsert >= s_TextureSlotCount - 2)
+                if (s_TextureInsert > s_TextureSlotCount - 2)
                     renderBatch();
 
                 res = (float)s_TextureInsert + 1.0f;
@@ -329,7 +327,7 @@ namespace Ruby
             return res;
         }
 
-        void drawQuadBasic(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color, 
+        void drawQuadBasic(const glm::vec3& position, const glm::vec2& size, const glm::vec4& color, 
                            const SharedPtr<Texture>& tex, const TexCoords& texCoords = TexCoords())
         {
             if (s_QuadCount >= MAX_QUADS)
@@ -343,7 +341,7 @@ namespace Ruby
             {
                 s_QuadVBOffset[i].x = position.x + VERTEX_POSITIONS[i].x * size.x;
                 s_QuadVBOffset[i].y = position.y + VERTEX_POSITIONS[i].y * size.y;
-                s_QuadVBOffset[i].z = (float)s_QuadCount / (float)MAX_QUADS;
+                s_QuadVBOffset[i].z = position.z;
                 s_QuadVBOffset[i].color = color;
                 s_QuadVBOffset[i].texCoords = texCoords[i];
                 s_QuadVBOffset[i].textureSlot = texSlot;
@@ -353,7 +351,7 @@ namespace Ruby
             ++s_QuadCount;
         }
 
-        void drawQuadRotBasic(const glm::vec2& position, const glm::vec2& size, float rotation, const glm::vec4& color,
+        void drawQuadRotBasic(const glm::vec3& position, const glm::vec2& size, float rotation, const glm::vec4& color,
                               const SharedPtr<Texture>& tex, const TexCoords& texCoords = TexCoords())
         {
             if (s_QuadCount >= MAX_QUADS)
@@ -379,7 +377,7 @@ namespace Ruby
 
                 s_QuadVBOffset[i].x = pos.x;
                 s_QuadVBOffset[i].y = pos.y;
-                s_QuadVBOffset[i].z = (float)s_QuadCount / (float)MAX_QUADS;
+                s_QuadVBOffset[i].z = position.z;
                 s_QuadVBOffset[i].color = color;
                 s_QuadVBOffset[i].texCoords = texCoords[i];
                 s_QuadVBOffset[i].textureSlot = texSlot;
@@ -391,14 +389,14 @@ namespace Ruby
     } // End namespace internal
 
 
-        void drawQuad(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color)
+        void drawQuad(const glm::vec3& position, const glm::vec2& size, const glm::vec4& color)
         {
             internal::drawQuadBasic(position, size, color, nullptr);
         }
 
 
 
-        void drawQuadTex(const glm::vec2& position, const glm::vec2& size, 
+        void drawQuadTex(const glm::vec3& position, const glm::vec2& size, 
                         const SharedPtr<Texture>& texture, const glm::vec4& color)
         {
             internal::drawQuadBasic(position, size, color, texture);
@@ -406,31 +404,31 @@ namespace Ruby
 
 
 
-        void drawQuadSubTex(const glm::vec2& position, const glm::vec2& size, 
+        void drawQuadSubTex(const glm::vec3& position, const glm::vec2& size, 
                             const SharedPtr<SubTexture>& subTexture, const glm::vec4& color)
         {
             internal::drawQuadBasic(position, size, color, subTexture->getTexture(), subTexture->getTexCoords());
         }
 
-        void drawQuadRot(const glm::vec2& position, const glm::vec2& size, float rotation, const glm::vec4& color)
+        void drawQuadRot(const glm::vec3& position, const glm::vec2& size, float rotation, const glm::vec4& color)
         {
             internal::drawQuadRotBasic(position, size, rotation, color, nullptr);
         }
 
-        void drawQuadRotTex(const glm::vec2& position, const glm::vec2& size, float rotation,
+        void drawQuadRotTex(const glm::vec3& position, const glm::vec2& size, float rotation,
             const SharedPtr<Texture>& texture, const glm::vec4& color)
         {
             internal::drawQuadRotBasic(position, size, rotation, color, texture);
         }
 
-        void drawQuadRotSubTex(const glm::vec2& position, const glm::vec2& size, float rotation,
+        void drawQuadRotSubTex(const glm::vec3& position, const glm::vec2& size, float rotation,
             const SharedPtr<SubTexture>& subTexture, const glm::vec4& color)
         {
             internal::drawQuadRotBasic(position, size, rotation, color, subTexture->getTexture(), subTexture->getTexCoords());
         }
     
 
-        void drawText(const std::string& str, const glm::vec2& position, float scale, float rotation, const glm::vec4& color)
+        void drawText(const std::string& str, const glm::vec3& position, float scale, float rotation, const glm::vec4& color)
         {
             if (!s_CurrentFont)
             {
@@ -516,22 +514,22 @@ namespace Ruby
                         );
 
                     glm::vec4 temp = transform * glm::vec4(leftP, bottomP, 0.0f, 1.0f);
-                    s_TextVBOffset[0].position = { temp.x, temp.y, 0.0f };
+                    s_TextVBOffset[0].position = { temp.x, temp.y, position.z };
                     s_TextVBOffset[0].color = color;
                     s_TextVBOffset[0].texCoords = { leftA, bottomA };
 
                     temp = transform * glm::vec4(leftP, topP, 0.0f, 1.0f);
-                    s_TextVBOffset[1].position = { temp.x, temp.y, 0.0f };
+                    s_TextVBOffset[1].position = { temp.x, temp.y, position.z };
                     s_TextVBOffset[1].color = color;
                     s_TextVBOffset[1].texCoords = { leftA, topA };
 
                     temp = transform * glm::vec4(rightP, topP, 0.0f, 1.0f);
-                    s_TextVBOffset[2].position = { temp.x, temp.y, 0.0f };
+                    s_TextVBOffset[2].position = { temp.x, temp.y, position.z };
                     s_TextVBOffset[2].color = color;
                     s_TextVBOffset[2].texCoords = { rightA, topA };
 
                     temp = transform * glm::vec4(rightP, bottomP, 0.0f, 1.0f);
-                    s_TextVBOffset[3].position = { temp.x, temp.y, 0.0f };
+                    s_TextVBOffset[3].position = { temp.x, temp.y, position.z };
                     s_TextVBOffset[3].color = color;
                     s_TextVBOffset[3].texCoords = { rightA, bottomA };
 

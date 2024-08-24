@@ -16,7 +16,6 @@ namespace Ruby
         ImGui::PushID(label);
         std::string temp = std::string(label) + "Table";
         ImGui::BeginTable(temp.c_str(), 2, ImGuiTableFlags_BordersInnerV, {0.0f, 0.0f});
-        RB_INFO("Column Width: %f", columnWidth);
         ImGui::TableSetupColumn("0", ImGuiTableColumnFlags_WidthFixed, columnWidth);
         ImGui::TableNextRow();
         ImGui::TableNextColumn();
@@ -130,7 +129,7 @@ namespace Ruby
                 }
                 else if(ImGui::MenuItem("Save Scene"))
                 {
-                    std::string saveFile = FileUtils::saveFile();
+                    std::string saveFile = FileUtils::saveFile("");
                     RB_INFO("SAVE AT: %s", saveFile.c_str());
                     if(!saveFile.empty())
                     {
