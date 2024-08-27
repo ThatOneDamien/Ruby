@@ -14,7 +14,7 @@ namespace Ruby
 #ifdef RB_PLAT_WIND
     enum class LogColor : uint8_t
     {
-        None = 0
+        None = 0,
         Black,
         DarkBlue,
         DarkGreen,
@@ -63,6 +63,10 @@ namespace Ruby
             LogColor FG;
             LogColor BG;
         };
+
+        constexpr LogFullColor() : Full{ 0 } {}
+        constexpr LogFullColor(uint16_t fullColor) : Full{ fullColor } {}
+        constexpr LogFullColor(LogColor fg, LogColor bg) : FG{ fg }, BG{ bg } {}
     };
 
     struct LogStyle
@@ -129,10 +133,10 @@ private:
 
 
 public:
-        static constexpr LogFullColor TRACE_COLOR    = { .FG = LogColor::Green,  .BG = LogColor::None };
-        static constexpr LogFullColor INFO_COLOR     = { .FG = LogColor::Purple, .BG = LogColor::None };
-        static constexpr LogFullColor WARN_COLOR     = { .FG = LogColor::Gold,   .BG = LogColor::None };
-        static constexpr LogFullColor ERROR_COLOR    = { .FG = LogColor::Red,    .BG = LogColor::None };
-        static constexpr LogFullColor CRITICAL_COLOR = { .FG = LogColor::Black,  .BG = LogColor::DarkRed };
+        static constexpr LogFullColor TRACE_COLOR    = { LogColor::Green,  LogColor::None };
+        static constexpr LogFullColor INFO_COLOR     = { LogColor::Purple, LogColor::None };
+        static constexpr LogFullColor WARN_COLOR     = { LogColor::Gold,   LogColor::None };
+        static constexpr LogFullColor ERROR_COLOR    = { LogColor::Red,    LogColor::None };
+        static constexpr LogFullColor CRITICAL_COLOR = { LogColor::Black,  LogColor::DarkRed };
     };
 }

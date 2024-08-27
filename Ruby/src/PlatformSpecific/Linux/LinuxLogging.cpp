@@ -10,7 +10,7 @@ namespace Ruby
     static char s_FGColorBuf[6] = "\e[39m";
     static char s_BGColorBuf[7] = "\e[49m\0"; 
 
-    static LogFullColor s_CurrentColor = { .Full = 0 };
+    static LogFullColor s_CurrentColor;
 
     void Logger::init()
     {
@@ -20,9 +20,7 @@ namespace Ruby
 
     Logger::Logger(const char* name, LogLevel logLevel)
         : m_Name(name), m_Level(logLevel)
-    {
-        m_Style.Color.Full = (uint16_t)LogColor::None;
-    }
+    {}
 
     void Logger::resetDefaultLogColor()
     {

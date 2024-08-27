@@ -11,10 +11,12 @@ namespace Ruby
     static LogFullColor s_DefaultColor, s_CurrentColor;
     static uint16_t s_DefaultTextAttribs;
 
-    inline uint16_t LogColorFromWinStyle(uint8_t color)
+    inline LogFullColor LogColorFromWinStyle(uint8_t color)
     {
-        uint16_t res = (color & 0xF) + 1;
-        return res | (((color & 0xF0) + 1) << 4);
+        LogFullColor res;
+        res.FG = (LogColor)((color & 0x0F) + 1);
+        res.BG = (LogColor)(((color & 0xF0) >> 4) + 1);
+        return res;
     }
 
     inline uint16_t TextAttribFromColor(LogFullColor color)
@@ -32,7 +34,8 @@ namespace Ruby
 
         // Gets the first byte of data in the wAttributes which holds the color info. 
         // This contains the current text color in the first 4 bits and the highlight color in the last 4.
-        s_DefaultColor.Full = LogColorFromWinStyle(info.wAttributes & 0xFF);
+        s_DefaultColor = LogColorFromWinStyle(info.wAttributes & 0xFF);
+        s_CurrentColor = s_DefaultColor;
         s_DefaultTextAttribs = info.wAttributes & 0xFF00; 
         s_EngineLogger = createShared<Logger>("Engine", LogLevel::Trace);
         s_ClientLogger = createShared<Logger>("Client", LogLevel::Trace);
@@ -52,6 +55,11 @@ namespace Ruby
     {
         if (s_CurrentColor.Full != color.Full)
         {
+            if (color.BG == LogColor::None)
+                color.BG = s_DefaultColor.BG;
+            if (color.FG == LogColor::None)
+                color.FG = s_DefaultColor.FG;
+
             SetConsoleTextAttribute(s_ConsoleHandle, TextAttribFromColor(color));
             s_CurrentColor = color;
         }
@@ -59,7 +67,7 @@ namespace Ruby
 
     inline void resetColor()
     {
-        SetConsoleTextAttribute(s_ConsoleHandle, s_DefaultColor);
+        SetConsoleTextAttribute(s_ConsoleHandle, TextAttribFromColor(s_DefaultColor));
         s_CurrentColor = s_DefaultColor;
     }
 
