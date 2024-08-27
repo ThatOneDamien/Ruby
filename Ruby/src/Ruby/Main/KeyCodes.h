@@ -3,7 +3,7 @@
 // From the github repository Hazel by The Cherno
 // He copied the codes from glfw3.h but formatted them
 // in an enum that looks really nice, so I stole it :)
-
+#include <cstdint>
 
 namespace Ruby 
 { 

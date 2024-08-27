@@ -2,7 +2,8 @@
 
 #include "App.h"
 #include "Core.h"
-#include "Ruby/Render/Renderer.h"
+#include "Ruby/Render/Context.h"
+#include "Ruby/Render/Renderer2D.h"
 #include "Ruby/Audio/Audio.h"
 #include "Ruby/Render/Font.h"
 #include "Ruby/Event/AppEvent.h"
@@ -13,7 +14,6 @@
 namespace Ruby 
 {
     // Forward declarations
-    namespace Renderer { namespace API { void initAPI(); } }
     namespace Audio { void init(); void deInit(); }
 
     App* App::s_Instance = nullptr;
@@ -26,7 +26,7 @@ namespace Ruby
         m_Running = true;
 
         // Set working directory relative to the binary location.
-        RB_ASSERT(argc > 0, "Argc is 0???");
+        RB_ASSERT(argc > 0, "Argc is <=0???");
         std::filesystem::path binaryParentDir = std::filesystem::path(argv[0]).parent_path();
         std::filesystem::current_path(binaryParentDir);
 
@@ -35,15 +35,14 @@ namespace Ruby
         
         RB_INFO("Working directory set at: \'%s\'", std::filesystem::current_path().string().c_str());
 
-
         // Create window and initialize windowing library.
-        m_Window = new Window(spec.WinSpec);
+        m_Window = new Window(spec.WinSpec, spec.DesiredAPI);
         
         Font::init();
         Audio::init();
 
         // Init the Rendering API
-        Renderer::API::initAPI();
+        Context::initAPI(spec.DesiredAPI);
         ImGuiUtil::init();
     }
 
@@ -75,7 +74,7 @@ namespace Ruby
                     return;
                 m_Minimized = false;
                 m_Window->windowResized(width, height);
-                Renderer::API::setViewport(0, 0, (int)width, (int)height);
+                Context::setViewport(0, 0, (int)width, (int)height);
             }
             default:
                 break;

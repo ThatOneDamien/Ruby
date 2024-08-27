@@ -14,19 +14,8 @@
 namespace Ruby 
 {
 
-    namespace Renderer 
+    namespace Renderer2D 
     {
-        // *** API INTRINSIC ***
-        namespace API 
-        {
-            void drawCall(const SharedPtr<VertexArray>& vao, uint32_t indexCount = 0);
-            void setClearColor(float r, float g, float b);
-            void setClearColor(uint8_t r, uint8_t g, uint8_t b);
-            void setClearColor(const glm::vec3& color);
-            void setViewport(int x, int y, int width, int height);
-            void clear();
-        }
-
         // Clears any previous data, allocates new storage, and initializes 
         // the 2D renderer to its base state.
         void init();

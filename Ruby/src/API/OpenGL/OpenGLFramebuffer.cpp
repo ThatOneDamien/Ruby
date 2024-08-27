@@ -1,6 +1,5 @@
 #include "ruby_pch.h"
 
-#include "Ruby/Main/Core.h"
 #include "Ruby/Main/App.h"
 #include "OpenGLFramebuffer.h"
 

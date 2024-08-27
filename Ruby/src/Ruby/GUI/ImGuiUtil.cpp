@@ -1,13 +1,20 @@
+#include "imgui.h"
 #include "ruby_pch.h"
 
 #include "ImGuiUtil.h"
 #include "Ruby/Main/App.h"
+#include "Ruby/Render/Context.h"
+
+// #include <backends/imgui_impl_glfw.h>
+// #include <backends/imgui_impl_opengl3.h>
+// // FOR WHEN WE ADD VULKAN SUPPORT
+// // #include <backends/imgui_impl_vulkan.h>
 
 #pragma warning(push, 0)
-#ifdef RB_USE_OPENGL
 #include <backends/imgui_impl_opengl3.cpp>
+// FOR WHEN WE ADD VULKAN SUPPORT
+// #include <backends/imgui_impl_vulkan.cpp>
 #include <backends/imgui_impl_glfw.cpp>
-#endif
 #pragma warning(pop)
 
 namespace Ruby 
@@ -35,38 +42,76 @@ namespace Ruby
             style.Colors[ImGuiCol_WindowBg].w = 1.0f;
 
             const Window& win = App::getInstance().getWindow();
-#ifdef RB_USE_OPENGL
-            ImGui_ImplGlfw_InitForOpenGL((GLFWwindow*)win.getWinPointer(), true);
-            ImGui_ImplOpenGL3_Init("#version 450 core");
-#endif
+            switch(Context::getAPI())
+            {
+            case API::OpenGL:
+                ImGui_ImplGlfw_InitForOpenGL((GLFWwindow*)win.getWinPointer(), true);
+                ImGui_ImplOpenGL3_Init("#version 450 core");
+                break;
+            case API::Vulkan:
+                // ImGui_ImplGlfw_InitForVulkan((GLFWwindow*)win.getWinPointer(), true);
+                // ImGui_ImplVulkan_Init();
+            default:
+                RB_ERROR_DEBUG("Unknown or unsupported graphics API.");
+                break;
+            }
         }
+
         void deInit()
         {
-#ifdef RB_USE_OPENGL
-            ImGui_ImplOpenGL3_Shutdown();
+
+            switch(Context::getAPI())
+            {
+            case API::OpenGL:
+                ImGui_ImplOpenGL3_Shutdown();
+                break;
+            case API::Vulkan:
+                // ImGui_ImplVulkan_Shutdown();
+            default:
+                RB_ERROR_DEBUG("Unknown or unsupported graphics API.");
+                break;
+            }
             ImGui_ImplGlfw_Shutdown();
-#endif
             ImGui::DestroyContext();
         }
+
         void begin()
         {
-#ifdef RB_USE_OPENGL
-            ImGui_ImplOpenGL3_NewFrame();
+            switch(Context::getAPI())
+            {
+            case API::OpenGL:
+                ImGui_ImplOpenGL3_NewFrame();
+                break;
+            case API::Vulkan:
+                // ImGui_ImplVulkan_NewFrame();
+            default:
+                RB_ERROR_DEBUG("Unknown or unsupported graphics API.");
+                break;
+            }
             ImGui_ImplGlfw_NewFrame();
-#endif
             ImGui::NewFrame();
         }
+
         void end()
         {
             ImGuiIO& io = ImGui::GetIO();
             const Window& win = App::getInstance().getWindow();
             io.DisplaySize = ImVec2((float)win.getWidth(), (float)win.getHeight());
 
-
             ImGui::Render();
-#ifdef RB_USE_OPENGL
-            ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-#endif
+
+            switch(Context::getAPI())
+            {
+            case API::OpenGL:
+                ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+                break;
+            case API::Vulkan:
+                // ImGui_ImplVulkan_NewFrame();
+            default:
+                RB_ERROR_DEBUG("Unknown or unsupported graphics API.");
+                break;
+            }
+
 
             if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
             {

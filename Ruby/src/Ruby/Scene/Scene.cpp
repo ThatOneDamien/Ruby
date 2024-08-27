@@ -8,7 +8,7 @@
 
 #include "Scene.h"
 #include "Entity.h"
-#include "Ruby/Render/Renderer.h"
+#include "Ruby/Render/Renderer2D.h"
 
 namespace Ruby 
 {
@@ -42,7 +42,7 @@ namespace Ruby
             for (auto entity : group)
             {
                 auto [transform, sprite] = group.get<Components::Transform, Components::Sprite>(entity);
-                Renderer::drawQuadRotTex(transform.Position, transform.Scale, transform.Rotation, sprite.Tex, sprite.Color);
+                Renderer2D::drawQuadRotTex(transform.Position, transform.Scale, transform.Rotation, sprite.Tex, sprite.Color);
             }
         }
 

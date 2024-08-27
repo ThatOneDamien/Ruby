@@ -1,12 +1,10 @@
+#include "API/OpenGL/OpenGLShader.h"
 #include "ruby_pch.h"
 
-#include "Ruby/Main/Core.h"
+#include "Context.h"
 #include "Shader.h"
+#include "Ruby/Main/Core.h"
 
-#ifdef RB_USE_OPENGL
-#include "API/OpenGL/OpenGLShader.h"
-#define SHADER OpenGLShader
-#endif
 
 namespace Ruby 
 {
@@ -14,24 +12,62 @@ namespace Ruby
 
     SharedPtr<Shader> Shader::createShader(const std::string& filepath)
     {
-        return createShared<SHADER>(filepath);
+        switch(Context::getAPI())
+        {
+        case API::OpenGL:
+            return createShared<OpenGLShader>(filepath);
+        case API::Vulkan:
+            // return createShared<VulkanVB>(vertices, size);
+        default:
+            RB_ERROR_DEBUG("Unknown or unsupported graphics API.");
+            return nullptr;
+        }
     }
 
     SharedPtr<Shader> Shader::createShader(const std::string& name, const std::string& filepath)
     {
-        return createShared<SHADER>(name, filepath);
+        switch(Context::getAPI())
+        {
+        case API::OpenGL:
+            return createShared<OpenGLShader>(name, filepath);
+        case API::Vulkan:
+            // return createShared<VulkanVB>(vertices, size);
+        default:
+            RB_ERROR_DEBUG("Unknown or unsupported graphics API.");
+            return nullptr;
+        }
     }
 
     SharedPtr<Shader> Shader::createAndAddShaderToLibrary(const std::string& filepath)
     {
-        auto shader = createShared<SHADER>(filepath);
+        SharedPtr<Shader> shader;
+        switch(Context::getAPI())
+        {
+        case API::OpenGL:
+            shader = createShared<OpenGLShader>(filepath);
+        case API::Vulkan:
+            // return createShared<VulkanVB>(vertices, size);
+        default:
+            RB_ERROR_DEBUG("Unknown or unsupported graphics API.");
+            return nullptr;
+        }
         s_ShaderLibrary[shader->getName()] = shader;
         return shader;
     }
 
     SharedPtr<Shader> Shader::createAndAddShaderToLibrary(const std::string& name, const std::string& filepath)
     {
-        auto shader = createShared<SHADER>(name, filepath);
+        SharedPtr<Shader> shader;
+        switch(Context::getAPI())
+        {
+        case API::OpenGL:
+            shader = createShared<OpenGLShader>(name, filepath);
+        case API::Vulkan:
+            // return createShared<VulkanVB>(vertices, size);
+        default:
+            RB_ERROR_DEBUG("Unknown or unsupported graphics API.");
+            return nullptr;
+        }
         s_ShaderLibrary[name] = shader;
         return shader;
     }

@@ -18,10 +18,10 @@ public:
 
     virtual void onStart() override
     {
-        Ruby::Renderer::init();
-        Ruby::Renderer::useCamera(cam);
+        Ruby::Renderer2D::init();
+        Ruby::Renderer2D::useCamera(cam);
         aspectRatio = Ruby::App::getInstance().getWindow().getAspectRatio();
-        Ruby::Renderer::API::setClearColor({ 0.2f, 0.2f, 0.2f });
+        Ruby::Context::setClearColor({ 0.2f, 0.2f, 0.2f });
         Ruby::Entity e = scene.createEntity();
         Ruby::Components::Transform& t = e.addComponent<Ruby::Components::Transform>();
         t.Position = { 1.0f, 1.2f, 0.0f };
@@ -36,10 +36,10 @@ public:
     virtual void update(double deltaMillis) override 
     {
         updateInputs();
-        Ruby::Renderer::API::clear();
-        Ruby::Renderer::resetBatch();
-        Ruby::Renderer::drawQuad({0.0f, 0.0f}, {1.0f, 1.0f}, {0.0f, 0.0f, 0.0f, 1.0f});
-        Ruby::Renderer::renderBatch();
+        Ruby::Context::clear();
+        Ruby::Renderer2D::resetBatch();
+        Ruby::Renderer2D::drawQuad({0.0f, 0.0f, 0.0f}, {1.0f, 1.0f}, {0.0f, 0.0f, 0.0f, 1.0f});
+        Ruby::Renderer2D::renderBatch();
         
     }
 

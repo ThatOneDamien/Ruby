@@ -1,18 +1,24 @@
 #include "ruby_pch.h"
 
-#include "Ruby/Main/Core.h"
+#include "Context.h"
 #include "VertexArray.h"
-
-#ifdef RB_USE_OPENGL
 #include "API/OpenGL/OpenGLVertexArray.h"
-#define VARRAY OpenGLVA
-#endif
+#include "Ruby/Main/Core.h"
 
 namespace Ruby 
 {
     SharedPtr<VertexArray> VertexArray::createVAO()
     {
-        return createShared<VARRAY>();
+        switch(Context::getAPI())
+        {
+        case API::OpenGL:
+            return createShared<OpenGLVA>();
+        case API::Vulkan:
+            // return createShared<VulkanVB>(vertices, size);
+        default:
+            RB_ERROR_DEBUG("Unknown or unsupported graphics API.");
+            return nullptr;
+        }
     }
 
 }

@@ -25,7 +25,7 @@ namespace Ruby
 
     static bool s_GLFWinitialized = false;
 
-    Window::Window(const WindowSpec& spec)
+    Window::Window(const WindowSpec& spec, API desiredAPI)
         : m_Title(spec.Name), m_Width(spec.Width),
         m_Height(spec.Height), m_VSync(spec.VSync)
     {
@@ -35,9 +35,19 @@ namespace Ruby
             s_GLFWinitialized = true;
         }
 
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
-        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+        switch(desiredAPI)
+        {
+        case API::OpenGL:
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+            glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+            break;
+        case API::Vulkan:
+            // TODO: FILL IN
+            break;
+        default:
+            RB_ERROR_DEBUG("Unrecognized Graphics API.");
+        }
 
         m_Window = glfwCreateWindow(m_Width, m_Height, m_Title.c_str(), nullptr, nullptr);
 

@@ -1,8 +1,7 @@
 #pragma once
 
-
+// Tells logger to log with the client logger
 #define RB_EXTERNAL_DEF
-
 
 
 // Core components
@@ -28,7 +27,8 @@
 
 
 // Rendering
-#include "Ruby/Render/Renderer.h"
+#include "Ruby/Render/Context.h"
+#include "Ruby/Render/Renderer2D.h"
 #include "Ruby/Render/Buffers.h"
 #include "Ruby/Render/VertexArray.h"
 #include "Ruby/Render/Framebuffer.h"

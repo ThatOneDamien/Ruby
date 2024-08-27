@@ -1,8 +1,5 @@
 #pragma once
 
-// For now OpenGL is the only Renderering API used.
-#define RB_USE_OPENGL 1
-
 #include "Platform.h"
 
 #include <stdint.h>

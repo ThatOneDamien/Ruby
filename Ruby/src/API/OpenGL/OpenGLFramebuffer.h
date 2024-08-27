@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Ruby/Main/Core.h"
 #include "Ruby/Render/Framebuffer.h"
 
 namespace Ruby 

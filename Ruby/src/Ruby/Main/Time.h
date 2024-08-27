@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstdint>
+
 typedef void(*ScopedTimerFunc) (double);
 
 namespace Ruby 

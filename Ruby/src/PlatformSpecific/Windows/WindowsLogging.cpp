@@ -1,15 +1,28 @@
 #include "ruby_pch.h"
 
-#include "Ruby/Main/Core.h"
-
 #include "Ruby/Main/Logging.h"
 
 namespace Ruby 
 {
-    static HANDLE s_ConsoleHandle;
-    static uint16_t s_DefaultColor, s_CurrentColor;
     SharedPtr<Logger> Logger::s_EngineLogger;
     SharedPtr<Logger> Logger::s_ClientLogger;
+
+    static HANDLE s_ConsoleHandle;
+    static LogFullColor s_DefaultColor, s_CurrentColor;
+    static uint16_t s_DefaultTextAttribs;
+
+    inline uint16_t LogColorFromWinStyle(uint8_t color)
+    {
+        uint16_t res = (color & 0xF) + 1;
+        return res | (((color & 0xF0) + 1) << 4);
+    }
+
+    inline uint16_t TextAttribFromColor(LogFullColor color)
+    {
+        uint16_t res = s_DefaultTextAttribs;
+        res |= ((uint8_t)color.BG - 1) << 4;
+        return res | ((uint8_t)color.FG - 1);
+    }
 
     void Logger::init()
     {
@@ -19,58 +32,123 @@ namespace Ruby
 
         // Gets the first byte of data in the wAttributes which holds the color info. 
         // This contains the current text color in the first 4 bits and the highlight color in the last 4.
-        s_DefaultColor = (info.wAttributes & 0xFF);
+        s_DefaultColor.Full = LogColorFromWinStyle(info.wAttributes & 0xFF);
+        s_DefaultTextAttribs = info.wAttributes & 0xFF00; 
         s_EngineLogger = createShared<Logger>("Engine", LogLevel::Trace);
         s_ClientLogger = createShared<Logger>("Client", LogLevel::Trace);
 
     }
 
     Logger::Logger(const char* name, LogLevel logLevel)
-        : m_Name(name), m_Level(logLevel), m_SavedColor(s_DefaultColor)
+        : m_Name(name), m_Level(logLevel), m_Style{s_DefaultColor}
     {}
-
-    void Logger::setLogColor(LogColor textColor, LogColor highlightColor)
-    {
-        // Prevents both the text and highlight from being the same color, which would render the text invisible.
-        if (textColor != highlightColor)
-        {
-            m_SavedColor = ((uint8_t)highlightColor << 4) | (uint8_t)textColor;
-        }
-    }
-
-    void Logger::setLogTextColor(LogColor textColor)
-    {
-        if ((uint8_t)textColor != (m_SavedColor >> 4))
-        {
-            m_SavedColor = (m_SavedColor & 0xF0) | (uint8_t)textColor;
-        }
-    }
-
-    void Logger::setLogHighlightColor(LogColor highlightColor)
-    {
-        if ((uint8_t)highlightColor != (m_SavedColor & 0x0F))
-        {
-            m_SavedColor = (m_SavedColor & 0x0F) | (uint8_t)highlightColor;
-        }
-    }
 
     void Logger::resetDefaultLogColor()
     {
-        m_SavedColor = s_DefaultColor;
+        m_Style.Color = s_DefaultColor;
     }
 
-    void Logger::internalSetLogColor(uint16_t color)
+    inline void changeColor(LogFullColor color)
     {
-        if (s_CurrentColor != color)
+        if (s_CurrentColor.Full != color.Full)
         {
-            SetConsoleTextAttribute(s_ConsoleHandle, color);
+            SetConsoleTextAttribute(s_ConsoleHandle, TextAttribFromColor(color));
             s_CurrentColor = color;
         }
     }
 
-    void Logger::internalResetLogColor()
+    inline void resetColor()
     {
         SetConsoleTextAttribute(s_ConsoleHandle, s_DefaultColor);
         s_CurrentColor = s_DefaultColor;
+    }
+
+    void logBase(const char* name, const char*__restrict message, va_list args)
+    {
+        TimeStruct time = Time::getLocalTime();
+        printf("[%.2d:%.2d:%.2d] %s: ", time.hour, time.minute, time.second, name);
+        vprintf(message, args); 
+        // If the background is the default, we dont need to reset it because
+        // the newline character wont show a different colored background
+        if(s_CurrentColor.BG != s_DefaultColor.BG)
+            resetColor();
+        printf("\n");
+    }
+
+    void Logger::basicLog(const char*__restrict message, ...)
+    {
+        changeColor(s_CurrentColor);
+
+        va_list args;
+        va_start(args, message);
+        logBase(m_Name, message, args);
+        va_end(args);
+    }
+
+
+    void Logger::trace(const char*__restrict message, ...)
+    {
+        if (getLogLevel() != LogLevel::Trace)
+            return;
+
+        changeColor(Logger::TRACE_COLOR);
+
+        va_list args;
+        va_start(args, message);
+        logBase(m_Name, message, args);
+        va_end(args);
+    }
+
+
+    void Logger::info(const char*__restrict message, ...)
+    {
+        if (getLogLevel() > LogLevel::Info)
+            return;
+
+        changeColor(Logger::INFO_COLOR);
+
+        va_list args;
+        va_start(args, message);
+        logBase(m_Name, message, args);
+        va_end(args);
+    }
+
+
+    void Logger::warn(const char*__restrict message, ...)
+    {
+        if (getLogLevel() > LogLevel::Warn)
+            return;
+
+        changeColor(Logger::WARN_COLOR);
+
+        va_list args;
+        va_start(args, message);
+        logBase(m_Name, message, args);
+        va_end(args);
+    }
+
+
+    void Logger::error(const char*__restrict message, ...)
+    {
+        if (getLogLevel() == LogLevel::Critical)
+            return;
+
+        changeColor(Logger::ERROR_COLOR);
+
+        va_list args;
+        va_start(args, message);
+        logBase(m_Name, message, args);
+        va_end(args);
+    }
+
+
+    void Logger::critical(const char*__restrict message, ...)
+    {
+        changeColor(Logger::CRITICAL_COLOR);
+
+        va_list args;
+        va_start(args, message);
+        logBase(m_Name, message, args);
+        va_end(args);
     }
 }

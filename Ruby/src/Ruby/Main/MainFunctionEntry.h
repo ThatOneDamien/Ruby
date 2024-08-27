@@ -1,7 +1,7 @@
 #pragma once
 #ifndef RB_EXTERNAL_DEF
 #error "Include Ruby.h"
-#elif (defined RB_PLAT_WIND)
+#elif defined(RB_PLAT_WIND)
 Ruby::App* createApp(int argc, char** argv);
 
 #define WIN32_LEAN_AND_MEAN

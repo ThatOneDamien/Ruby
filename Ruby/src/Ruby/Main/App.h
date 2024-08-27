@@ -26,6 +26,8 @@ namespace Ruby
             true,          // Default VSync ON
             true           // Default TitleBar ON
         };
+        
+        API DesiredAPI = API::OpenGL;
     };
 
     class App

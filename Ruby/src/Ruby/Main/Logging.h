@@ -1,6 +1,9 @@
 #pragma once
 
+#include <cstdarg>
 #include <cstdio>
+#include <cstdint>
+#include "Platform.h"
 #include "Ruby/Utility/Pointers.h"
 #include "Ruby/Main/Time.h"
 
@@ -11,14 +14,15 @@ namespace Ruby
 #ifdef RB_PLAT_WIND
     enum class LogColor : uint8_t
     {
-        Black = 0,
-        Dark_Blue,
-        Dark_Green,
-        Dark_Cyan,
-        Dark_Red,
-        Dark_Purple,
+        None = 0
+        Black,
+        DarkBlue,
+        DarkGreen,
+        DarkCyan,
+        DarkRed,
+        DarkPurple,
         Gold,
-        Light_Gray,
+        LightGray,
         Gray,
         Blue,
         Green,
@@ -26,32 +30,48 @@ namespace Ruby
         Red,
         Purple,
         Yellow,
-        White
+        White,
     };
-    #define COLOR_COMBINE(textColor, highlightColor) (highlightColor << 4) | textColor 
-    #define TRACE_COLOR COLOR_COMBINE((uint16_t)LogColor::Green, (uint16_t)LogColor::Black)
-    #define INFO_COLOR COLOR_COMBINE((uint16_t)LogColor::Purple, (uint16_t)LogColor::Black)
-    #define WARN_COLOR COLOR_COMBINE((uint16_t)LogColor::Yellow, (uint16_t)LogColor::Black)
-    #define ERROR_COLOR COLOR_COMBINE((uint16_t)LogColor::Red, (uint16_t)LogColor::Black)
-    #define CRITICAL_COLOR COLOR_COMBINE((uint16_t)LogColor::White, (uint16_t)LogColor::Dark_Red)
-#elif RB_PLAT_LINUX
+#elif defined(RB_PLAT_LINUX)
     enum class LogColor : uint8_t
     {
-        Black = 0, Gray = 0, Light_Gray = 0,
-        Red = 1, Dark_Red = 1,
-        Green = 2, Dark_Green = 2,
-         Yellow = 3, Gold = 3,
-        Blue = 4, Dark_Blue = 4,
-        Purple = 5, Dark_Purple = 5,
-        Cyan = 6, Dark_Cyan = 6,
-        White = 7
+        None = 0,
+        Black,
+        DarkRed,
+        DarkGreen,
+        Gold,
+        DarkBlue,
+        DarkPurple,
+        DarkCyan,
+        LightGray,
+        Gray,
+        Red,
+        Green,
+        Yellow,
+        Blue,
+        Purple,
+        Cyan,
+        White
     };
-    #define TRACE_COLOR (uint16_t)LogColor::Green
-    #define INFO_COLOR (uint16_t)LogColor::Purple
-    #define WARN_COLOR (uint16_t)LogColor::Yellow
-    #define ERROR_COLOR (uint16_t)LogColor::Red
-    #define CRITICAL_COLOR (uint16_t)LogColor::Red
 #endif
+
+    union LogFullColor
+    {
+        uint16_t Full;
+        struct
+        {
+            LogColor FG;
+            LogColor BG;
+        };
+    };
+
+    struct LogStyle
+    {
+        LogFullColor Color;
+        // TODO: Add later
+        // bool Underlined;
+        // bool Bold;
+    };
 
     class Logger
     {
@@ -63,110 +83,56 @@ namespace Ruby
         inline void setLogPrefix(const char* name) { m_Name = name;   }
         inline void setLogLevel(LogLevel level)    { m_Level = level; }
 
-        void setLogColor(LogColor textColor, LogColor highlightColor);
-        void setLogTextColor(LogColor textColor);
-        void setLogHighlightColor(LogColor highlightColor);
-
-        inline const char* getLogName()           { return m_Name;  }
-        inline LogLevel getLogLevel()             { return m_Level; }
-
         void resetDefaultLogColor();
+        inline void setLogFG(LogColor foregroundColor) { m_Style.Color.FG = foregroundColor; }
+        inline void setLogBG(LogColor backgroundColor) { m_Style.Color.BG = backgroundColor; }
+        inline void setLogColor(LogColor foregroundColor, LogColor backgroundColor)
+        {
+            setLogFG(foregroundColor);
+            setLogBG(backgroundColor);
+        }
+
+        inline const char* getLogName() { return m_Name;  }
+        inline LogLevel getLogLevel()   { return m_Level; }
+
+
+        // Logging functions
+
+        // Log with currently set log color. This is printed 
+        // no matter the log level.
+        void basicLog(const char*__restrict message, ...);
+        // Log a trace(lowest priority) message.
+        void trace(const char*__restrict message, ...);
+        // Log an info message.
+        void info(const char*__restrict message, ...);
+        // Log a warning message.
+        void warn(const char*__restrict message, ...);
+        // Log an error message
+        void error(const char*__restrict message, ...);
+        // Log a critical(highest priority) message.
+        void critical(const char*__restrict message, ...);
+
+
+
 
         static void init();
         static SharedPtr<Logger>& getEngineLogger() { return s_EngineLogger; }
         static SharedPtr<Logger>& getClientLogger() { return s_ClientLogger; }
 
 
-
-
-        template<typename... Args>
-        inline void basicLog(const char* message, Args... args)
-        {
-            TimeStruct time = Time::getLocalTime();
-            internalSetLogColor(m_SavedColor);
-            printf("[%.2d:%.2d:%.2d] %s: ", time.hour, time.minute, time.second, m_Name);
-            printf(message, std::forward<Args>(args)...);
-            internalResetLogColor();
-            printf("\n");
-        }
-
-
-        template<typename... Args>
-        inline void trace(const char* message, Args... args)
-        {
-            if (getLogLevel() != LogLevel::Trace)
-                return;
-
-            internalSetLogColor(TRACE_COLOR);
-            TimeStruct time = Time::getLocalTime();
-            printf("[%.2d:%.2d:%.2d] %s: ", time.hour, time.minute, time.second, m_Name);
-            printf(message, std::forward<Args>(args)...);
-            printf("\n");
-        }
-
-        template<typename... Args>
-        inline void info(const char* message, Args... args)
-        {
-            if (getLogLevel() > LogLevel::Info)
-                return;
-
-            internalSetLogColor(INFO_COLOR);
-            TimeStruct time = Time::getLocalTime();
-            printf("[%.2d:%.2d:%.2d] %s: ", time.hour, time.minute, time.second, m_Name);
-            printf(message, args...);
-            printf("\n");
-        }
-
-        template<typename... Args>
-        inline void warn(const char* message, Args... args)
-        {
-            if (getLogLevel() > LogLevel::Warn)
-                return;
-
-            internalSetLogColor(WARN_COLOR);
-            TimeStruct time = Time::getLocalTime();
-            printf("[%.2d:%.2d:%.2d] %s: ", time.hour, time.minute, time.second, m_Name);
-            printf(message, std::forward<Args>(args)...);
-            printf("\n");
-        }
-
-        template<typename... Args>
-        inline void error(const char* message, Args... args)
-        {
-            if (getLogLevel() == LogLevel::Critical)
-                return;
-
-            internalSetLogColor(ERROR_COLOR);
-            TimeStruct time = Time::getLocalTime();
-            printf("[%.2d:%.2d:%.2d] %s: ", time.hour, time.minute, time.second, m_Name);
-            printf(message, std::forward<Args>(args)...);
-            printf("\n");
-        }
-
-        template<typename... Args>
-        inline void critical(const char* message, Args... args)
-        {
-            internalSetLogColor(CRITICAL_COLOR);
-            TimeStruct time = Time::getLocalTime();
-            printf("[%.2d:%.2d:%.2d] %s: ", time.hour, time.minute, time.second, m_Name);
-            printf(message, std::forward<Args>(args)...);
-            printf("\n");
-        }
-
-
-    private:
-        void internalSetLogColor(uint16_t color);
-        void internalResetLogColor();
-
-        uint16_t m_SavedColor;
-        LogLevel m_Level;
-        const char* m_Name; // Aka the Log Prefix.
+private:
         static SharedPtr<Logger> s_EngineLogger;
         static SharedPtr<Logger> s_ClientLogger;
+        const char* m_Name; // Used to prefix the log message.
+        LogLevel m_Level;
+        LogStyle m_Style;
+
+
+public:
+        static constexpr LogFullColor TRACE_COLOR    = { .FG = LogColor::Green,  .BG = LogColor::None };
+        static constexpr LogFullColor INFO_COLOR     = { .FG = LogColor::Purple, .BG = LogColor::None };
+        static constexpr LogFullColor WARN_COLOR     = { .FG = LogColor::Gold,   .BG = LogColor::None };
+        static constexpr LogFullColor ERROR_COLOR    = { .FG = LogColor::Red,    .BG = LogColor::None };
+        static constexpr LogFullColor CRITICAL_COLOR = { .FG = LogColor::Black,  .BG = LogColor::DarkRed };
     };
-    #undef TRACE_COLOR
-    #undef INFO_COLOR
-    #undef WARN_COLOR
-    #undef ERROR_COLOR
-    #undef CRITICAL_COLOR
 }

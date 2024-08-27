@@ -1,27 +1,52 @@
 #include "ruby_pch.h"
 
-#include "Ruby/Main/Core.h"
+#include "Context.h"
 #include "Texture.h"
-
-#ifdef RB_USE_OPENGL
 #include "API/OpenGL/OpenGLTexture.h"
-#define TEXTURE OpenGLTexture
-#endif
+#include "Ruby/Main/Core.h"
+
 namespace Ruby 
 {
     SharedPtr<Texture> Texture::createTexture(const std::string& filepath, const TextureSpec& spec)
     {
-        return createShared<TEXTURE>(filepath, spec);
+        switch(Context::getAPI())
+        {
+        case API::OpenGL:
+            return createShared<OpenGLTexture>(filepath, spec);
+        case API::Vulkan:
+            // return createShared<VulkanVB>(vertices, size);
+        default:
+            RB_ERROR_DEBUG("Unknown or unsupported graphics API.");
+            return nullptr;
+        }
     }
 
     SharedPtr<Texture> Texture::createTexture(const TextureSpec& spec)
     {
-        return createShared<TEXTURE>(spec);
+        switch(Context::getAPI())
+        {
+        case API::OpenGL:
+            return createShared<OpenGLTexture>(spec);
+        case API::Vulkan:
+            // return createShared<VulkanVB>(vertices, size);
+        default:
+            RB_ERROR_DEBUG("Unknown or unsupported graphics API.");
+            return nullptr;
+        }
     }
 
     SharedPtr<Texture> Texture::createTexture(const void* data, const TextureSpec& spec)
     {
-        return createShared<TEXTURE>(data, spec);
+        switch(Context::getAPI())
+        {
+        case API::OpenGL:
+            return createShared<OpenGLTexture>(data, spec);
+        case API::Vulkan:
+            // return createShared<VulkanVB>(vertices, size);
+        default:
+            RB_ERROR_DEBUG("Unknown or unsupported graphics API.");
+            return nullptr;
+        }
     }
 
 }

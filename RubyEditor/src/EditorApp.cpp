@@ -33,7 +33,7 @@ namespace Ruby
 
     void EditorApp::onStart()
     {
-        Renderer::init();
+        Renderer2D::init();
         m_LoadedScene = createShared<Scene>();
 
         auto& wind = App::getInstance().getWindow();
@@ -47,7 +47,7 @@ namespace Ruby
         io.Fonts->AddFontFromFileTTF("res/fonts/Nunito-Regular.ttf", 20);
         io.ConfigFlags &= ~ImGuiConfigFlags_ViewportsEnable;
 
-        Renderer::useCamera(m_Cam);
+        Renderer2D::useCamera(m_Cam);
     }
 
     void EditorApp::update(double deltaMillis)
@@ -60,13 +60,13 @@ namespace Ruby
             m_Cam.setPosition({pos.x, pos.y, 0.0f});
         }
 
-        Renderer::API::clear();
+        Context::clear();
         m_FBO->bind();
-        Renderer::API::clear();
-        Renderer::resetBatch();
+        Context::clear();
+        Renderer2D::resetBatch();
         if (m_LoadedScene)
             m_LoadedScene->updateScene(deltaMillis);
-        Renderer::renderBatch();
+        Renderer2D::renderBatch();
         m_FBO->unbind();
     }
 

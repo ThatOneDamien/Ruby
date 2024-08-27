@@ -7,7 +7,7 @@
 #include <msdf-atlas-gen/GlyphGeometry.h>
 
 #include "Ruby/Main/Core.h"
-#include "Ruby/Render/Renderer.h"
+#include "Ruby/Render/Renderer2D.h"
 #include "Ruby/Render/Font.h"
 #include "Ruby/Main/App.h"
 
@@ -23,14 +23,8 @@ namespace Ruby
         msdf_atlas::FontGeometry FontGeometry;
     };
 
-    namespace Renderer
+    namespace Renderer2D
     {
-        namespace API
-        {
-            void initAPI();
-            int getBindableTextureSlots();
-        }
-
         //
         //
         // -----------------BATCH RENDERER STUFF-------------------
@@ -108,11 +102,10 @@ namespace Ruby
 
         void init()
         {
-            API::initAPI();
             clear();
 
             // Queries GPU for slot count and creates array to hold that many bound textures
-            s_TextureSlotCount = API::getBindableTextureSlots();
+            s_TextureSlotCount = Context::getBindableTextureSlots();
             s_TextureSlotCount = s_TextureSlotCount > 32 ? 32 : s_TextureSlotCount;
             s_BoundTextures = new SharedPtr<Texture>[s_TextureSlotCount - 1];
 
@@ -282,7 +275,7 @@ namespace Ruby
                 for (int i = 0; i < s_TextureInsert; ++i)
                     s_BoundTextures[i]->bind(i + 1);
 
-                API::drawCall(s_QuadVAO, s_QuadCount * 6);
+                Context::drawCall(s_QuadVAO, s_QuadCount * 6);
             }
 
             if (s_TextCount && s_CurrentFont)
@@ -293,7 +286,7 @@ namespace Ruby
 
                 s_CurrentFont->getAtlasTexture()->bind(0);
 
-                API::drawCall(s_TextVAO, s_TextCount * 6);
+                Context::drawCall(s_TextVAO, s_TextCount * 6);
             }
 
             resetBatch();

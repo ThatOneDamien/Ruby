@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Core.h"
+#include "Ruby/Render/Context.h"
 
 #include "MouseCodes.h"
 #include "KeyCodes.h"
@@ -26,7 +27,7 @@ namespace Ruby
     public:
         Window() = delete;
         Window(const Window&) = delete;
-        Window(const WindowSpec& spec);
+        Window(const WindowSpec& spec, API desiredAPI);
         ~Window();
 
         void update() const;
