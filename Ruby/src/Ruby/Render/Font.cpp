@@ -21,11 +21,11 @@ namespace Ruby
 
     Font::Font(const std::string& filepath)
     {
-        RB_ASSERT_RET_VOID(s_Lib, "FT Library not initialized, maybe you forgot to call Ruby::Font::init()?");
+        RB_ENSURE_RET_VOID(s_Lib, "FT Library not initialized, maybe you forgot to call Ruby::Font::init()?");
         
         // Load font file
         msdfgen::FontHandle* font = msdfgen::loadFont(s_Lib, filepath.c_str());
-        RB_ASSERT_RET_VOID(font, "Unable to load font at path \'%s\'.", filepath.c_str());
+        RB_ENSURE_RET_VOID(font, "Unable to load font at path \'%s\'.", filepath.c_str());
 
         m_Data = new FontData();
         m_Data->FontGeometry = msdf_atlas::FontGeometry(&m_Data->Glyphs);
@@ -70,7 +70,7 @@ namespace Ruby
         spec.Width = width;
         spec.Height = height;
         spec.Format = PixelFormat::RGB8;
-        m_AtlasTexture = Texture::createTexture((void*)bitmapRef.pixels, spec);
+        m_AtlasTexture = Texture::create((void*)bitmapRef.pixels, spec);
         
         // Cleanup
         msdfgen::destroyFont(font);
@@ -84,7 +84,7 @@ namespace Ruby
     void Font::init()
     {
         s_Lib = msdfgen::initializeFreetype();
-        RB_ASSERT_CRITICAL(s_Lib, "MSDFGen Error: Freetype failed to initialize.");
+        RB_ENSURE_CRITICAL(s_Lib, "MSDFGen Error: Freetype failed to initialize.");
     }
 
     void Font::deInit()

@@ -1,12 +1,12 @@
 #pragma once
 
-#include "VertexArray.h"
 #include "Buffers.h"
+#include "Camera.h"
+#include "Font.h"
 #include "Shader.h"
 #include "Texture.h"
-#include "Camera.h"
+#include "VertexArray.h"
 #include "Ruby/Scene/Scene.h"
-#include "Font.h"
 
 
 #include <glm/glm.hpp>
@@ -28,7 +28,7 @@ namespace Ruby
 
         // Use provided Camera's projection matrix in the GPU for
         // projection of the batched geometry.
-        void useCamera(const Camera& cam);
+        void useCamera(const OrthoCamera& cam);
         // Use font provided for text rendering.
         void useFont(const SharedPtr<Font>& font);
 
@@ -36,13 +36,10 @@ namespace Ruby
         
         // Reset the batch renderer to a blank state with no vertex data.
         // You should call this every frame when rendering dynamic scenes
-        // (so like, all the time).
+        // (so like, in almost all use cases).
         void resetBatch();
-        // Render the current batched geometry. Optional parameter cam
-        // can be used to render based on a user defined camera rather
-        // than the main camera of the currently bound scene. This functionality
-        // is around to support applications that do not wish to use scenes.
-        void renderBatch(const Camera* cam = nullptr);
+        // Render the current batched geometry.
+        void renderBatch();
 
         // Draw an unrotated, untextured quad with variable size and color. Must be called within resetBatch and renderBatch.
         void drawQuad(const glm::vec3& position, const glm::vec2& size, const glm::vec4& color);
@@ -52,7 +49,7 @@ namespace Ruby
         // Draw an unrotated, textured quad using the specific texture coordinates specified by
         // subTexture, with variable size and color. Must be called within resetBatch and renderBatch.
         void drawQuadSubTex(const glm::vec3& position, const glm::vec2& size, 
-                            const SharedPtr<SubTexture>& subTexture, const glm::vec4& color = glm::vec4{ 1.0f });
+                            const SubTexture& subTexture, const glm::vec4& color = glm::vec4{ 1.0f });
         // Draw a rotated, untextured quad with variable size and color. Must be called within resetBatch and renderBatch.
         void drawQuadRot(const glm::vec3& position, const glm::vec2& size, float rotation, const glm::vec4& color);
         // Draw a rotated, textured quad with variable size and color. Must be called within resetBatch and renderBatch.
@@ -61,7 +58,7 @@ namespace Ruby
         // Draw a rotated, textured quad using the specific texture coordinates specified by
         // subTexture, with variable size and color. Must be called within resetBatch and renderBatch.
         void drawQuadRotSubTex(const glm::vec3& position, const glm::vec2& size, float rotation,
-                               const SharedPtr<SubTexture>& subTexture, const glm::vec4& color = glm::vec4{ 1.0f });
+                               const SubTexture& subTexture, const glm::vec4& color = glm::vec4{ 1.0f });
         // Draw the specified text with the position, scale, rotation, and color specified. 
         // Must be called within resetBatch and renderBatch.
         void drawText(const std::string& str, const glm::vec3& position, float scale, float rotation, const glm::vec4& color);

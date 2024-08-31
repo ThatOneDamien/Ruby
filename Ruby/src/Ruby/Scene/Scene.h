@@ -8,7 +8,7 @@
 namespace Ruby 
 {
     class Entity;
-
+   
     class Scene
     {
     public:
@@ -16,13 +16,26 @@ namespace Ruby
         Scene(const std::string& filepath);
         ~Scene();
 
-        // Call this function within Renderer::resetBatch() and Renderer::renderBatched()
-        void updateScene(double deltaMillis);
 
         Entity createEntity();
 
-        bool serialize();
-        bool serialize(const std::string& saveLocation);
+        Components::Camera& getMainCamera() const;
+        std::vector<Entity> getAllEntities();
+        inline const std::string& getName() const { return m_Name; }
+
+        void setMainCamera(Entity& entityWithMainCam);
+
+        // Does not perform physics updates, and leaves the
+        // camera as the one attached to the renderer.
+        void updateStatic(double deltaMillis);
+        // Performs physics updates, binds the main camera,
+        // and renders the scene.
+        void updateRuntime(double deltaMillis);
+
+        
+
+
+        bool serialize(const std::string& saveLocation) const;
 
         // Deserializes the specified file from disk and places its contents into
         // the calling Scene object. If the Scene object had previous data, it is
@@ -30,15 +43,30 @@ namespace Ruby
         // if successful, false otherwise.
         bool deserializeFile(const std::string& filepath);
 
+        template<typename func>
+        inline void forEachForward(func f) 
+        {
+            static_assert(std::is_invocable_v<func, entt::registry::entity_type>);
+            m_Registry.each_forward(f);
+        }
+        
+        template<typename func>
+        inline void forEachBackward(func f) 
+        {
+            static_assert(std::is_invocable_v<func, entt::registry::entity_type>);
+            m_Registry.each_backward(f);
+        }
+
+    private:
+
     private:
         static constexpr const char* DEFAULT_SCENE_NAME = "Untitled Scene";
-        static constexpr const char* DEFAULT_SCENE_FILEPATH = "untitled_scene.rusc";
         friend class Entity;
+        friend class SceneRuntime;
 
-        std::string m_Filepath;
         std::string m_Name;
         entt::registry m_Registry;
-        Entity* m_MainCamera{nullptr};
+        Entity* m_MainCam{nullptr};
     };
 
 }

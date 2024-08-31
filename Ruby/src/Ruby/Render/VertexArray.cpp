@@ -7,7 +7,7 @@
 
 namespace Ruby 
 {
-    SharedPtr<VertexArray> VertexArray::createVAO()
+    SharedPtr<VertexArray> VertexArray::create()
     {
         switch(Context::getAPI())
         {

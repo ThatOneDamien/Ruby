@@ -46,7 +46,7 @@ namespace Ruby
 
     void OpenGLVB::setVertexData(const void* vertices, uint32_t size, uint32_t offset)
     {
-        RB_ASSERT_RET_VOID(size + offset <= m_Size, "Size of given data and/or offset would overflow the size of VBO.");
+        RB_ENSURE_RET_VOID(size + offset <= m_Size, "Size of given data and/or offset would overflow the size of VBO.");
         glNamedBufferSubData(m_RendererID, (GLintptr)offset, (GLsizeiptr)size, vertices);
     }
 

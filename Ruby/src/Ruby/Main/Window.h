@@ -33,6 +33,7 @@ namespace Ruby
         void update() const;
         void setVSync(bool enabled);
         void setWindowTitle(const char* title);
+        void setMouseLocked(bool locked);
         inline void windowResized(uint16_t new_width, uint16_t new_height) { m_Width = new_width; m_Height = new_height; }
 
         inline void* getWinPointer() const { return m_Window; }

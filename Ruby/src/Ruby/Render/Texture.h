@@ -65,9 +65,9 @@ namespace Ruby
         virtual inline glm::vec2 getSize() const = 0;
         virtual inline const std::string& getFilepath() const = 0;
 
-        static SharedPtr<Texture> createTexture(const std::string& filepath, const TextureSpec& spec = {});
-        static SharedPtr<Texture> createTexture(const TextureSpec& spec);
-        static SharedPtr<Texture> createTexture(const void* data, const TextureSpec& spec);
+        static SharedPtr<Texture> create(const std::string& filepath, const TextureSpec& spec = {});
+        static SharedPtr<Texture> create(const TextureSpec& spec);
+        static SharedPtr<Texture> create(const void* data, const TextureSpec& spec);
     };
 
 
@@ -124,10 +124,6 @@ namespace Ruby
 
         inline const TexCoords& getTexCoords() const { return m_Coords; }
         inline const SharedPtr<Texture>& getTexture() const { return m_Texture; }
-        static inline SharedPtr<SubTexture> createSubTexture(const SharedPtr<Texture>& texture, const glm::vec2& bottomLeftCorner, const glm::vec2& topRightCorner)
-        {
-            return createShared<SubTexture>(texture, bottomLeftCorner, topRightCorner);
-        }
     private:
         TexCoords m_Coords;
         SharedPtr<Texture> m_Texture;

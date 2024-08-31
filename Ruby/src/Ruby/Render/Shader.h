@@ -31,13 +31,13 @@ namespace Ruby
         * @return Returns SharedPtr of a shader object that will not be added to the shader library.
         * 
         */
-        static SharedPtr<Shader> createShader(const std::string& filepath);
-        static SharedPtr<Shader> createShader(const std::string& name, const std::string& filepath);
+        static SharedPtr<Shader> create(const std::string& filepath);
+        static SharedPtr<Shader> create(const std::string& name, const std::string& filepath);
 
         static inline void addShaderToLibrary(const SharedPtr<Shader>& shader) { s_ShaderLibrary[shader->getName()] = shader; }
         static inline void addShaderToLibrary(const std::string& name, const SharedPtr<Shader>& shader) { s_ShaderLibrary[name] = shader; }
-        static SharedPtr<Shader> createAndAddShaderToLibrary(const std::string& filepath);
-        static SharedPtr<Shader> createAndAddShaderToLibrary(const std::string& name, const std::string& filepath);
+        static SharedPtr<Shader> createAndAddToLibrary(const std::string& filepath);
+        static SharedPtr<Shader> createAndAddToLibrary(const std::string& name, const std::string& filepath);
 
         static inline const SharedPtr<Shader>& getShaderFromLibrary(const std::string& name)
         {

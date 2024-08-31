@@ -90,7 +90,7 @@ namespace Ruby
         static int s_TextureSlotCount = -1;
         static uint8_t s_TextureInsert = 0;
 
-        static const Camera* s_CameraInUse{nullptr};
+        static const OrthoCamera* s_CameraInUse{nullptr};
         static SharedPtr<UniformBuffer> s_CamUBO{ nullptr };
 
         static TextVertex* s_TextVBData{ nullptr };
@@ -111,8 +111,8 @@ namespace Ruby
 
             // QUAD STUFF
             
-            s_QuadVAO = VertexArray::createVAO();
-            s_QuadVBO = VertexBuffer::createVBO(MAX_VERTICES * sizeof(QuadVertex));
+            s_QuadVAO = VertexArray::create();
+            s_QuadVBO = VertexBuffer::create(MAX_VERTICES * sizeof(QuadVertex));
 
             {
                 VertexLayout layout;
@@ -150,7 +150,7 @@ namespace Ruby
                     indices[i + 5] = offset;
                 }
 
-                s_QuadTextIBO = IndexBuffer::createIBO(indices, MAX_INDICES);
+                s_QuadTextIBO = IndexBuffer::create(indices, MAX_INDICES);
             }
 
             s_QuadVAO->setIndexBuffer(s_QuadTextIBO);
@@ -158,8 +158,8 @@ namespace Ruby
             
             // TEXT STUFF
 
-            s_TextVAO = VertexArray::createVAO();
-            s_TextVBO = VertexBuffer::createVBO(MAX_VERTICES * sizeof(TextVertex));
+            s_TextVAO = VertexArray::create();
+            s_TextVBO = VertexBuffer::create(MAX_VERTICES * sizeof(TextVertex));
 
             {
                 VertexLayout layout;
@@ -180,7 +180,7 @@ namespace Ruby
             // reuse the same index buffer object to draw both text and quads
             s_TextVAO->setIndexBuffer(s_QuadTextIBO);
 
-            s_BlankColorTexture = Texture::createTexture(TextureSpec());
+            s_BlankColorTexture = Texture::create(TextureSpec());
 
             // This sets the data of the white texture to 1 pixel of white, which allows simple
             // colored quads with no separate texture all within the batch.
@@ -189,10 +189,10 @@ namespace Ruby
 
             const std::string& RubyDir = App::getInstance().getRubyDir();
 
-            s_QuadShader = Shader::createShader(RubyDir + "/assets/shaders/quad.glsl");
+            s_QuadShader = Shader::create(RubyDir + "/assets/shaders/quad.glsl");
 
             s_QuadShader->bind();
-            s_CamUBO = UniformBuffer::createUBO(sizeof(glm::mat4), 0);
+            s_CamUBO = UniformBuffer::create(sizeof(glm::mat4), 0);
             {
                 int arr[32];
                 for (int i = 0; i < s_TextureSlotCount; ++i)
@@ -201,7 +201,7 @@ namespace Ruby
                 s_QuadShader->setUniformIntArray("u_Textures", s_TextureSlotCount, arr);
             }
 
-            s_TextShader = Shader::createShader(RubyDir + "/assets/shaders/text.glsl");
+            s_TextShader = Shader::create(RubyDir + "/assets/shaders/text.glsl");
 
         }
 
@@ -233,7 +233,7 @@ namespace Ruby
             s_CamUBO = nullptr;
         }
 
-        void useCamera(const Camera& cam)
+        void useCamera(const OrthoCamera& cam)
         {
             s_CameraInUse = &cam;
         }
@@ -255,16 +255,16 @@ namespace Ruby
             s_TextureInsert = 0;
         }
 
-        void renderBatch(const Camera* cam)
+        void renderBatch()
         {
-            cam = cam ? cam : s_CameraInUse;
-            if (cam)
-                s_CamUBO->setData(&cam->getViewProjectionMatrix()[0][0], sizeof(glm::mat4), 0);
-            else
+            if (!s_CameraInUse)
             {
-                RB_WARN("Renderer was not provided a camera.");
+                RB_ERROR("Renderer was not provided a camera.");
+                goto exit;
             }
-
+            
+            s_CamUBO->setData(&s_CameraInUse->getViewProjectionMatrix()[0][0], sizeof(glm::mat4), 0);
+            
             if (s_QuadCount)
             {
                 s_QuadVAO->bind();
@@ -288,7 +288,8 @@ namespace Ruby
 
                 Context::drawCall(s_TextVAO, s_TextCount * 6);
             }
-
+            
+            exit:
             resetBatch();
         }
 
@@ -354,15 +355,10 @@ namespace Ruby
 
             float texSlot = (tex == nullptr) ? 0.0f : getTextureSlotOrAdd(tex);
 
-            glm::mat4 transform = 
-                glm::scale(
-                    glm::rotate(
-                        glm::translate(glm::mat4(1.0f), { position.x, position.y, 0.0f }), 
-                        rotation, 
-                        { 0.0f, 0.0f, 1.0f }
-                    ), 
-                    { size.x, size.y, 1.0f }
-                );
+            glm::mat4 transform;
+            transform = glm::translate(glm::mat4(1.0f), { position.x, position.y, 0.0f });
+            transform = glm::rotate(transform, rotation, { 0.0f, 0.0f, 1.0f });
+            transform = glm::scale(transform, { size.x, size.y, 1.0f });
 
             for (size_t i = 0; i < 4; ++i)
             {
@@ -398,9 +394,9 @@ namespace Ruby
 
 
         void drawQuadSubTex(const glm::vec3& position, const glm::vec2& size, 
-                            const SharedPtr<SubTexture>& subTexture, const glm::vec4& color)
+                            const SubTexture& subTexture, const glm::vec4& color)
         {
-            internal::drawQuadBasic(position, size, color, subTexture->getTexture(), subTexture->getTexCoords());
+            internal::drawQuadBasic(position, size, color, subTexture.getTexture(), subTexture.getTexCoords());
         }
 
         void drawQuadRot(const glm::vec3& position, const glm::vec2& size, float rotation, const glm::vec4& color)
@@ -415,9 +411,9 @@ namespace Ruby
         }
 
         void drawQuadRotSubTex(const glm::vec3& position, const glm::vec2& size, float rotation,
-            const SharedPtr<SubTexture>& subTexture, const glm::vec4& color)
+            const SubTexture& subTexture, const glm::vec4& color)
         {
-            internal::drawQuadRotBasic(position, size, rotation, color, subTexture->getTexture(), subTexture->getTexCoords());
+            internal::drawQuadRotBasic(position, size, rotation, color, subTexture.getTexture(), subTexture.getTexCoords());
         }
     
 

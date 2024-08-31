@@ -74,7 +74,6 @@ namespace Ruby
                     return;
                 m_Minimized = false;
                 m_Window->windowResized(width, height);
-                Context::setViewport(0, 0, (int)width, (int)height);
             }
             default:
                 break;

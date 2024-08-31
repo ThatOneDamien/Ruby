@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Ruby.h>
+#include <ImGui/imgui.h>
 
 namespace Ruby 
 {
@@ -10,6 +11,24 @@ namespace Ruby
         std::string Name = "Unnamed Entity";
         size_t ParentIndex = ULLONG_MAX;
     };
+
+    // Global state of the editor. Yes, globals.
+    // So I don't have to deal with adding getters/setters,
+    // or making them public and grabbing the app instance evertime.
+    // No one should work on this code but me either, so I don't think
+    // it is an issue.
+    extern bool        g_ShowDebugWindow;
+    extern ImVec2      g_PrevViewportSize;
+    extern OrthoCamera g_EditorCam;
+    extern float       g_CameraZoom;
+    extern std::string g_ScenePath;
+    extern bool        g_SceneModified;
+    extern size_t      g_SelectedEntity;
+    extern bool        g_SceneSelected;
+    extern SharedPtr<Framebuffer>    g_FBO;
+    extern bool                      g_InvalidFB;
+    extern SharedPtr<Scene>          g_LoadedScene;
+    extern std::vector<EditorEntity> g_EntityList;
 
     struct FloatControl
     {
@@ -38,13 +57,5 @@ namespace Ruby
                                float resetValue, float dragSpeed,
                                float minValue, float maxValue, float columnWidth);
     private:
-        Camera m_Cam{ 1.0f,1.0f };
-        SharedPtr<Framebuffer> m_FBO;
-        SharedPtr<Scene> m_LoadedScene;
-        std::vector<EditorEntity> m_EntityList;
-        size_t m_SelectedEntity = ULLONG_MAX;
-        bool m_SceneSelected = false;
-        float m_InvAspectRatio = 1.0f;
-        float m_Scale = 1.0f;
     };
 }

@@ -1,14 +1,31 @@
 #include "EditorApp.h"
-#include "Ruby/Scene/Components.h"
-#include "Ruby/Utility/PlatformFileUtils.h"
+#include "EditorUtils.h"
+
 #include <Ruby/Main/MainFunctionEntry.h>
-#include <ImGui/imgui.h>
+
 #include <ImGui/imgui_internal.h>
-#include <ImGui/misc/cpp/imgui_stdlib.h>
+// #include <ImGui/misc/cpp/imgui_stdlib.h>
 
 namespace Ruby 
 {
-    static bool s_ShowDebugWindow = false;
+    bool        g_ShowDebugWindow{ false };
+    ImVec2      g_PrevViewportSize{ 0.0f, 0.0f };
+    OrthoCamera g_EditorCam{ 1.0f, 1.0f };
+    float       g_CameraZoom{ 1.0f };
+
+    std::string g_ScenePath;
+    bool        g_SceneModified{ false };
+
+    size_t      g_SelectedEntity{ ULLONG_MAX };
+    bool        g_SceneSelected{ false };
+
+    SharedPtr<Framebuffer>    g_FBO;
+    bool                      g_InvalidFB{ false };
+
+    SharedPtr<Scene>          g_LoadedScene;
+    std::vector<EditorEntity> g_EntityList;
+
+#include "EditorUtils.h"
 
     inline void beginImGuiRow(const char* label, float columnWidth)
     {
@@ -34,40 +51,46 @@ namespace Ruby
     void EditorApp::onStart()
     {
         Renderer2D::init();
-        m_LoadedScene = createShared<Scene>();
+        EditorUtils::openScene("Balls.rusc");
 
         auto& wind = App::getInstance().getWindow();
         uint32_t width = wind.getWidth(), height = wind.getHeight();
-        m_FBO = Framebuffer::create(width, height);
-        m_InvAspectRatio = (float)height / (float)width;
+        g_FBO = Framebuffer::create(width, height);
 
 
-        m_Cam.setProjection((float)width / (float)height);
+        g_EditorCam.setProjection((float)width / (float)height);
         ImGuiIO& io = ImGui::GetIO();
         io.Fonts->AddFontFromFileTTF("res/fonts/Nunito-Regular.ttf", 20);
         io.ConfigFlags &= ~ImGuiConfigFlags_ViewportsEnable;
 
-        Renderer2D::useCamera(m_Cam);
+        Renderer2D::useCamera(g_EditorCam);
     }
 
     void EditorApp::update(double deltaMillis)
     {
-        if (m_SceneSelected)
+        if(g_InvalidFB)
         {
-            glm::vec2 pos = m_Cam.getPosition();
-            pos.x += m_Scale * 0.02f * (Input::isKeyDown(KeyCode::D) - Input::isKeyDown(KeyCode::A));
-            pos.y += m_Scale * 0.02f * (Input::isKeyDown(KeyCode::W) - Input::isKeyDown(KeyCode::S));
-            m_Cam.setPosition({pos.x, pos.y, 0.0f});
+            Context::setViewport(0, 0, (int)g_PrevViewportSize.x, (int)g_PrevViewportSize.y);
+            g_FBO->regenerate(g_PrevViewportSize.x, g_PrevViewportSize.y);
+            g_EditorCam.setProjection(g_PrevViewportSize.x / g_PrevViewportSize.y, g_CameraZoom);
+        }
+
+        if (g_SceneSelected)
+        {
+            glm::vec2 pos = g_EditorCam.getPosition();
+            pos.x += g_CameraZoom * 0.02f * (Input::isKeyDown(KeyCode::D) - Input::isKeyDown(KeyCode::A));
+            pos.y += g_CameraZoom * 0.02f * (Input::isKeyDown(KeyCode::W) - Input::isKeyDown(KeyCode::S));
+            g_EditorCam.setPosition({pos.x, pos.y, 0.0f});
         }
 
         Context::clear();
-        m_FBO->bind();
+        g_FBO->bind();
         Context::clear();
         Renderer2D::resetBatch();
-        if (m_LoadedScene)
-            m_LoadedScene->updateScene(deltaMillis);
+        if (g_LoadedScene)
+            g_LoadedScene->updateStatic(deltaMillis);
         Renderer2D::renderBatch();
-        m_FBO->unbind();
+        g_FBO->unbind();
     }
 
     void EditorApp::ImGuiRender(double deltaMillis)
@@ -109,7 +132,7 @@ namespace Ruby
             ImGui::PopStyleVar();
         }
 
-        if(s_ShowDebugWindow)
+        if(g_ShowDebugWindow)
             ImGui::ShowDemoWindow();
 
 
@@ -117,26 +140,12 @@ namespace Ruby
         {
             if (ImGui::BeginMenu("File"))
             {
-                if (ImGui::MenuItem("Open Scene"))
-                {
-                    std::string openedFile = FileUtils::loadFile("Ruby Scene\0*.rusc");
-                    if (!openedFile.empty())
-                    {
-                        m_LoadedScene = createShared<Scene>(openedFile);
-                        openedFile = "Ruby Editor \xE2\x80\xA2 " + openedFile.substr(openedFile.find_last_of("/\\") + 1);
-                        App::getInstance().getWindow().setWindowTitle(openedFile.c_str());
-                    }
-                }
-                else if(ImGui::MenuItem("Save Scene"))
-                {
-                    std::string saveFile = FileUtils::saveFile("");
-                    RB_INFO("SAVE AT: %s", saveFile.c_str());
-                    if(!saveFile.empty())
-                    {
-                        m_LoadedScene->serialize(saveFile);
-                    }
-                }
-
+                if (ImGui::MenuItem("Open"))
+                    EditorUtils::openScene();
+                else if(ImGui::MenuItem("Save") && (g_ScenePath.empty() || g_SceneModified))
+                    EditorUtils::saveSceneAs(g_ScenePath.empty());
+                else if(ImGui::MenuItem("Save As"))
+                    EditorUtils::saveSceneAs(true);
                 ImGui::EndMenu();
             }
 
@@ -148,16 +157,22 @@ namespace Ruby
         // all entities are at the same level.
         if (ImGui::Begin("Entity Tree")) 
         {
-            for (size_t i = 0; i < m_EntityList.size(); ++i)
+            ImVec2 size = ImGui::GetContentRegionAvail();
+            if (ImGui::Button("Add Entity", { size.x, 0.0f }))
             {
-                if (ImGui::Selectable(m_EntityList[i].Name.c_str(), m_SelectedEntity == i))
-                    m_SelectedEntity = i;
-            }
-            if (ImGui::Button("Add Entity"))
-            {
+                if(!g_SceneModified)
+                {
+                    g_SceneModified = true;
+                    EditorUtils::updateWindowTitle();
+                }
                 std::string s("Bruh");
-                s += std::to_string(m_EntityList.size() + 1);
-                m_EntityList.push_back({ m_LoadedScene->createEntity(), s.c_str() });
+                s += std::to_string(g_EntityList.size() + 1);
+                g_EntityList.push_back({ g_LoadedScene->createEntity(), s.c_str() });
+            }
+            for (size_t i = 0; i < g_EntityList.size(); ++i)
+            {
+                if (ImGui::Selectable(g_EntityList[i].Name.c_str(), g_SelectedEntity == i))
+                    g_SelectedEntity = i;
             }
         }
         ImGui::End();
@@ -171,11 +186,18 @@ namespace Ruby
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0, 0 });
         if (ImGui::Begin("Scene"))
         {
-            m_SceneSelected = ImGui::IsWindowFocused();
-            ImVec2 viewportMaxRegion = ImGui::GetWindowContentRegionMax();
+            g_SceneSelected = ImGui::IsWindowFocused();
+            ImVec2 windowRegion = ImGui::GetContentRegionAvail();
 
-            ImGui::Image((ImTextureID)(uint64_t)m_FBO->getTextureID(),
-                    ImVec2{ viewportMaxRegion.x, viewportMaxRegion.x * m_InvAspectRatio },
+            if(windowRegion.x != g_PrevViewportSize.x ||
+               windowRegion.y != g_PrevViewportSize.y)
+            {
+                g_InvalidFB = true;
+                g_PrevViewportSize = windowRegion;
+            }
+
+            ImGui::Image((ImTextureID)(uint64_t)g_FBO->getTextureID(),
+                    ImVec2{ windowRegion.x, windowRegion.y },
                     { 0.0f, 1.0f }, { 1.0f, 0.0f });
         }
         ImGui::End();
@@ -188,35 +210,23 @@ namespace Ruby
     {
         switch (e.getType())
         {
-            case EventType::WindowResized:
-                {
-                    WindowResizeEvent& wrEvent = static_cast<WindowResizeEvent&>(e);
-                    uint32_t width = wrEvent.getWidth(), height = wrEvent.getHeight();
-                    if (width && height)
-                    {
-                        m_FBO->regenerate(width, height);
-                        m_InvAspectRatio = (float)height / (float)width;
-                        m_Cam.setProjection((float)width / (float)height);
-                    }
-                    break;
-                }
             case EventType::MouseScroll:
+            {
+                if (g_SceneSelected)
                 {
-                    if (m_SceneSelected)
-                    {
-                        MouseScrollEvent& msEvent = static_cast<MouseScrollEvent&>(e);
-                        m_Scale -= 0.05f * m_Scale * msEvent.getYOffset();
-                        m_Cam.setProjection(1 / m_InvAspectRatio, m_Scale);
-                    }
-                    break;
+                    MouseScrollEvent& msEvent = static_cast<MouseScrollEvent&>(e);
+                    g_CameraZoom -= 0.05f * g_CameraZoom * msEvent.getYOffset();
+                    g_EditorCam.setProjection(g_PrevViewportSize.x / g_PrevViewportSize.y, g_CameraZoom);
                 }
+                break;
+            }
             case EventType::KeyPressed:
-                {
-                    KeyPressedEvent& kpEvent = static_cast<KeyPressedEvent&>(e);
-                    if(kpEvent.getKeyCode() == KeyCode::D && Input::isKeyDown(KeyCode::LeftControl))
-                        s_ShowDebugWindow = !s_ShowDebugWindow;
-                    break;
-                }
+            {
+                KeyPressedEvent& kpEvent = static_cast<KeyPressedEvent&>(e);
+                if(kpEvent.getKeyCode() == KeyCode::D && Input::isKeyDown(KeyCode::LeftControl))
+                    g_ShowDebugWindow = !g_ShowDebugWindow;
+                break;
+            }
             default: 
                 break;
         }
@@ -229,11 +239,11 @@ namespace Ruby
 
     void EditorApp::renderInspector()
     {
-        if (m_EntityList.empty() || m_SelectedEntity >= m_EntityList.size())
+        if (g_EntityList.empty() || g_SelectedEntity >= g_EntityList.size())
             return;
 
 
-        Entity& e = m_EntityList[m_SelectedEntity].EntityID;
+        Entity& e = g_EntityList[g_SelectedEntity].EntityID;
 
 
         if(ImGui::BeginCombo("Add Component", "", ImGuiComboFlags_NoPreview))
@@ -241,7 +251,7 @@ namespace Ruby
             if(ImGui::MenuItem("Transform") && 
                     !e.hasComponents<Components::Transform>())
             {
-                e.addComponent<Components::Transform>(m_Cam.getPosition(), 0.0f, glm::vec2{1.0f, 1.0f});
+                e.addComponent<Components::Transform>(g_EditorCam.getPosition(), 0.0f, glm::vec2{1.0f, 1.0f});
             }
             else if(ImGui::MenuItem("Sprite") &&
                     !e.hasComponents<Components::Sprite>())
@@ -263,12 +273,26 @@ namespace Ruby
                     {"##X", {0.8f, 0.15f, 0.2f, 1.0f}}, 
                     {"##Y", {0.2f, 0.8f, 0.15f, 1.0f}} 
                 };
+
+                Components::Transform copy = transform;
+
                 drawStyledControl("Position", &transform.Position.x, fc, 2, 0.0f, 0.02f, 0.0f, 0.0f, 80.0f);
                 beginImGuiRow("Rotation", 80.0f);
-                ImGui::DragFloat("", &transform.Rotation, 0.02f, 0.0f, 6.28318f, "%.2f");
+                float degrees = glm::degrees(transform.Rotation);
+                ImGui::DragFloat("", &degrees, 1.0f, 0.0f, 359.0f, "%.0f");
+                transform.Rotation = glm::radians(degrees);
                 endImGuiRow();
                 drawStyledControl("Scale", &transform.Scale.x, fc, 2, 1.0f, 0.02f, 0.0f, FLT_MAX / INT_MAX, 80.0f);
-                
+               
+                if(!g_SceneModified && 
+                   copy.Position != transform.Position || 
+                   copy.Scale != transform.Scale ||
+                   copy.Rotation != transform.Rotation)
+                {
+                    g_SceneModified = true;
+                    EditorUtils::updateWindowTitle();
+                }
+            
                 ImGui::TreePop();
             }
         }
@@ -278,6 +302,8 @@ namespace Ruby
             Components::Sprite& sprite = e.getComponent<Components::Sprite>();
             if (ImGui::TreeNode("Sprite"))
             {
+                Components::Sprite copy = sprite;
+
                 beginImGuiRow("Color", 80.0f);
                 ImGui::ColorEdit4("", &sprite.Color.r);
                 endImGuiRow();
@@ -286,8 +312,17 @@ namespace Ruby
                 {
                     std::string path = FileUtils::loadFile(".png\0.jpg\0.jpeg\0.bmp");
                     if(!path.empty())
-                        sprite.Tex = Texture::createTexture(path);
+                        sprite.Tex = Texture::create(path);
                 }
+
+                if(!g_SceneModified && 
+                   copy.Color != sprite.Color || 
+                   copy.Tex != sprite.Tex)
+                {
+                    g_SceneModified = true;
+                    EditorUtils::updateWindowTitle();
+                }
+
                 ImGui::TreePop();
             }
         }

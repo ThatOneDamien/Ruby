@@ -3,8 +3,8 @@ project "RubyEditor"
     cppdialect "C++17"
     staticruntime "on"
 
-    targetdir (outdir .. "/%{prj.name}")
-    objdir (intdir .. "/%{prj.name}")
+    targetdir (outdir)
+    objdir (intdir)
 
     files
     {
@@ -29,7 +29,7 @@ project "RubyEditor"
         "msdf-atlas-gen",
         "msdfgen",
         "FreeType",
-        "SoloudStatic",
+        "Soloud",
     }
 
     filter "system:windows"

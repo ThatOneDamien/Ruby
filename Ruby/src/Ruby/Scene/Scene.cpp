@@ -13,20 +13,17 @@
 namespace Ruby 
 {
     constexpr const char* Scene::DEFAULT_SCENE_NAME;
-    constexpr const char* Scene::DEFAULT_SCENE_FILEPATH;
 
     Scene::Scene()
-        : m_Filepath(DEFAULT_SCENE_FILEPATH), m_Name(DEFAULT_SCENE_NAME)
+        : m_Name(DEFAULT_SCENE_NAME)
     {
     }
 
     Scene::Scene(const std::string& filepath)
     {
-        m_Filepath = filepath;
         if (!deserializeFile(filepath))
         {
             RB_ERROR("Unable to deserialize file, creating blank scene.");
-            m_Filepath = DEFAULT_SCENE_FILEPATH;
             m_Name = DEFAULT_SCENE_NAME;
         }
     }
@@ -35,8 +32,41 @@ namespace Ruby
     {
     }
 
-    void Scene::updateScene(double deltaMillis)
+    Entity Scene::createEntity()
     {
+        return Entity(this);
+    }
+
+    Components::Camera& Scene::getMainCamera() const
+    {
+        return m_MainCam->getComponent<Components::Camera>();
+    }
+
+    std::vector<Entity> Scene::getAllEntities() 
+    {
+        std::vector<Entity> res;
+        m_Registry.each_forward(
+                [&](auto e)
+                {
+                   Entity entity(this, e);
+                   res.push_back(entity);
+                });
+        return res;
+    }
+
+    void Scene::setMainCamera(Entity& entityWithMainCam)
+    {
+        if(!entityWithMainCam.hasComponents<Components::Camera>())
+        {
+            RB_ERROR("Attempted to set main camera to an entity without camera component.");
+            return;
+        }
+        m_MainCam = &entityWithMainCam;
+    }
+
+    void Scene::updateStatic(double deltaMillis)
+    {
+        Renderer2D::resetBatch();
         {
             auto group = m_Registry.group<Components::Transform>(entt::get<Components::Sprite>);
             for (auto entity : group)
@@ -46,19 +76,18 @@ namespace Ruby
             }
         }
 
+        Renderer2D::renderBatch();
     }
 
-    Entity Scene::createEntity()
+    void Scene::updateRuntime(double deltaMillis)
     {
-        return Entity(this);
+        Renderer2D::useCamera(getMainCamera().Cam);
+        // performPhysics();
+        updateStatic(deltaMillis);
     }
 
-    bool Scene::serialize()
-    {
-        return serialize(m_Filepath);
-    }
 
-    bool Scene::serialize(const std::string& saveFilePath)
+    bool Scene::serialize(const std::string& saveFilePath) const
     {
         std::ofstream out(saveFilePath);
         if (!out)
@@ -119,18 +148,17 @@ namespace Ruby
         
 
         std::ifstream is(filepath);
-        RB_ASSERT_RET(is, false, "Unable to open scene file \'%s\'.", filepath.c_str());
+        RB_ENSURE_RET(is, false, "Unable to open scene file \'%s\'.", filepath.c_str());
 
         std::string line;
 
         std::getline(is, line);
         {
             bool firstLineHash = std::regex_match(line, std::basic_regex("# RUBY SCENE\\s*"));
-            RB_ASSERT_RET(firstLineHash, false, "Scene file syntax error. First line should read \'# RUBY SCENE\'.");
+            RB_ENSURE_RET(firstLineHash, false, "Scene file syntax error. First line should read \'# RUBY SCENE\'.");
         }
 
-        m_Filepath = filepath;
-        m_MainCamera = nullptr;
+        m_MainCam = nullptr;
         m_Registry.clear();
 
         if(std::getline(is, line))

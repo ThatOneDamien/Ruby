@@ -18,29 +18,60 @@ public:
 
     virtual void onStart() override
     {
-        Ruby::Renderer2D::init();
-        Ruby::Renderer2D::useCamera(cam);
-        aspectRatio = Ruby::App::getInstance().getWindow().getAspectRatio();
-        Ruby::Context::setClearColor({ 0.2f, 0.2f, 0.2f });
-        Ruby::Entity e = scene.createEntity();
-        Ruby::Components::Transform& t = e.addComponent<Ruby::Components::Transform>();
-        t.Position = { 1.0f, 1.2f, 0.0f };
-        t.Rotation = 1.0f;
-        t.Scale = {1.0f, 0.3f};
-        Ruby::Components::Sprite& s = e.addComponent<Ruby::Components::Sprite>();
-        s.Color = { 0.3f, 0.3f, 0.4f, 1.0f };
+        m_VAO = Ruby::VertexArray::create();
 
-        scene.serialize("bruh.rusc");
+        float vertices[] =
+        {
+            -0.5f, -0.5f, -0.5f,
+             0.5f, -0.5f, -0.5f,
+             0.5f,  0.5f, -0.5f,
+            -0.5f,  0.5f, -0.5f,
+
+            -0.5f, -0.5f,  0.5f,
+             0.5f, -0.5f,  0.5f,
+             0.5f,  0.5f,  0.5f,
+            -0.5f,  0.5f,  0.5f,
+        };
+
+        uint32_t indices[] =
+        {
+            0, 1, 2,
+            2, 3, 0,
+
+            1, 5, 6,
+            6, 3, 1,
+
+            5, 4, 7,
+            7, 6, 5,
+
+            4, 0, 3,
+            3, 7, 4,
+
+            0, 1, 5,
+            5, 4, 0,
+
+            3, 2, 6,
+            6, 7, 3
+        };
+
+        m_VBO = Ruby::VertexBuffer::create(vertices, sizeof(float) * 24);
+        Ruby::VertexLayout layout;
+        layout.push(Ruby::LayoutType::Float, 3, false);
+        m_VBO->setLayout(layout);
+        m_IBO = Ruby::IndexBuffer::create(indices, 6 * 6);
+
+
+        m_VAO->setVertexBuffer(m_VBO);
+        m_VAO->setIndexBuffer(m_IBO);
+        m_Shader = Ruby::Shader::create("res/shaders/random.glsl");
+        m_Shader->bind();
+        m_Shader->setUniformMat4("u_Proj", m_Cam.getViewProjectionMatrix());
     }
 
     virtual void update(double deltaMillis) override 
     {
-        updateInputs();
-        Ruby::Context::clear();
-        Ruby::Renderer2D::resetBatch();
-        Ruby::Renderer2D::drawQuad({0.0f, 0.0f, 0.0f}, {1.0f, 1.0f}, {0.0f, 0.0f, 0.0f, 1.0f});
-        Ruby::Renderer2D::renderBatch();
-        
+        Ruby::Context::clear(); 
+        Ruby::Context::drawCall(m_VAO); 
     }
 
     virtual void ImGuiRender(double deltaMillis) override
@@ -50,11 +81,12 @@ public:
 
     virtual void onEvent(Ruby::Event& e) override
     {
-        if (e.getType() == Ruby::EventType::MouseScroll)
+        static uint32_t lastX = 0, lastY = 0;
+        switch(e.getType())
         {
-            Ruby::MouseScrollEvent& l = (Ruby::MouseScrollEvent&)e;
-            scale -= l.getYOffset() * 0.05f * scale;
-            cam.setProjection(aspectRatio, scale);
+        case Ruby::EventType::MouseMove:
+            Ruby::MouseMoveEvent& mme = (Ruby::MouseMoveEvent&)e;
+            
         }
     }
 
@@ -66,18 +98,11 @@ public:
 
 
 private:
-    Ruby::Scene scene{"Unnamed scene"};
-    Ruby::Camera cam;
-    float aspectRatio = 0.0f;
-    float scale = 1.0f;
-
-    void updateInputs()
-    {
-        glm::vec2 pos = cam.getPosition();
-        pos.x += 0.03f * scale * (Ruby::Input::isKeyDown(Ruby::KeyCode::D) - Ruby::Input::isKeyDown(Ruby::KeyCode::A));
-        pos.y += 0.03f * scale * (Ruby::Input::isKeyDown(Ruby::KeyCode::W) - Ruby::Input::isKeyDown(Ruby::KeyCode::S));
-        cam.setPosition({pos.x, pos.y, 0.0f});
-    }
+    Ruby::PerspCamera m_Cam{glm::radians(45.0f), 1280.0f/720.0f, 0.1f, 100.0f};
+    SP<Ruby::VertexArray> m_VAO;
+    SP<Ruby::VertexBuffer> m_VBO;
+    SP<Ruby::IndexBuffer> m_IBO;
+    SP<Ruby::Shader> m_Shader;
 };
 
 Ruby::App* createApp(int argc, char** argv)
@@ -86,6 +111,7 @@ Ruby::App* createApp(int argc, char** argv)
     spec.MainDirectory = "../../../../Sandbox";
     spec.RubyDirectory = "../Ruby";
     spec.WinSpec.Name = "Sandbox App";
+    spec.DesiredAPI = Ruby::API::OpenGL;
     spec.WinSpec.Width = 1280;
     spec.WinSpec.Height = 720;
     spec.WinSpec.MinWidth = 640;

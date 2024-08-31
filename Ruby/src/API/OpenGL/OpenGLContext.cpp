@@ -24,7 +24,7 @@ namespace Ruby
         void init()
         {
             int success = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
-            RB_ASSERT_CRITICAL(success, "Glad failed to initialize!");
+            RB_ENSURE_CRITICAL(success, "Glad failed to initialize!");
             RB_ASSERT((GLVersion.major == 4 && GLVersion.minor > 5) || GLVersion.major > 4, 
                       "OpenGL version 4.6 or higher is required to run Ruby.");
 
@@ -37,7 +37,7 @@ namespace Ruby
             glDebugMessageCallback(debugCallbackFunc, nullptr);
 
             glEnable(GL_DEPTH_TEST);
-            glDepthFunc(GL_LEQUAL);
+            // glDepthFunc(GL_LEQUAL);
 
             glEnable(GL_BLEND);
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -54,7 +54,7 @@ namespace Ruby
         void drawCall(const SharedPtr<VertexArray>& vao, uint32_t indexCount)
         {
             vao->bind();
-            glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, nullptr);
+            glDrawElements(GL_TRIANGLES, indexCount ? indexCount : vao->getIndexBuffer()->getCount(), GL_UNSIGNED_INT, nullptr);
         }
 
         void setClearColor(float r, float g, float b)
@@ -79,7 +79,7 @@ namespace Ruby
 
         void clear()
         {
-            glClear(GL_COLOR_BUFFER_BIT);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         }
 
 

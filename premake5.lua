@@ -8,8 +8,8 @@ workspace "Ruby"
     }
 
     -- Final and intermediate directories for the build.
-    outdir = "%{wks.location}/bin/%{cfg.system}/%{cfg.buildcfg}"
-    intdir = "%{wks.location}/bin/int/%{cfg.system}/%{cfg.buildcfg}"
+    outdir = "%{wks.location}/bin/%{cfg.system}/%{cfg.buildcfg}/%{prj.name}"
+    intdir = "!%{wks.location}/bin/int/%{cfg.system}/%{cfg.buildcfg}/%{prj.name}"
 
 
     group "Dependencies"

@@ -10,7 +10,7 @@ namespace Ruby
 {
     std::unordered_map<std::string, SharedPtr<Shader>> Shader::s_ShaderLibrary;
 
-    SharedPtr<Shader> Shader::createShader(const std::string& filepath)
+    SharedPtr<Shader> Shader::create(const std::string& filepath)
     {
         switch(Context::getAPI())
         {
@@ -24,7 +24,7 @@ namespace Ruby
         }
     }
 
-    SharedPtr<Shader> Shader::createShader(const std::string& name, const std::string& filepath)
+    SharedPtr<Shader> Shader::create(const std::string& name, const std::string& filepath)
     {
         switch(Context::getAPI())
         {
@@ -38,7 +38,7 @@ namespace Ruby
         }
     }
 
-    SharedPtr<Shader> Shader::createAndAddShaderToLibrary(const std::string& filepath)
+    SharedPtr<Shader> Shader::createAndAddToLibrary(const std::string& filepath)
     {
         SharedPtr<Shader> shader;
         switch(Context::getAPI())
@@ -55,7 +55,7 @@ namespace Ruby
         return shader;
     }
 
-    SharedPtr<Shader> Shader::createAndAddShaderToLibrary(const std::string& name, const std::string& filepath)
+    SharedPtr<Shader> Shader::createAndAddToLibrary(const std::string& name, const std::string& filepath)
     {
         SharedPtr<Shader> shader;
         switch(Context::getAPI())

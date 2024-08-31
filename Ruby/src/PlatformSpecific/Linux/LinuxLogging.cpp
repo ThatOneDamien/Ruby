@@ -43,10 +43,11 @@ namespace Ruby
         {
             bool isNone = color.BG == LogColor::None;
             bool isDark = (uint8_t)color.BG < 9;
-            char effective = '0' + ((uint8_t)color.BG - 1) & 7;
+            char effective = '0' + (((uint8_t)color.BG - 1) & 7);
             s_BGColorBuf[2] = isDark ? '4' : '1';
             s_BGColorBuf[3] = isNone ? '9' : (isDark ? effective : '0');
             s_BGColorBuf[4] = isDark ? 'm' : effective; 
+            s_BGColorBuf[5] = isDark ? '\0' : 'm';
             s_CurrentColor.BG = color.BG;
         }
         printf(s_BGColorBuf);

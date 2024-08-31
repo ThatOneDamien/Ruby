@@ -72,8 +72,8 @@ namespace Ruby
         virtual inline void setLayout(const VertexLayout& layout) = 0;
         virtual inline const VertexLayout& getLayout() const = 0;
 
-        static SharedPtr<VertexBuffer> createVBO(const void* vertices, uint32_t size);
-        static SharedPtr<VertexBuffer> createVBO(uint32_t size);
+        static SharedPtr<VertexBuffer> create(const void* vertices, uint32_t size);
+        static SharedPtr<VertexBuffer> create(uint32_t size);
 
     };
 
@@ -87,7 +87,7 @@ namespace Ruby
 
         virtual inline uint32_t getCount() const = 0;
 
-        static SharedPtr<IndexBuffer> createIBO(const uint32_t* indices, uint32_t count);
+        static SharedPtr<IndexBuffer> create(const uint32_t* indices, uint32_t count);
 
     };
 
@@ -103,8 +103,8 @@ namespace Ruby
         virtual inline uint32_t getSize() const = 0;
         virtual inline uint8_t getBinding() const = 0;
 
-        static SharedPtr<UniformBuffer> createUBO(const void* data, uint32_t size, uint8_t binding);
-        static SharedPtr<UniformBuffer> createUBO(uint32_t size, uint8_t binding);
+        static SharedPtr<UniformBuffer> create(const void* data, uint32_t size, uint8_t binding);
+        static SharedPtr<UniformBuffer> create(uint32_t size, uint8_t binding);
     };
 
 }

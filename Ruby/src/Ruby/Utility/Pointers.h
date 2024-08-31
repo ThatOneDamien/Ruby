@@ -102,7 +102,8 @@ namespace Ruby
                 m_Data->Destroy();
         }
 
-        inline T* get() const noexcept { return m_Data ? (T*)(&m_Data->refs + 1) : nullptr; }
+        inline T* get() noexcept { return m_Data ? (T*)(&m_Data->refs + 1) : nullptr; }
+        inline const T* get() const noexcept { return m_Data ? (T*)(&m_Data->refs + 1) : nullptr; }
         inline uint64_t getRefCount() const noexcept { return m_Data->refs; }
 
         inline void reset()
@@ -162,14 +163,32 @@ namespace Ruby
             return *this;
         }
 
-        template <std::enable_if_t<!std::disjunction_v<std::is_array<T>, std::is_void<T>>, int> = 0>
-        T& operator*() const noexcept 
+        T& operator*() noexcept 
         {
             return *get();
         }
 
-        template <std::enable_if_t<!std::is_array_v<T>, int> = 0>
-        T* operator->() const noexcept 
+        const T& operator*() const noexcept 
+        {
+            return *get();
+        }
+
+        T* operator->() noexcept 
+        {
+            return get();
+        }
+
+        const T* operator->() const noexcept 
+        {
+            return get();
+        }
+
+        operator T*() noexcept
+        {
+            return get();
+        }
+
+        operator const T*() const noexcept
         {
             return get();
         }

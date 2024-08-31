@@ -17,7 +17,7 @@ namespace Ruby
         virtual void bind() const override;
         virtual void unbind() const override;
 
-        virtual inline const std::string& getName() const { return m_Name; }
+        virtual inline const std::string& getName() const override { return m_Name; }
 
         virtual void setUniformInt(const char* name, int value) const override;
         virtual void setUniformIntArray(const char* name, uint32_t count, int* arr) const override;
@@ -32,7 +32,7 @@ namespace Ruby
         void compileShader(const std::string collection[6]);
         inline int getUniformLocation(const std::string& name) const
         {
-            RB_ASSERT_RET(m_CachedUniforms.count(name), -1, "Unrecognized uniform name '%s'", name.c_str());
+            RB_ENSURE_RET(m_CachedUniforms.count(name), -1, "Unrecognized uniform name '%s'", name.c_str());
             return m_CachedUniforms[name];
         }
 

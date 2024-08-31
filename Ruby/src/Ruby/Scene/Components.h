@@ -34,11 +34,12 @@ namespace Ruby
 
         struct Camera
         {
-            Ruby::Camera Cam;
+            OrthoCamera Cam;
             // This will create a camera object with the aspect ratio of
             // the current window and scale of 1.0.
-            Camera() = default;
-            Camera(const Ruby::Camera& cam)
+            Camera()
+                : Cam(1.0f) {}
+            Camera(const OrthoCamera& cam)
                 : Cam(cam) {}
 
         };

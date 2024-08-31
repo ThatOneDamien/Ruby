@@ -31,7 +31,7 @@ namespace Ruby
     {
         if (!s_GLFWinitialized)
         {
-            RB_ASSERT(glfwInit(), "GLFW failed to be initialized.");
+            RB_ENSURE_CRITICAL(glfwInit(), "GLFW failed to be initialized.");
             s_GLFWinitialized = true;
         }
 
@@ -54,7 +54,7 @@ namespace Ruby
         glfwSetWindowSizeLimits(m_Window, spec.MinWidth, spec.MinHeight, GLFW_DONT_CARE, GLFW_DONT_CARE);
         glfwSetWindowAttrib(m_Window, GLFW_DECORATED, (int)spec.HasTitleBar);
 
-        RB_ASSERT(m_Window, "GLFW window failed to be created.");
+        RB_ENSURE_CRITICAL(m_Window, "GLFW window failed to be created.");
         glfwMakeContextCurrent(m_Window);
 
         glfwSetErrorCallback(glfwErrorCallbackFunc);
@@ -156,6 +156,11 @@ namespace Ruby
     {
         glfwSetWindowTitle(m_Window, title);
         m_Title = title;
+    }
+
+    void Window::setMouseLocked(bool locked)
+    {
+        glfwSetInputMode(m_Window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     }
 
     void* Window::getNativeWindowPtr() const

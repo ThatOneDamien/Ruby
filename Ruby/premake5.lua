@@ -4,8 +4,8 @@ project "Ruby"
     cppdialect "C++17"
     staticruntime "on"
 
-    targetdir (outdir .. "/%{prj.name}")
-    objdir (intdir .. "/%{prj.name}")
+    targetdir (outdir)
+    objdir (intdir)
     
     pchheader "ruby_pch.h"
     pchsource "src/ruby_pch.cpp"
@@ -40,7 +40,7 @@ project "Ruby"
         "glad",
         "ImGui",
         "msdf-atlas-gen",
-        "SoloudStatic"
+        "Soloud"
     }
 
     defines
@@ -69,7 +69,7 @@ project "Ruby"
             "src/PlatformSpecific/Linux/**.h",
             "src/PlatformSpecific/Linux/**.cpp"
         }
-        links {"GL", "dl"}
+        links { "GL", "dl" }
         disablewarnings "format-security"
 
     filter "configurations:Debug"

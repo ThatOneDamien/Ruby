@@ -2,9 +2,10 @@ project "glad"
     kind "StaticLib"
     language "C"
     staticruntime "on"
+    warnings "Off"
 
-    targetdir (outdir .. "/%{prj.name}")
-    objdir (intdir .. "/%{prj.name}")
+    targetdir (outdir)
+    objdir (intdir)
 
     files
     {

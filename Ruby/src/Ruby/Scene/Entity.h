@@ -8,7 +8,7 @@ namespace Ruby
     {
         static constexpr uint32_t nullID = (uint32_t)entt::tombstone;
     public:
-        Entity(Scene* scene);
+        Entity(Scene* scene, entt::entity id = entt::null);
         ~Entity() = default;
 
         inline uint32_t getID() const { return (uint32_t)m_EntityID; }

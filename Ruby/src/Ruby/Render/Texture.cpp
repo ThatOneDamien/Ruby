@@ -7,7 +7,7 @@
 
 namespace Ruby 
 {
-    SharedPtr<Texture> Texture::createTexture(const std::string& filepath, const TextureSpec& spec)
+    SharedPtr<Texture> Texture::create(const std::string& filepath, const TextureSpec& spec)
     {
         switch(Context::getAPI())
         {
@@ -21,7 +21,7 @@ namespace Ruby
         }
     }
 
-    SharedPtr<Texture> Texture::createTexture(const TextureSpec& spec)
+    SharedPtr<Texture> Texture::create(const TextureSpec& spec)
     {
         switch(Context::getAPI())
         {
@@ -35,7 +35,7 @@ namespace Ruby
         }
     }
 
-    SharedPtr<Texture> Texture::createTexture(const void* data, const TextureSpec& spec)
+    SharedPtr<Texture> Texture::create(const void* data, const TextureSpec& spec)
     {
         switch(Context::getAPI())
         {

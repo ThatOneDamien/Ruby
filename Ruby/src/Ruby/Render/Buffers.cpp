@@ -8,7 +8,7 @@
 
 namespace Ruby 
 {
-    SharedPtr<VertexBuffer> VertexBuffer::createVBO(const void* vertices, uint32_t size)
+    SharedPtr<VertexBuffer> VertexBuffer::create(const void* vertices, uint32_t size)
     {
         switch(Context::getAPI())
         {
@@ -22,7 +22,7 @@ namespace Ruby
         }
     }
 
-    SharedPtr<VertexBuffer> VertexBuffer::createVBO(uint32_t size)
+    SharedPtr<VertexBuffer> VertexBuffer::create(uint32_t size)
     {
         switch(Context::getAPI())
         {
@@ -36,7 +36,7 @@ namespace Ruby
         }
     }
 
-    SharedPtr<IndexBuffer> IndexBuffer::createIBO(const uint32_t* indices, uint32_t count)
+    SharedPtr<IndexBuffer> IndexBuffer::create(const uint32_t* indices, uint32_t count)
     {
         switch(Context::getAPI())
         {
@@ -50,7 +50,7 @@ namespace Ruby
         }
     }
 
-    SharedPtr<UniformBuffer> UniformBuffer::createUBO(const void* data, uint32_t size, uint8_t binding)
+    SharedPtr<UniformBuffer> UniformBuffer::create(const void* data, uint32_t size, uint8_t binding)
     {
         switch(Context::getAPI())
         {
@@ -64,7 +64,7 @@ namespace Ruby
         }
     }
 
-    SharedPtr<UniformBuffer> UniformBuffer::createUBO(uint32_t size, uint8_t binding)
+    SharedPtr<UniformBuffer> UniformBuffer::create(uint32_t size, uint8_t binding)
     {
         switch(Context::getAPI())
         {
