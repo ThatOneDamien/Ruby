@@ -8,7 +8,7 @@
 #endif
 #endif
 
-#include <stdint.h>
+#include <cstdint>
 #include <iostream>
 #include <algorithm>
 #include "Ruby/Utility/Pointers.h"

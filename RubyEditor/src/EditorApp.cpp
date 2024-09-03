@@ -206,30 +206,20 @@ namespace Ruby
         ImGui::End();
     }
 
-    void EditorApp::onEvent(Event& e)
+    void EditorApp::onMouseScroll(double xoff, double yoff)
     {
-        switch (e.getType())
+        (void)xoff;
+        if (g_SceneSelected)
         {
-            case EventType::MouseScroll:
-            {
-                if (g_SceneSelected)
-                {
-                    MouseScrollEvent& msEvent = static_cast<MouseScrollEvent&>(e);
-                    g_CameraZoom -= 0.05f * g_CameraZoom * msEvent.getYOffset();
-                    g_EditorCam.setProjection(g_PrevViewportSize.x / g_PrevViewportSize.y, g_CameraZoom);
-                }
-                break;
-            }
-            case EventType::KeyPressed:
-            {
-                KeyPressedEvent& kpEvent = static_cast<KeyPressedEvent&>(e);
-                if(kpEvent.getKeyCode() == KeyCode::D && Input::isKeyDown(KeyCode::LeftControl))
-                    g_ShowDebugWindow = !g_ShowDebugWindow;
-                break;
-            }
-            default: 
-                break;
+            g_CameraZoom -= 0.05f * g_CameraZoom * yoff;
+            g_EditorCam.setProjection(g_PrevViewportSize.x / g_PrevViewportSize.y, g_CameraZoom);
         }
+    }
+
+    void EditorApp::onKeyEvent(KeyCode code, int scancode, KeyAction action, int mods)
+    {
+        if(code == KeyCode::D && (mods & RB_MOD_CONTROL))
+            g_ShowDebugWindow = !g_ShowDebugWindow;
     }
 
     void EditorApp::onExit()

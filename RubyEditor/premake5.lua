@@ -28,8 +28,7 @@ project "RubyEditor"
         "ImGui",
         "msdf-atlas-gen",
         "msdfgen",
-        "FreeType",
-        "Soloud",
+        "FreeType"
     }
 
     filter "system:windows"
@@ -38,6 +37,7 @@ project "RubyEditor"
         entrypoint "WinMainCRTStartup"
         links
         {
+            "Soloud",
             "Dwmapi",
             "winmm"
         }
@@ -48,6 +48,7 @@ project "RubyEditor"
     filter "system:linux"
         kind "ConsoleApp"
         disablewarnings "format-security"
+        links { "Soloud", "asound", "pthread", "dl", "GL" }
 
 
     filter "configurations:Debug"

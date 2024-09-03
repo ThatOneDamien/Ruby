@@ -198,7 +198,7 @@ namespace Ruby
                 for (int i = 0; i < s_TextureSlotCount; ++i)
                     arr[i] = i;
 
-                s_QuadShader->setUniformIntArray("u_Textures", s_TextureSlotCount, arr);
+                s_QuadShader->setUniformIntArr("u_Textures", s_TextureSlotCount, arr);
             }
 
             s_TextShader = Shader::create(RubyDir + "/assets/shaders/text.glsl");

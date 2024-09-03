@@ -69,7 +69,6 @@ project "Ruby"
             "src/PlatformSpecific/Linux/**.h",
             "src/PlatformSpecific/Linux/**.cpp"
         }
-        links { "GL", "dl" }
         disablewarnings "format-security"
 
     filter "configurations:Debug"

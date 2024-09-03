@@ -28,8 +28,7 @@ project "Sandbox"
         "ImGui",
         "msdf-atlas-gen",
         "msdfgen",
-        "FreeType",
-        "Soloud",
+        "FreeType"
     }
 
     filter "system:windows"
@@ -38,6 +37,7 @@ project "Sandbox"
         entrypoint "WinMainCRTStartup"
         links
         {
+            "Soloud",
             "Dwmapi",
             "winmm"
         }
@@ -48,6 +48,7 @@ project "Sandbox"
     filter "system:linux"
         kind "ConsoleApp"
         disablewarnings "format-security"
+        links { "Soloud", "pthread", "dl", "asound", "GL" }
 
 
     filter "configurations:Debug"

@@ -1,11 +1,10 @@
 #include "ruby_pch.h"
 
-#include "Ruby/Main/Core.h"
+#include "OpenGLContext.h"
 
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 
-#include "Ruby/Render/VertexArray.h"
 
 
 // Forward Declaration for loading GL context into GLFW
@@ -37,7 +36,10 @@ namespace Ruby
             glDebugMessageCallback(debugCallbackFunc, nullptr);
 
             glEnable(GL_DEPTH_TEST);
-            // glDepthFunc(GL_LEQUAL);
+            glDepthFunc(GL_LEQUAL);
+            // glEnable(GL_CULL_FACE);
+            // glCullFace(GL_BACK);
+            // glFrontFace(GL_CCW);
 
             glEnable(GL_BLEND);
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -55,6 +57,14 @@ namespace Ruby
         {
             vao->bind();
             glDrawElements(GL_TRIANGLES, indexCount ? indexCount : vao->getIndexBuffer()->getCount(), GL_UNSIGNED_INT, nullptr);
+        }
+
+        void drawInstanced(const SharedPtr<VertexArray>& vao, uint32_t instanceCount, uint32_t indexCount)
+        {
+            glDrawElementsInstanced(GL_TRIANGLES, 
+                                    indexCount ? indexCount : vao->getIndexBuffer()->getCount(),
+                                    GL_UNSIGNED_INT, nullptr,
+                                    instanceCount);
         }
 
         void setClearColor(float r, float g, float b)

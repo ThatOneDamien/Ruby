@@ -1,13 +1,8 @@
 #include "ruby_pch.h"
 
+#include "App.h"
 #include "Core.h"
 #include "Window.h"
-#include "App.h"
-
-#include "Ruby/Event/AppEvent.h"
-#include "Ruby/Event/KeyEvent.h"
-#include "Ruby/Event/MouseEvent.h"
-
 
 #include <GLFW/glfw3.h>
 
@@ -18,12 +13,15 @@
 
 namespace Ruby 
 {
+#ifdef RB_DEBUG
     static void glfwErrorCallbackFunc(int error, const char* description)
     {
         RB_ERROR("GLFW Error #%d: %s", error, description);
     }
+#endif
 
-    static bool s_GLFWinitialized = false;
+    static bool   s_GLFWinitialized = false;
+    static size_t s_WindowCount = 0;
 
     Window::Window(const WindowSpec& spec, API desiredAPI)
         : m_Title(spec.Name), m_Width(spec.Width),
@@ -33,7 +31,9 @@ namespace Ruby
         {
             RB_ENSURE_CRITICAL(glfwInit(), "GLFW failed to be initialized.");
             s_GLFWinitialized = true;
+            RB_INFO("GLFW initialized successfully!");
         }
+        ++s_WindowCount;
 
         switch(desiredAPI)
         {
@@ -57,93 +57,96 @@ namespace Ruby
         RB_ENSURE_CRITICAL(m_Window, "GLFW window failed to be created.");
         glfwMakeContextCurrent(m_Window);
 
+#ifdef RB_DEBUG
         glfwSetErrorCallback(glfwErrorCallbackFunc);
-        glfwSetWindowCloseCallback(m_Window, [](GLFWwindow* window)
-            {
-                WindowCloseEvent e;
-                App::getInstance().handleEvent(e);
-
-            });
-
-        glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* window, int width, int height)
-            {
-                WindowResizeEvent e(width, height);
-                App::getInstance().handleEvent(e);
-            });
-
-        glfwSetKeyCallback(m_Window, [](GLFWwindow* window, int key, int scancode, int action, int mods)
-            {
-                switch (action)
-                {
-                case GLFW_PRESS:
-                {
-                    KeyPressedEvent e((KeyCode)key, false);
-                    App::getInstance().handleEvent(e);
-                    break;
-                }
-                case GLFW_RELEASE:
-                {
-                    KeyReleasedEvent e((KeyCode)key);
-                    App::getInstance().handleEvent(e);
-                    break;
-                }
-                case GLFW_REPEAT:
-                {
-                    KeyPressedEvent e((KeyCode)key, true);
-                    App::getInstance().handleEvent(e);
-                    break;
-                }
-
-                }
-
-            });
-
-        glfwSetMouseButtonCallback(m_Window, [](GLFWwindow* window, int button, int action, int mods) {
-
-            switch (action)
-            {
-            case GLFW_PRESS:
-            {
-                MousePressedEvent e((MouseCode)button);
-                App::getInstance().handleEvent(e);
-                break;
-            }
-            case GLFW_RELEASE:
-            {
-                MouseReleasedEvent e((MouseCode)button);
-                App::getInstance().handleEvent(e);
-                break;
-            }
-            }
-            });
-
-        glfwSetCursorPosCallback(m_Window, [](GLFWwindow* window, double xpos, double ypos) {
-
-            MouseMoveEvent e((uint16_t)xpos, (uint16_t)ypos);
-            App::getInstance().handleEvent(e);
-
-            });
-
-        glfwSetScrollCallback(m_Window, [](GLFWwindow* window, double xoffset, double yoffset) {
-
-            MouseScrollEvent e((float)xoffset, (float)yoffset);
-            App::getInstance().handleEvent(e);
-
-            });
-
+#endif
         glfwSwapInterval((int)m_VSync);
+        
+        // Window Close
+        glfwSetWindowCloseCallback(m_Window, 
+            [](GLFWwindow* window)
+            {
+                (void)window;
+                App& inst = App::getInstance();
+                inst.onWindowClose();
+                inst.close();
+            });
+
+        
+        // Window Resize
+        glfwSetWindowSizeCallback(m_Window, 
+            [](GLFWwindow* window, int width, int height)
+            {
+                (void)window;
+                App& inst = App::getInstance();
+                inst.getWindow().setWindowSize((uint16_t)width, (uint16_t)height);
+                inst.onWindowResize((uint16_t)width, (uint16_t)height);
+            });
+
+        // Window Focused/Unfocused
+        glfwSetWindowFocusCallback(m_Window, 
+            [](GLFWwindow* window, int focused)
+            {
+                (void)window;
+                App& inst = App::getInstance();
+                inst.getWindow().setFocused((bool)focused);
+                inst.onWindowChangeFocus((bool)focused);
+            });
+
+        // Key Event
+        glfwSetKeyCallback(m_Window, 
+            [](GLFWwindow* window, int key, int scancode, int action, int mods)
+            {
+                (void)window;
+                App& inst = App::getInstance();
+                inst.onKeyEvent((KeyCode)key, scancode, (KeyAction)action, mods);
+            });
+
+        // Mouse Button
+        glfwSetMouseButtonCallback(m_Window, 
+            [](GLFWwindow* window, int button, int action, int mods) 
+            {
+                (void)window;
+                App& inst = App::getInstance();
+                inst.onMouseButton((MouseCode)button, (MouseAction)action, mods);
+            });
+
+        // Cursor Moved
+        glfwSetCursorPosCallback(m_Window, 
+            [](GLFWwindow* window, double xpos, double ypos) 
+            { 
+                (void)window;
+                App& inst = App::getInstance();
+                inst.onMouseMove(xpos, ypos);
+            });
+
+        // Mouse Scrolled
+        glfwSetScrollCallback(m_Window, 
+            [](GLFWwindow* window, double xoffset, double yoffset) 
+            {
+                (void)window;
+                App& inst = App::getInstance();
+                inst.onMouseScroll(xoffset, yoffset);
+            });
+
     }
 
     Window::~Window()
     {
-        glfwDestroyWindow(m_Window);
-        glfwTerminate();
+        if(m_Window)
+        {
+            --s_WindowCount;
+            glfwDestroyWindow(m_Window);
+        }
+        if(!s_WindowCount)
+            glfwTerminate();
     }
 
-    void Window::update() const
+    void Window::newFrame()
     {
         glfwPollEvents();
         glfwSwapBuffers(m_Window);
+        m_Minimized = (bool)glfwGetWindowAttrib(m_Window, GLFW_ICONIFIED);
     }
 
     void Window::setVSync(bool enabled)
@@ -160,7 +163,12 @@ namespace Ruby
 
     void Window::setMouseLocked(bool locked)
     {
-        glfwSetInputMode(m_Window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        glfwSetInputMode(m_Window, GLFW_CURSOR, locked ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
+    }
+    
+    void Window::getCursorPos(double* o_MouseX, double* o_MouseY)
+    {
+        glfwGetCursorPos(m_Window, o_MouseX, o_MouseY);
     }
 
     void* Window::getNativeWindowPtr() const
@@ -182,6 +190,24 @@ namespace Ruby
     bool Window::isMouseButtonDown(MouseCode code) const
     {
         return glfwGetMouseButton(m_Window, (int)code) == GLFW_PRESS;
+    }
+    
+    bool Window::isHovered() const
+    {
+        return (bool)glfwGetWindowAttrib(m_Window, GLFW_HOVERED);
+    }
+    
+    Window& Window::operator=(Window&& other)
+    {
+        m_Window = other.m_Window;
+        other.m_Window = nullptr;
+        m_Title = std::move(other.m_Title);
+        m_Width = other.m_Width;
+        m_Height = other.m_Height;
+        m_Minimized = other.m_Minimized;
+        m_VSync = other.m_VSync;
+
+        return *this;
     }
 
 }

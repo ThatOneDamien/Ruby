@@ -7,6 +7,12 @@
 
 namespace Ruby 
 { 
+    enum class MouseAction : uint8_t
+    {
+        Released = 0,
+        Pressed
+    };
+
     enum class MouseCode : uint16_t
     {
         // From glfw3.h

@@ -5,8 +5,23 @@
 // in an enum that looks really nice, so I stole it :)
 #include <cstdint>
 
+#define RB_MOD_SHIFT           0x0001
+#define RB_MOD_CONTROL         0x0002
+#define RB_MOD_ALT             0x0004
+#define RB_MOD_SUPER           0x0008
+#define RB_MOD_CAPS_LOCK       0x0010
+#define RB_MOD_NUM_LOCK        0x0020
+
 namespace Ruby 
 { 
+    
+    enum class KeyAction : uint8_t
+    {
+        Released = 0,
+        Pressed,
+        Repeated
+    };
+
     enum class KeyCode : uint16_t
     {
         // From glfw3.h
@@ -142,4 +157,6 @@ namespace Ruby
         RightSuper          = 347,
         Menu                = 348
     };
+
+
 }

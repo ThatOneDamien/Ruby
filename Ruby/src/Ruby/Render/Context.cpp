@@ -1,9 +1,7 @@
 #include "ruby_pch.h"
 
-#define RB_USE_VULKAN
-#define RB_USE_OPENGL
-#define RB_ALL_GRAPHICS_APIS
 #include "Context.h"
+#include "API/OpenGL/OpenGLContext.h"
 
 namespace Ruby
 {
@@ -86,6 +84,22 @@ namespace Ruby
                 break;
             case API::Vulkan:
                 // VulkanContext::drawCall(vao, indexCount);
+                break;
+            default:
+                RB_ERROR_DEBUG("Unknown API.");
+                break;
+            }
+        }
+
+        void drawInstanced(const SharedPtr<VertexArray>& vao, uint32_t instanceCount, uint32_t indexCount)
+        {
+            switch(s_ContextAPI)
+            {
+            case API::OpenGL:
+                OpenGLContext::drawInstanced(vao, instanceCount, indexCount);
+                break;
+            case API::Vulkan:
+                // VulkanContext::drawInstanced(vao, indexCount);
                 break;
             default:
                 RB_ERROR_DEBUG("Unknown API.");

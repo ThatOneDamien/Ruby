@@ -12,15 +12,15 @@ out float v_TexIndex;
 
 layout(std140, binding = 0) uniform Camera
 {
-	mat4 u_ViewProj;
+    mat4 u_ViewProj;
 };
 
 void main()
 {
-	gl_Position = u_ViewProj * vec4(a_Position, 1.0);
-	v_Color = a_Color;
-	v_TexCoords = a_TexCoords;
-	v_TexIndex = a_TexIndex;
+    gl_Position = u_ViewProj * vec4(a_Position, 1.0);
+    v_Color = a_Color;
+    v_TexCoords = a_TexCoords;
+    v_TexIndex = a_TexIndex;
 }
 
 #shader fragment
@@ -36,6 +36,6 @@ in float v_TexIndex;
 
 void main()
 {
-	int index = int(v_TexIndex);
-	o_Color = texture(u_Textures[index], v_TexCoords) * v_Color;
+    int index = int(v_TexIndex);
+    o_Color = texture(u_Textures[index], v_TexCoords) * v_Color;
 }

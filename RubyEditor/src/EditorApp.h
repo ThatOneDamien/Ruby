@@ -47,7 +47,8 @@ namespace Ruby
         virtual void onStart() override;
         virtual void update(double deltaMillis) override;
         virtual void ImGuiRender(double deltaMillis) override;
-        virtual void onEvent(Event & e) override;
+        virtual void onMouseScroll(double xoff, double yoff) override;
+        virtual void onKeyEvent(KeyCode code, int scancode, KeyAction action, int mods) override;
         virtual void onExit() override;
 
     private:

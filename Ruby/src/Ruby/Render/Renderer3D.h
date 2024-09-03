@@ -4,6 +4,7 @@
 #include "Camera.h"
 #include "Font.h"
 #include "Shader.h"
+#include "Mesh.h"
 #include "Texture.h"
 #include "VertexArray.h"
 #include "Ruby/Scene/Scene.h"
@@ -29,6 +30,11 @@ namespace Ruby
         // Use provided Camera's projection matrix in the GPU for
         // projection of the batched geometry.
         void useCamera(const PerspCamera& cam);
+
+
+        void setMesh(const Mesh& mesh);
+        void addInstance(const glm::vec3& position, const glm::vec3& scale, float rotation, const glm::vec3& rotationalAxis);
+        void renderInstanced();
 
     }
 

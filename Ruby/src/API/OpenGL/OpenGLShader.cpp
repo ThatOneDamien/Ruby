@@ -85,10 +85,10 @@ namespace Ruby
                     is.read(&source[0], size);
                 }
                 else
-                    RB_ERROR("Unable to read file %s", filepath);
+                    RB_ERROR("Unable to read file %s", filepath.c_str());
             }
             else
-                RB_ERROR("Unable to open file %s", filepath);
+                RB_ERROR("Unable to open file %s", filepath.c_str());
 
             return source;
 
@@ -239,38 +239,39 @@ namespace Ruby
         glUniform1i(getUniformLocation(name), value);
     }
 
-    void OpenGLShader::setUniformIntArray(const char* name, uint32_t count, int* arr) const
-    {
-        glUniform1iv(getUniformLocation(name), (int)count, arr);
-    }
 
     void OpenGLShader::setUniformFloat(const char* name, float value) const
     {
         glUniform1f(getUniformLocation(name), value);
     }
 
-    void OpenGLShader::setUniformFloatArray(const char* name, uint32_t count, float* arr) const
+    void OpenGLShader::setUniformVec2(const char* name, const glm::vec2& values) const
     {
-        glUniform1fv(getUniformLocation(name), (int)count, arr);
+        glUniform2f(getUniformLocation(name), values.x, values.y);
     }
 
-    void OpenGLShader::setUniformFloat2(const char* name, float v0, float v1) const
+    void OpenGLShader::setUniformVec3(const char* name, const glm::vec3& values) const
     {
-        glUniform2f(getUniformLocation(name), v0, v1);
+        glUniform3f(getUniformLocation(name), values.x, values.y, values.z);
     }
 
-    void OpenGLShader::setUniformFloat3(const char* name, float v0, float v1, float v2) const
+    void OpenGLShader::setUniformVec4(const char* name, const glm::vec4& values) const
     {
-        glUniform3f(getUniformLocation(name), v0, v1, v2);
-    }
-
-    void OpenGLShader::setUniformFloat4(const char* name, float v0, float v1, float v2, float v3) const
-    {
-        glUniform4f(getUniformLocation(name), v0, v1, v2, v3);
+        glUniform4f(getUniformLocation(name), values.x, values.y, values.z, values.w);
     }
 
     void OpenGLShader::setUniformMat4(const char* name, const glm::mat4& mat) const
     {
         glUniformMatrix4fv(getUniformLocation(name), 1, GL_FALSE, &mat[0][0]);
+    }
+
+    void OpenGLShader::setUniformIntArr(const char* name, uint32_t count, int* arr) const
+    {
+        glUniform1iv(getUniformLocation(name), (int)count, arr);
+    }
+
+    void OpenGLShader::setUniformFloatArr(const char* name, uint32_t count, float* arr) const
+    {
+        glUniform1fv(getUniformLocation(name), (int)count, arr);
     }
 }

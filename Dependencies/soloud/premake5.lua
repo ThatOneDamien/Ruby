@@ -3,7 +3,6 @@ project "Soloud"
     targetdir (outdir)
     objdir (intdir)
     language "C++"
-    cppdialect "C++17"
     staticruntime "on"
     warnings "Off"
 
@@ -30,14 +29,16 @@ project "Soloud"
         defines "WITH_COREAUDIO"
         files "src/backend/coreaudio/**.c*"
     else
-        defines "WITH_OSS"
-        files "src/backend/oss/**.c*"
+        defines { "WITH_OSS", "WITH_ALSA" }
+        files { "src/backend/oss/**.c*", "src/backend/alsa/**.c*" }
     end
 
     filter "configurations:Debug"
         runtime "Debug"
+        defines "DEBUG"
         symbols "on"
 
     filter "configurations:Release"
         runtime "Release"
+        defines "NDEBUG"
         optimize "on"
