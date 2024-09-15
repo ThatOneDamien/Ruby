@@ -75,12 +75,12 @@ namespace Ruby
             }
         }
 
-        void drawCall(const SharedPtr<VertexArray>& vao, uint32_t indexCount)
+        void drawCall(const SharedPtr<VertexArray>& vao, uint32_t indexCount, Primitive primtive)
         {
             switch(s_ContextAPI)
             {
             case API::OpenGL:
-                OpenGLContext::drawCall(vao, indexCount);
+                OpenGLContext::drawCall(vao, indexCount, primtive);
                 break;
             case API::Vulkan:
                 // VulkanContext::drawCall(vao, indexCount);
@@ -91,12 +91,12 @@ namespace Ruby
             }
         }
 
-        void drawInstanced(const SharedPtr<VertexArray>& vao, uint32_t instanceCount, uint32_t indexCount)
+        void drawInstanced(const SharedPtr<VertexArray>& vao, uint32_t instanceCount, uint32_t indexCount, Primitive primitive)
         {
             switch(s_ContextAPI)
             {
             case API::OpenGL:
-                OpenGLContext::drawInstanced(vao, instanceCount, indexCount);
+                OpenGLContext::drawInstanced(vao, instanceCount, indexCount, primitive);
                 break;
             case API::Vulkan:
                 // VulkanContext::drawInstanced(vao, indexCount);

@@ -32,15 +32,7 @@ project "Ruby"
         "%{wks.location}/Dependencies/glm",
         "%{wks.location}/Dependencies/stb_image",
         "%{wks.location}/Dependencies/entt/include",
-    }
-
-    links
-    {
-        "GLFW",
-        "glad",
-        "ImGui",
-        "msdf-atlas-gen",
-        "Soloud"
+        VulkanSDKLocation .. "/include"
     }
 
     defines

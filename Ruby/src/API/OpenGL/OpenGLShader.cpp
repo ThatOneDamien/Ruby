@@ -2,12 +2,177 @@
 
 #include "Ruby/Main/Core.h"
 #include "Ruby/Main/App.h"
+#include "Ruby/Utility/SPIRVCaching.h"
 #include "API/OpenGL/OpenGLShader.h"
 
 #include <glad/glad.h>
 #include <fstream>
 
 
+
+namespace Ruby
+{
+    namespace Internal
+    {
+    }
+
+
+    OpenGLShader::OpenGLShader(const ProgramStages& stageSrcs, const ProgramStages& stageCaches)
+    {
+        std::vector<uint32_t> binaries[6];
+
+        if(stageSrcs.VertexPath)
+            binaries[(size_t)ShaderType::Vertex] = SPIRV::getOrCacheSingleGlsl(stageSrcs.VertexPath, stageCaches.VertexPath, ShaderType::Vertex); 
+        if(stageSrcs.ComputePath)
+            binaries[(size_t)ShaderType::Compute] = SPIRV::getOrCacheSingleGlsl(stageSrcs.ComputePath, stageCaches.ComputePath, ShaderType::Compute); 
+        if(stageSrcs.FragmentPath)
+            binaries[(size_t)ShaderType::Fragment] = SPIRV::getOrCacheSingleGlsl(stageSrcs.FragmentPath, stageCaches.FragmentPath, ShaderType::Fragment); 
+        if(stageSrcs.GeometryPath)
+            binaries[(size_t)ShaderType::Geometry] = SPIRV::getOrCacheSingleGlsl(stageSrcs.GeometryPath, stageCaches.GeometryPath, ShaderType::Geometry); 
+        if(stageSrcs.TessControlPath)
+            binaries[(size_t)ShaderType::TessControl] = SPIRV::getOrCacheSingleGlsl(stageSrcs.TessControlPath, stageCaches.TessControlPath, ShaderType::TessControl); 
+        if(stageSrcs.TessEvaluationPath)
+            binaries[(size_t)ShaderType::TessEvaluation] = SPIRV::getOrCacheSingleGlsl(stageSrcs.TessEvaluationPath, stageCaches.TessEvaluationPath, ShaderType::TessEvaluation); 
+
+        compileShader(binaries);
+    }
+    
+
+    void OpenGLShader::compileShader(const std::vector<uint32_t> binaries[6])
+    {
+        GLuint programID = glCreateProgram();
+
+        // 
+        constexpr GLenum INVALID_ID = 0xFFFFFFFD;
+        constexpr GLenum INDEX_TO_GL_SHADER_TYPE[6] = 
+        {
+            GL_VERTEX_SHADER, 
+            GL_TESS_CONTROL_SHADER,
+            GL_TESS_EVALUATION_SHADER,
+            GL_GEOMETRY_SHADER,
+            GL_FRAGMENT_SHADER,
+            GL_COMPUTE_SHADER
+        };
+        constexpr const char* INDEX_TO_GL_SHADER_STR[6] =
+        {
+            "Vertex",
+            "Tesselation Control",
+            "Tesselation Evaluation",
+            "Geometry",
+            "Fragment",
+            "Compute"
+        };
+
+        GLenum shaderIDList[6] = { INVALID_ID, INVALID_ID, INVALID_ID, INVALID_ID, INVALID_ID, INVALID_ID };
+        size_t listInsert = 0;
+
+        for (size_t i = 0; i < 6; ++i)
+        {
+            if (binaries[i].empty())
+                continue;
+
+            GLuint shaderID = glCreateShader(INDEX_TO_GL_SHADER_TYPE[i]);
+
+            glShaderBinary(1, &shaderID, GL_SHADER_BINARY_FORMAT_SPIR_V, binaries[i].data(), binaries[i].size() * sizeof(uint32_t));
+            glSpecializeShader(shaderID, "main", 0, nullptr, nullptr);
+
+            GLint compileStatus = 0;
+            glGetShaderiv(shaderID, GL_COMPILE_STATUS, &compileStatus);
+
+            if (!compileStatus)
+            {
+                glDeleteShader(shaderID);
+
+                RB_ERROR_DEBUG("%s shader failed to compile!", INDEX_TO_GL_SHADER_STR[i]);
+                break;
+            }
+            
+            glAttachShader(programID, shaderID);
+
+            shaderIDList[listInsert++] = shaderID;
+        }
+
+        glLinkProgram(programID);
+        
+        GLint linkStatus = 0;
+        glGetProgramiv(programID, GL_LINK_STATUS, &linkStatus);
+        if (!linkStatus)
+        {
+            glDeleteProgram(programID);
+        
+            for (int i = 0; i < 6 && shaderIDList[i] != INVALID_ID; ++i)
+                glDeleteShader(shaderIDList[i]);
+        
+            RB_ERROR_DEBUG("Program failed to link successfully.");
+            return;
+        }
+
+        for (int i = 0; i < 6 && shaderIDList[i] != INVALID_ID; ++i)
+            glDetachShader(programID, shaderIDList[i]);
+
+        for (auto& [name, location] : m_CachedUniforms)
+            location = glGetUniformLocation(programID, name.c_str());
+
+        m_ProgramID = programID;
+    }
+    OpenGLShader::~OpenGLShader()
+    {
+        if(App::instanceExists())
+            glDeleteProgram(m_ProgramID);
+    }
+
+    void OpenGLShader::bind() const
+    {
+        glUseProgram(m_ProgramID);
+    }
+
+
+    void OpenGLShader::setUniformInt(const char* name, int value) const
+    {
+        glUniform1i(getUniformLocation(name), value);
+    }
+
+
+    void OpenGLShader::setUniformFloat(const char* name, float value) const
+    {
+        glUniform1f(getUniformLocation(name), value);
+    }
+
+    void OpenGLShader::setUniformVec2(const char* name, const glm::vec2& values) const
+    {
+        glUniform2f(getUniformLocation(name), values.x, values.y);
+    }
+
+    void OpenGLShader::setUniformVec3(const char* name, const glm::vec3& values) const
+    {
+        glUniform3f(getUniformLocation(name), values.x, values.y, values.z);
+    }
+
+    void OpenGLShader::setUniformVec4(const char* name, const glm::vec4& values) const
+    {
+        glUniform4f(getUniformLocation(name), values.x, values.y, values.z, values.w);
+    }
+
+    void OpenGLShader::setUniformMat4(const char* name, const glm::mat4& mat) const
+    {
+        glUniformMatrix4fv(getUniformLocation(name), 1, GL_FALSE, &mat[0][0]);
+    }
+
+    void OpenGLShader::setUniformIntArr(const char* name, uint32_t count, int* arr) const
+    {
+        glUniform1iv(getUniformLocation(name), (int)count, arr);
+    }
+
+    void OpenGLShader::setUniformFloatArr(const char* name, uint32_t count, float* arr) const
+    {
+        glUniform1fv(getUniformLocation(name), (int)count, arr);
+    }
+}
+
+
+
+// OLD CODE 
+/*
 namespace Ruby 
 {
     namespace Internal 
@@ -98,6 +263,7 @@ namespace Ruby
     OpenGLShader::OpenGLShader(const std::string& filepath)
         : OpenGLShader::OpenGLShader("", filepath)
     {
+        glslang::InitializeProcess();
         size_t lastSlash = 0, extension = 0;
         for (size_t i = filepath.size(); i-- > 0; )
         {
@@ -274,4 +440,4 @@ namespace Ruby
     {
         glUniform1fv(getUniformLocation(name), (int)count, arr);
     }
-}
+}*/

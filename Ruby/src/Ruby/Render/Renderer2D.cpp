@@ -189,7 +189,7 @@ namespace Ruby
 
             const std::string& RubyDir = App::getInstance().getRubyDir();
 
-            s_QuadShader = Shader::create(RubyDir + "/assets/shaders/quad.glsl");
+            // s_QuadShader = Shader::create(RubyDir + "/assets/shaders/quad.glsl");
 
             s_QuadShader->bind();
             s_CamUBO = UniformBuffer::create(sizeof(glm::mat4), 0);
@@ -201,7 +201,7 @@ namespace Ruby
                 s_QuadShader->setUniformIntArr("u_Textures", s_TextureSlotCount, arr);
             }
 
-            s_TextShader = Shader::create(RubyDir + "/assets/shaders/text.glsl");
+            // s_TextShader = Shader::create(RubyDir + "/assets/shaders/text.glsl");
 
         }
 

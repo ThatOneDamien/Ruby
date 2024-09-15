@@ -8,6 +8,7 @@
 
 // Forward Declaration
 struct GLFWwindow;
+typedef int Bruh;
 
 namespace Ruby 
 {

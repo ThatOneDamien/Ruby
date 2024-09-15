@@ -3,6 +3,7 @@
 #include "Renderer3D.h"
 
 #include <glm/gtc/matrix_transform.hpp>
+#include <fstream>
 
 namespace Ruby
 {
@@ -32,7 +33,17 @@ namespace Ruby
             s_ModelInsert = s_Models;
 
             const std::string& RubyDir = App::getInstance().getRubyDir();
-            s_Shader = Shader::create(RubyDir + "/assets/shaders/mesh.glsl");
+            // s_Shader = Shader::create(RubyDir + "/assets/shaders/mesh.glsl");
+            std::string bruh = RubyDir + "/assets/shaders/mesh.glsl.vert";
+            std::string bruh2 = RubyDir + "/assets/shaders/mesh.glsl.frag";
+
+            ProgramStages stages;
+            stages.VertexPath = bruh.c_str();
+            stages.FragmentPath = bruh2.c_str();
+            ProgramStages cache;
+            cache.VertexPath = "bruh/assets/a.vert";
+            cache.FragmentPath = "bruh/assets/a.frag";
+            s_Shader = Shader::create(stages, cache); 
 
             s_CamUBO = UniformBuffer::create(sizeof(glm::mat4), 0);
             s_MeshUBO = UniformBuffer::create(sizeof(glm::mat4) * MAX_INSTANCE_CNT, 1);

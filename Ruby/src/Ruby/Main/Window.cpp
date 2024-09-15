@@ -11,7 +11,7 @@
 #include <GLFW/glfw3native.h>
 #endif
 
-namespace Ruby 
+namespace Ruby
 {
 #ifdef RB_DEBUG
     static void glfwErrorCallbackFunc(int error, const char* description)
@@ -61,9 +61,9 @@ namespace Ruby
         glfwSetErrorCallback(glfwErrorCallbackFunc);
 #endif
         glfwSwapInterval((int)m_VSync);
-        
+
         // Window Close
-        glfwSetWindowCloseCallback(m_Window, 
+        glfwSetWindowCloseCallback(m_Window,
             [](GLFWwindow* window)
             {
                 (void)window;
@@ -72,9 +72,9 @@ namespace Ruby
                 inst.close();
             });
 
-        
+
         // Window Resize
-        glfwSetWindowSizeCallback(m_Window, 
+        glfwSetWindowSizeCallback(m_Window,
             [](GLFWwindow* window, int width, int height)
             {
                 (void)window;
@@ -84,7 +84,7 @@ namespace Ruby
             });
 
         // Window Focused/Unfocused
-        glfwSetWindowFocusCallback(m_Window, 
+        glfwSetWindowFocusCallback(m_Window,
             [](GLFWwindow* window, int focused)
             {
                 (void)window;
@@ -94,7 +94,7 @@ namespace Ruby
             });
 
         // Key Event
-        glfwSetKeyCallback(m_Window, 
+        glfwSetKeyCallback(m_Window,
             [](GLFWwindow* window, int key, int scancode, int action, int mods)
             {
                 (void)window;
@@ -103,8 +103,8 @@ namespace Ruby
             });
 
         // Mouse Button
-        glfwSetMouseButtonCallback(m_Window, 
-            [](GLFWwindow* window, int button, int action, int mods) 
+        glfwSetMouseButtonCallback(m_Window,
+            [](GLFWwindow* window, int button, int action, int mods)
             {
                 (void)window;
                 App& inst = App::getInstance();
@@ -112,17 +112,17 @@ namespace Ruby
             });
 
         // Cursor Moved
-        glfwSetCursorPosCallback(m_Window, 
-            [](GLFWwindow* window, double xpos, double ypos) 
-            { 
+        glfwSetCursorPosCallback(m_Window,
+            [](GLFWwindow* window, double xpos, double ypos)
+            {
                 (void)window;
                 App& inst = App::getInstance();
                 inst.onMouseMove(xpos, ypos);
             });
 
         // Mouse Scrolled
-        glfwSetScrollCallback(m_Window, 
-            [](GLFWwindow* window, double xoffset, double yoffset) 
+        glfwSetScrollCallback(m_Window,
+            [](GLFWwindow* window, double xoffset, double yoffset)
             {
                 (void)window;
                 App& inst = App::getInstance();
@@ -165,7 +165,7 @@ namespace Ruby
     {
         glfwSetInputMode(m_Window, GLFW_CURSOR, locked ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
     }
-    
+
     void Window::getCursorPos(double* o_MouseX, double* o_MouseY)
     {
         glfwGetCursorPos(m_Window, o_MouseX, o_MouseY);
@@ -191,12 +191,12 @@ namespace Ruby
     {
         return glfwGetMouseButton(m_Window, (int)code) == GLFW_PRESS;
     }
-    
+
     bool Window::isHovered() const
     {
         return (bool)glfwGetWindowAttrib(m_Window, GLFW_HOVERED);
     }
-    
+
     Window& Window::operator=(Window&& other)
     {
         m_Window = other.m_Window;

@@ -16,9 +16,22 @@
 #include "Ruby/Main/Input.h"
 
 
+// Rendering Context
+// Used to only include necessary functions for 
+// desired API so as to prevent loading functions for other APIs
+// into the final executable.
+#if defined(RB_USE_OPENGL)
+#undef RB_USE_VULKAN
+#include "API/OpenGL/OpenGLContext.h"
+#elif defined(RB_USE_VULKAN)
+#include "API/Vulkan/VulkanContext.h"
+#else
+#define RB_ALL_GRAPHICS_APIS
+#include "Ruby/Render/Context.h"
+#endif
+
 
 // Rendering
-#include "Ruby/Render/Context.h"
 #include "Ruby/Render/Renderer2D.h"
 #include "Ruby/Render/Renderer3D.h"
 #include "Ruby/Render/Buffers.h"

@@ -1,3 +1,5 @@
+include("premake_tools")
+
 workspace "Ruby"
     architecture "x64"
     startproject "RubyEditor"
@@ -11,7 +13,6 @@ workspace "Ruby"
     outdir = "%{wks.location}/bin/%{cfg.system}/%{cfg.buildcfg}/%{prj.name}"
     intdir = "!%{wks.location}/bin/int/%{cfg.system}/%{cfg.buildcfg}/%{prj.name}"
 
-
     group "Dependencies"
         include "Dependencies/GLFW"
         include "Dependencies/glad"
@@ -23,6 +24,6 @@ workspace "Ruby"
 
     group "Core"
         include "Ruby"
-        include "RubyEditor"
-        include "Sandbox"
+        create_project("RubyEditor", "RubyEditor")
+        create_project("Sandbox", "Sandbox")
     group ""
