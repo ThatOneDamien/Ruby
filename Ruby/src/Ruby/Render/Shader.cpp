@@ -11,18 +11,46 @@
 
 namespace Ruby 
 {
-    SharedPtr<Shader> Shader::create(const ProgramStages& stageSrcs, const ProgramStages& stageCaches)
+
+    static const char* SHADER_TYPE_TO_STR[6] = 
+    { 
+        "Vertex", 
+        "Tesselation Control", 
+        "Tesselation Evaluation",
+        "Geometry",
+        "Fragment",
+        "Compute"
+    };
+
+    const char* shaderTypeToString(ShaderType type)
+    {
+        return SHADER_TYPE_TO_STR[(size_t)type];
+    }
+
+    // SharedPtr<Shader> Shader::create(const ProgramStages& stagePaths, const ProgramStages& cachePaths)
+    // {
+    //     switch(Context::getAPI())
+    //     {
+    //     case API::OpenGL:
+    //         return createShared<OpenGLShader>(stagePaths, cachePaths);
+    //     case API::Vulkan:
+    //     default:
+    //         RB_ERROR_DEBUG("Unknown or unsupported graphics API.");
+    //         return nullptr;
+    //     }
+    // }
+
+    SharedPtr<Shader> Shader::createCombined(const std::string& filepath, bool shouldCache, const std::string& cachePath)
     {
         switch(Context::getAPI())
         {
         case API::OpenGL:
-            return createShared<OpenGLShader>(stageSrcs, stageCaches);
+            return createShared<OpenGLShader>(filepath, shouldCache, cachePath);
         case API::Vulkan:
         default:
             RB_ERROR_DEBUG("Unknown or unsupported graphics API.");
             return nullptr;
         }
     }
-
 
 }

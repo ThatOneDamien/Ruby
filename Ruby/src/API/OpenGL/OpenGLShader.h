@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Ruby/Render/Shader.h"
+#include "Ruby/Utility/SPIRVCaching.h"
 
 #include <vector>
 
@@ -12,10 +13,12 @@ namespace Ruby
     class OpenGLShader : public Shader
     {
     public:
-        OpenGLShader(const ProgramStages& stageSrcs, const ProgramStages& stageCaches);
+        // OpenGLShader(const ProgramStages& stagePaths, const ProgramStages& cachePaths = {});
+        OpenGLShader(const std::string& filepath, bool shouldCache = true, const std::string& cachePath = "");
         virtual ~OpenGLShader();
 
         virtual void bind() const override;
+        virtual bool recompile(bool force = false) override;
 
         virtual void setUniformInt(const char* name, int value) const override;
         virtual void setUniformFloat(const char* name, float value) const override;
@@ -27,15 +30,16 @@ namespace Ruby
         virtual void setUniformFloatArr(const char* name, uint32_t count, float* arr) const override;
 
     private:
-        void compileShader(const std::vector<uint32_t> binaries[6]);
-        inline int getUniformLocation(const std::string& name) const
-        {
-            RB_ENSURE_RET(m_CachedUniforms.count(name), -1, "Unrecognized uniform name '%s'", name.c_str());
-            return m_CachedUniforms[name];
-        }
+        int getUniformLocation(const std::string& name) const;
+
+        bool needToRecompile();
 
         RendererID m_ProgramID;
-        std::string m_Filepath;
+        ProgramStages m_StageFilePaths;
+        ProgramStages m_CacheFilePaths;
+        bool m_Combined;
+        bool m_ShouldCache;
+        std::filesystem::file_time_type m_LastWrittenTime;
         mutable std::unordered_map<std::string, int> m_CachedUniforms;
     };
 }

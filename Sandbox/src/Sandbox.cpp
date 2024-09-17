@@ -40,6 +40,7 @@ public:
 
     virtual void update(double deltaMillis) override 
     {
+        static size_t counter = 0;
         if(m_MouseLocked)
         {
             glm::vec3 translation{0.0f, 0.0f, 0.0f};
@@ -51,6 +52,12 @@ public:
                 m_Cam.axisTranslate(translation);
                 m_UpdateCam = false;
             }
+        }
+        ++counter;
+        if(counter >= 100)
+        {
+            counter = 0;
+            Ruby::Renderer3D::reload();
         }
         Ruby::Context::clear(); 
         Ruby::Renderer3D::addInstance({0.0f, 0.0f, 0.0f}, {0.1f, 0.1f, 0.1f}, 0.0f, {0.0f, 0.0f, 1.0f});
@@ -110,7 +117,10 @@ public:
     virtual void onKeyEvent(Ruby::KeyCode code, int scancode, Ruby::KeyAction action, int mods) override
     {
         (void)scancode; (void)mods;
-        if(code == Ruby::KeyCode::Escape && action == Ruby::KeyAction::Pressed)
+        if(action != Ruby::KeyAction::Pressed)
+            return;
+
+        if(code == Ruby::KeyCode::Escape)
         {
             m_MouseLocked = !m_MouseLocked;
             getWindow().setMouseLocked(m_MouseLocked);

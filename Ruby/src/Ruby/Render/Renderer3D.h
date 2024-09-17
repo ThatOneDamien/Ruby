@@ -20,6 +20,7 @@ namespace Ruby
         // Clears any previous data, allocates new storage, and initializes 
         // the 3D renderer to its base state.
         void init();
+        void reload();
 
         // Deallocates all data owned by the renderer, and
         // sets it to a blank state. By calling this manually,
