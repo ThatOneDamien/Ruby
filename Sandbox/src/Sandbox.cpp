@@ -54,7 +54,7 @@ public:
             }
         }
         ++counter;
-        if(counter >= 100)
+        if(counter >= 288)
         {
             counter = 0;
             Ruby::Renderer3D::reload();
@@ -63,12 +63,14 @@ public:
         Ruby::Renderer3D::addInstance({0.0f, 0.0f, 0.0f}, {0.1f, 0.1f, 0.1f}, 0.0f, {0.0f, 0.0f, 1.0f});
         Ruby::Renderer3D::addInstance({20.0f, 0.0f, 0.0f}, {0.1f, 0.1f, 0.1f}, 0.0f, {0.0f, 0.0f, 1.0f});
         Ruby::Renderer3D::renderInstanced();
+
     }
 
     virtual void ImGuiRender(double deltaMillis) override
     {
-        if(!m_MouseLocked && ImGui::Begin("FPS"))
+        if(!m_MouseLocked && ImGui::Begin("FPS", nullptr, ImGuiWindowFlags_NoResize))
         {
+            ImGui::SetWindowSize({150.0f, 50.0f});
             ImGui::Text("FPS: %f", 1000.0f/deltaMillis);
             ImGui::End();
         }

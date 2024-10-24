@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Ruby/Render/Shader.h"
-#include "Ruby/Utility/SPIRVCaching.h"
 
 #include <vector>
 

@@ -15,13 +15,17 @@ namespace Ruby
         // and more data, but for now this is a means of getting things
         // progressed.
         static constexpr size_t MAX_INSTANCE_CNT = 100;
+        static constexpr size_t MAX_MATERIAL_CNT = 16;
         static glm::mat4* s_Models{nullptr};
         static glm::mat4* s_ModelInsert{nullptr};
         static size_t s_InstanceCount{0};
         static SharedPtr<VertexArray> s_MeshVAO{nullptr};
         static SharedPtr<Shader> s_Shader{nullptr};
+        static SharedPtr<Shader> s_BasicShader{nullptr};
         static SharedPtr<UniformBuffer> s_CamUBO{nullptr};
         static SharedPtr<UniformBuffer> s_MeshUBO{nullptr};
+        static SharedPtr<UniformBuffer> s_MatUBO{nullptr};
+        static SharedPtr<UniformBuffer> s_LightUBO{nullptr};
         static const PerspCamera* s_CamInUse{nullptr};
 
 
@@ -44,6 +48,11 @@ namespace Ruby
 
             s_CamUBO = UniformBuffer::create(sizeof(glm::mat4), 0);
             s_MeshUBO = UniformBuffer::create(sizeof(glm::mat4) * MAX_INSTANCE_CNT, 1);
+            s_MatUBO = UniformBuffer::create(sizeof(Material) * MAX_MATERIAL_CNT, 2);
+            s_LightUBO = UniformBuffer::create(sizeof(glm::vec4) * 2, 3);
+
+            glm::vec3 lightpos = {0.0f, 0.0f, 0.0f};
+            s_LightUBO->setData(&lightpos.x, sizeof(glm::vec3), 0);
         }
 
         void reload()
@@ -60,6 +69,8 @@ namespace Ruby
             s_Shader = nullptr;
             s_CamUBO = nullptr;
             s_MeshUBO = nullptr;
+            s_MatUBO = nullptr;
+            s_LightUBO = nullptr;
             s_InstanceCount = 0;
         }
 
@@ -70,7 +81,10 @@ namespace Ruby
         
         void setMesh(const Mesh& mesh)
         {
+            const std::vector<Material>& mats = mesh.getMaterials();
+            RB_ASSERT(mats.size() <= MAX_MATERIAL_CNT, "Mesh has more materials than the limit.");
             s_MeshVAO = mesh.getVAO();
+            s_MatUBO->setData(mats.data(), sizeof(Material) * mats.size(), 0);
             s_ModelInsert = s_Models;
             s_InstanceCount = 0;
         }
@@ -102,6 +116,8 @@ namespace Ruby
             {
                 s_CamUBO->setData(&s_CamInUse->getViewProjectionMatrix()[0][0], sizeof(glm::mat4), 0);
                 s_MeshUBO->setData(s_Models, sizeof(glm::mat4) * s_InstanceCount, 0);
+                glm::vec4 pos = { s_CamInUse->getPosition(), 0.0f };
+                s_LightUBO->setData(&pos, sizeof(glm::vec4), sizeof(glm::vec4));
                 s_Shader->bind();
                 Context::drawInstanced(s_MeshVAO, s_InstanceCount);
             }

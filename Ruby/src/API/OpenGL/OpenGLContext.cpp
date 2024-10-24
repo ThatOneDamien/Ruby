@@ -21,8 +21,8 @@ namespace Ruby
 #ifdef RB_DEBUG
         static void debugCallbackFunc(GLenum, GLenum, GLuint, GLenum, GLsizei, const GLchar*, const void*);
 #endif
-        
-        static GLbitfield s_ClearBF{GL_COLOR_BUFFER_BIT};
+
+        static GLbitfield s_ClearBF { GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT };
 
         void init()
         {
@@ -41,8 +41,9 @@ namespace Ruby
             glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
             glDebugMessageCallback(debugCallbackFunc, nullptr);
 #endif
-
+            glEnable(GL_DEPTH_TEST);
             glDepthFunc(GL_LEQUAL);
+            glEnable(GL_CULL_FACE);
             glCullFace(GL_BACK);
             glFrontFace(GL_CCW);
 
@@ -98,7 +99,7 @@ namespace Ruby
 
         void clear()
         {
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            glClear(s_ClearBF);
         }
 
         void setDepthTesting(bool enabled)

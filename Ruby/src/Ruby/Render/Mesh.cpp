@@ -1,6 +1,7 @@
 #include "ruby_pch.h"
 
 #include "Mesh.h"
+#include "Ruby/Utility/ObjUtils.h"
 
 #include <glm/glm.hpp>
 
@@ -12,8 +13,8 @@ namespace Ruby
         {
             glm::vec3 Position;
             glm::vec3 Normal;
-            glm::vec4 Color;
             glm::vec2 UV;
+            float MatIndex;
         };
 
         MeshVertex* data = nullptr;
@@ -31,16 +32,17 @@ namespace Ruby
             {
                 data[i].Position = res.Vertices[i].Position;
                 data[i].Normal = res.Vertices[i].Normal;
-                data[i].Color = glm::vec4(1.0f);
                 data[i].UV = res.Vertices[i].UV;
+                data[i].MatIndex = (float)res.Vertices[i].MatIndex;
             }
+            m_Materials = std::move(res.Materials.Materials);
         }
 
         VertexLayout layout;
         layout.push(LayoutType::Float, 3, false);
         layout.push(LayoutType::Float, 3, false);
-        layout.push(LayoutType::Float, 4, false);
         layout.push(LayoutType::Float, 2, false);
+        layout.push(LayoutType::Float, 1, false);
         SharedPtr<VertexBuffer> vbo = VertexBuffer::create(data, sizeof(MeshVertex) * vertexCnt);
         vbo->setLayout(layout);
         SharedPtr<IndexBuffer> ibo = IndexBuffer::create(indices.data(), indices.size());
@@ -49,7 +51,6 @@ namespace Ruby
 
         m_VAO->setIndexBuffer(ibo);
         m_VAO->setVertexBuffer(vbo);
-
         delete[] data;
     }
 }
