@@ -26,4 +26,5 @@ workspace "Ruby"
         include "Ruby"
         create_project("RubyEditor", "RubyEditor")
         create_project("Sandbox", "Sandbox")
+        create_project("TestGame", "TestGame")
     group ""

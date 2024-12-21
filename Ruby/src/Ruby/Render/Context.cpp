@@ -1,7 +1,7 @@
 #include "ruby_pch.h"
 
 #include "Context.h"
-#include "API/OpenGL/OpenGLContext.h"
+#include "API/OpenGL/Context.h"
 
 namespace Ruby
 {
@@ -177,6 +177,38 @@ namespace Ruby
             {
             case API::OpenGL:
                 OpenGLContext::clear();
+                break;
+            case API::Vulkan:
+                // VulkanContext::clear();
+                break;
+            default:
+                RB_ERROR_DEBUG("Unknown API.");
+                break;
+            }
+        }
+
+        void setDepthTesting(bool enabled)
+        {
+            switch(s_ContextAPI)
+            {
+            case API::OpenGL:
+                OpenGLContext::setDepthTesting(enabled);
+                break;
+            case API::Vulkan:
+                // VulkanContext::clear();
+                break;
+            default:
+                RB_ERROR_DEBUG("Unknown API.");
+                break;
+            }
+        }
+
+        void setFaceCulling(bool enabled)
+        {
+            switch(s_ContextAPI)
+            {
+            case API::OpenGL:
+                OpenGLContext::setFaceCulling(enabled);
                 break;
             case API::Vulkan:
                 // VulkanContext::clear();

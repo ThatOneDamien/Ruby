@@ -60,6 +60,11 @@ namespace Ruby
                     glm::vec4& spec = lib.Materials[index].Specular;
                     ss >> spec.x >> spec.y >> spec.z;
                 }
+                else if(cmd == "Ns")
+                {
+                    RB_ASSERT(index < lib.Materials.size(), "Invalid mtl file.");
+                    ss >> lib.Materials[index].SpecularHl;
+                }
                 else if(cmd == "illum")
                 {
                     RB_ASSERT(index < lib.Materials.size(), "Invalid mtl file.");

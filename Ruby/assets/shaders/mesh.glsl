@@ -42,6 +42,7 @@ struct Material
     vec4 Ambient;
     vec4 Diffuse;
     vec4 Specular;
+    float SpecularHl;
     float LightModel;
 };
 
@@ -74,7 +75,7 @@ void main()
         {
             vec4 reflected = normalize((2.0f * angle) * normal);
             vec4 toObs = normalize(u_LookerPos - v_Position);
-            color += u_Mats[index].Specular * pow(max(dot(reflected, toObs), 0.0f), 12.0f);
+            color += u_Mats[index].Specular * pow(max(dot(reflected, toObs), 0.0f), u_Mats[index].SpecularHl);
         }
     }
     o_Color = vec4(color.xyz, 1.0f);

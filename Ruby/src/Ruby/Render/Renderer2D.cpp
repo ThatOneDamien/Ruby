@@ -185,7 +185,7 @@ namespace Ruby
             // This sets the data of the white texture to 1 pixel of white, which allows simple
             // colored quads with no separate texture all within the batch.
             uint32_t white = 0xFFFFFFFF;
-            s_BlankColorTexture->setData((const void*)&white, sizeof(uint32_t));
+            s_BlankColorTexture->setData((const void*)&white, sizeof(uint32_t), PixelFormat::RGBA);
 
             const std::string& RubyDir = App::getInstance().getRubyDir();
 

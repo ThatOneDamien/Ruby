@@ -35,6 +35,7 @@
 #include "Ruby/Render/Renderer2D.h"
 #include "Ruby/Render/Renderer3D.h"
 #include "Ruby/Render/Buffers.h"
+#include "Ruby/Render/Cubemap.h"
 #include "Ruby/Render/VertexArray.h"
 #include "Ruby/Render/Framebuffer.h"
 #include "Ruby/Render/Mesh.h"

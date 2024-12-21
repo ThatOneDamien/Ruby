@@ -2,7 +2,7 @@
 
 #include "Context.h"
 #include "Texture.h"
-#include "API/OpenGL/OpenGLTexture.h"
+#include "API/OpenGL/Texture.h"
 #include "Ruby/Main/Core.h"
 
 namespace Ruby 

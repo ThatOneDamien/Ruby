@@ -43,5 +43,8 @@ namespace Ruby
         void setClearColor(const glm::vec3& color);
         void setViewport(int x, int y, int width, int height);
         void clear();
+
+        void setDepthTesting(bool enabled);
+        void setFaceCulling(bool enabled);
     }
 }

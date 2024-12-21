@@ -2,7 +2,7 @@
 
 #include "Context.h"
 #include "VertexArray.h"
-#include "API/OpenGL/OpenGLVertexArray.h"
+#include "API/OpenGL/VertexArray.h"
 #include "Ruby/Main/Core.h"
 
 namespace Ruby 

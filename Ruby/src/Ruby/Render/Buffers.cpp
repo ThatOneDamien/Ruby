@@ -2,7 +2,7 @@
 
 #include "Buffers.h"
 #include "Context.h"
-#include "API/OpenGL/OpenGLBuffers.h"
+#include "API/OpenGL/Buffers.h"
 #include "Ruby/Main/Core.h"
 
 

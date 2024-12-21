@@ -16,10 +16,11 @@ namespace Ruby
     // 
     enum class PixelFormat : uint32_t
     {
-        R8    = (0x8229 << 3) + 1,
-        RG8   = (0x822B << 3) + 2,
-        RGB8  = (0x8051 << 3) + 3,
-        RGBA8 = (0x8058 << 3) + 4
+        Any = 0,
+        Red,
+        RG,
+        RGB,
+        RGBA
     };
 
 
@@ -44,7 +45,7 @@ namespace Ruby
     {
         uint32_t Width = 1;
         uint32_t Height = 1;
-        PixelFormat Format = PixelFormat::RGBA8;
+        PixelFormat Format = PixelFormat::Any;
         TextureFilter MinFilter = TextureFilter::Linear; // Minimizing function for when the texture needs to be rendered at a smaller size.
         TextureFilter MagFilter = TextureFilter::Linear; // Magnifying function for when the texture needs to be rendered at a larger size.
         TextureWrap WrapS = TextureWrap::ClampToEdge;
@@ -59,7 +60,7 @@ namespace Ruby
         
         virtual void bind(uint8_t slot) const = 0;
         virtual void unbind() const = 0;
-        virtual void setData(const void* data, uint32_t size) = 0;
+        virtual void setData(const void* data, uint32_t size, PixelFormat format) = 0;
 
         virtual inline int8_t getBoundSlot() const = 0;
         virtual inline glm::vec2 getSize() const = 0;

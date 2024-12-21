@@ -1,10 +1,9 @@
-// #include "API/OpenGL/OpenGLShader.h"
 #include "ruby_pch.h"
 
 #include "Context.h"
 #include "Shader.h"
 #include "Ruby/Main/Core.h"
-#include "API/OpenGL/OpenGLShader.h" 
+#include "API/OpenGL/Shader.h" 
 
 #include <cstring>
 

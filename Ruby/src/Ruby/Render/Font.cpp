@@ -69,7 +69,7 @@ namespace Ruby
         TextureSpec spec;
         spec.Width = width;
         spec.Height = height;
-        spec.Format = PixelFormat::RGB8;
+        spec.Format = PixelFormat::RGB;
         m_AtlasTexture = Texture::create((void*)bitmapRef.pixels, spec);
         
         // Cleanup

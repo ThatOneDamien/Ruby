@@ -2,7 +2,7 @@
 
 #include "Context.h"
 #include "Framebuffer.h"
-#include "API/OpenGL/OpenGLFramebuffer.h"
+#include "API/OpenGL/Framebuffer.h"
 #include "Ruby/Main/Core.h"
 
 namespace Ruby 
